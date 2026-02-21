@@ -1,60 +1,282 @@
-<script>
-    // --- 中略 (既存の変数定義などは維持) ---
-
-    // --- Gmail連携強化 Ver.1.58 ---
-    function showGmailConfirm(cardId, listId) {
-        const cardData = db.find(x => x.id === cardId).card;
-        const listData = db.find(x => x.id === listId).list;
-        
-        const to = listData.adress || "";
-        const subject = cardData.t || "";
-        const body = cardData.b || "";
-
-        document.getElementById('gm-to').innerText = to;
-        document.getElementById('gm-sub').innerText = subject;
-        document.getElementById('gm-body').innerText = body;
-        
-        document.getElementById('gm-to-full').value = to;
-        document.getElementById('gm-sub-full').value = subject;
-        document.getElementById('gm-body-full').value = body;
-
-        const mailtoUrl = `mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-        const btnLink = document.getElementById('btn-gmail-link');
-        btnLink.href = mailtoUrl;
-
-        // Ver.1.58: ボタンクリック時に強制的に本文をコピーする
-        btnLink.onclick = (e) => {
-            const bodyTxt = document.getElementById('gm-body-full').value;
-            navigator.clipboard.writeText(bodyTxt).then(() => {
-                toast("本文をコピーしました！<br>Gmailへ移動します...");
-            });
-            // 1秒後に確認画面を閉じる
-            setTimeout(() => { document.getElementById('ed-gmail-confirm').style.display='none'; }, 1000);
-        };
-
-        document.getElementById('ed-contact').style.display = 'none';
-        document.getElementById('ed-gmail-confirm').style.display = 'flex';
-    }
-
-    // データ移行用：全データをエクスポートする新機能
-    function exportAllData() {
-        const fullData = { db: db, conf: conf };
-        navigator.clipboard.writeText(JSON.stringify(fullData)).then(() => {
-            toast("全データをコピーしました！<br>新しい環境で貼り付けてください");
-        });
-    }
-
-    function importAllData() {
-        const input = prompt("コピーしたデータ(JSON)を貼り付けてください");
-        if (input) {
-            try {
-                const parsed = JSON.parse(input);
-                if (parsed.db && parsed.conf) {
-                    db = parsed.db; conf = parsed.conf;
-                    saveAll(); localStorage.setItem(CK, JSON.stringify(conf));
-                    location.reload();
-                }
-            } catch(e) { alert("データの形式が正しくありません"); }
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>RopMemo v1.59</title>
+    <style>
+        :root {
+            --bg-cate01: #D9D2E9; --bg-cate02: #EAD1DC; --bg-cate03: #FFF2CC; --bg-cate04: #D1EAF0;
+            --bg-none: #C2B4B4; --base-grey: #B7B7B7; --cur-bg: #D9D2E9;
+            --f-title: 7px; --f-body: 8px; --f-url: 7px;
         }
-    }
-</script>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background-color: #000; height: 100vh; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; overflow: hidden; }
+        
+        #header-outer { width: 92%; display: flex; flex-direction: column; align-items: flex-end; margin-bottom: 3px; color: #999; position: relative; }
+        .logo-text { font-size: 26px; font-weight: 900; letter-spacing: -1.5px; cursor: pointer; display: flex; align-items: center; color: #FFF; opacity: 0.8; }
+        .logo-text span { font-size: 18px; margin-left: 4px; }
+        .ver-text { font-size: 10px; padding-right: 28px; color: #666; margin-top: -5px; }
+
+        #main-window { width: 92%; height: 44%; background: var(--base-grey); border-radius: 20px 20px 25px 25px; overflow: hidden; display: flex; flex-direction: column; position: relative; z-index: 5; }
+        .tabs { display: flex; background: var(--base-grey); height: 32px; align-items: flex-end; width: 100%; border-bottom: 1px solid rgba(0,0,0,0.05); padding: 0 4px; gap: 1px; }
+        .tab { flex: 1; text-align: center; padding: 6px 0; font-size: 7.5px; font-weight: bold; color: #444; border-radius: 6px 6px 0 0; cursor: pointer; background: #BBB; transition: 0.2s; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; height: 24px; }
+        .tab.active { background: var(--cur-bg) !important; color: #000; height: 28px; z-index: 2; border: 1px solid rgba(0,0,0,0.1); border-bottom: none; }
+        .tab-n { background: #A08888; color: #FFF; }
+
+        #content-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: var(--cur-bg); position: relative; }
+        #sub-tab-bar { flex-shrink: 0; display: flex; padding: 8px 12px 4px 12px; gap: 8px; z-index: 10; background: inherit; }
+        .sub-tab-btn { padding: 4px 12px; font-size: 9px; border-radius: 8px; background: rgba(0,0,0,0.1); color: rgba(0,0,0,0.6); border: none; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .sub-tab-btn.active { background: #FFF; color: #000; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        
+        #scroll-pane { flex: 1; width: 100%; overflow-y: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+        #scroll-pane::-webkit-scrollbar { display: none; }
+
+        #card-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 8px 15px 60px 15px; }
+        .card { width: 100%; aspect-ratio: 1/1; background: #FFF; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 2px 4px rgba(0,0,0,0.1); position: relative; border: 1px solid rgba(0,0,0,0.05); }
+        .card-header { background: #505050; color: #FFF; font-size: var(--f-title); padding: 5px 9px; font-weight: bold; height: 22px; display: flex; align-items: center; justify-content: space-between; gap: 5px; flex-shrink: 0; }
+        .header-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; }
+        .card-cp-btn { font-size: 6px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: #FFF; padding: 2px 5px; border-radius: 4px; cursor: pointer; }
+        .card-body { flex: 1; font-size: var(--f-body); padding: 10px; color: #333; line-height: 1.5; overflow-y: auto; word-break: break-all; min-height: 0; scrollbar-width: none; }
+        .card-date { font-size: 6px; color: #BBB; margin-bottom: 5px; }
+        .card-footer { font-size: var(--f-url); padding: 5px 9px; color: #888; border-top: 1px solid #F5F5F5; display: flex; justify-content: space-between; align-items: center; height: 22px; background: #fff; }
+        .edit-icon { cursor: pointer; font-size: 9px; margin-left: 8px; }
+
+        #list-view { width: 100%; padding: 0 0 60px 0; display: none; }
+        .list-table { width: 100%; border-collapse: collapse; font-size: 9px; table-layout: fixed; }
+        .list-table thead th { position: sticky; top: 0; background: var(--cur-bg); z-index: 20; padding: 8px 2px; color: #666; font-size: 8px; box-shadow: 0 1px 0 rgba(0,0,0,0.1); cursor: pointer; }
+        .list-table td { padding: 8px 2px; text-align: center; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; border-bottom: 1px solid rgba(0,0,0,0.05); background: #FFF; }
+        .list-action-btn { cursor: pointer; font-size: 11px; margin: 0 2px; }
+        .list-select { font-size: 9px; border: 1px solid #DDD; border-radius: 3px; padding: 1px; width: 92%; background: #FDFDFD; }
+
+        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; z-index: 1000; justify-content: center; align-items: flex-end; backdrop-filter: blur(2px); }
+        .win { width: 92%; height: 44%; background: #D6D6D6; border-radius: 25px; margin-bottom: 5%; padding: 15px; display: flex; flex-direction: column; gap: 8px; position: relative; }
+        .set-scroll { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; scrollbar-width: none; }
+        .btn-l { width: 100%; height: 36px; background: #444; color: #FFF; border: none; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer; }
+        
+        #fab-main { position: fixed; bottom: 20px; right: 4%; width: 68px; height: 68px; background: #E8E8E8; border: 2.5px solid #222; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 42px; color: #222; cursor: pointer; z-index: 101; box-shadow: 0 4px 15px rgba(0,0,0,0.4); }
+        #toast { position: fixed; bottom: 41.5%; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); color: #fff; padding: 10px 24px; border-radius: 20px; font-size: 11px; font-weight: bold; display: none; z-index: 2147483647; text-align: center; }
+
+        /* Gmail確定画面用のスタイル */
+        .confirm-box { background: #FFF; border-radius: 12px; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
+        .btn-gmail-exec { background: #EA4335; color: #FFF; height: 50px; font-size: 14px; border-radius: 12px; font-weight: 900; box-shadow: 0 4px 0 #b33329; margin: 10px 0; display: flex; align-items: center; justify-content: center; text-decoration: none; border: none; width: 100%; }
+        .confirm-row { display: flex; align-items: center; justify-content: space-between; font-size: 11px; border-bottom: 1px solid #F0F0F0; padding-bottom: 5px; }
+        .confirm-val { font-weight: bold; color: #333; flex: 1; margin-left: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .copy-btn-inline { font-size: 9px; background: #EEE; border: 1px solid #DDD; padding: 3px 7px; border-radius: 4px; cursor: pointer; }
+    </style>
+</head>
+<body onload="boot()">
+    <div id="header-outer">
+        <div class="logo-text" onclick="openSet()">RopMemo<span>⚙</span></div>
+        <div class="ver-text">ver.1.59</div>
+    </div>
+
+    <div id="main-window">
+        <div class="tabs">
+            <div id="tab1" class="tab active" onclick="go('cate01')">ブッキング</div>
+            <div id="tab2" class="tab" onclick="go('cate02')">グルメ</div>
+            <div id="tab3" class="tab" onclick="go('cate03')">AI</div>
+            <div id="tab4" class="tab" onclick="go('cate04')">保存</div>
+            <div id="tab-n" class="tab tab-n" onclick="go('none')">未分類</div>
+        </div>
+        <div id="content-area">
+            <div id="sub-tab-bar"></div>
+            <div id="scroll-pane">
+                <div id="card-grid"></div>
+                <div id="list-view">
+                    <table class="list-table">
+                        <thead id="list-head"></thead>
+                        <tbody id="list-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="fab-main" onclick="fabAction()">＋</div>
+
+    <div id="ed-gmail-confirm" class="overlay">
+        <div class="win" style="height: auto; max-height: 90%;">
+            <div class="confirm-box">
+                <div class="confirm-row"><span>宛先:</span><span id="gm-to" class="confirm-val"></span><button class="copy-btn-inline" onclick="copyByVal('gm-to-full')">コピー</button></div>
+                <div class="confirm-row"><span>件名:</span><span id="gm-sub" class="confirm-val"></span><button class="copy-btn-inline" onclick="copyByVal('gm-sub-full')">コピー</button></div>
+                <div style="background:#F9F9F9; padding:8px; border-radius:6px; font-size:10px; max-height:80px; overflow-y:auto; white-space:pre-wrap; border:1px solid #EEE;" id="gm-body"></div>
+                
+                <a id="btn-gmail-link" href="#" class="btn-gmail-exec">Gmailを起動する</a>
+                
+                <input type="hidden" id="gm-to-full"><input type="hidden" id="gm-sub-full"><textarea id="gm-body-full" style="display:none;"></textarea>
+            </div>
+            <button onclick="cls()" class="btn-l" style="background:#FFF; color:#333; margin-top:5px;">閉じる</button>
+        </div>
+    </div>
+
+    <div id="ed-contact" class="overlay">
+        <div class="win" style="height: auto; max-height: 80%;">
+            <div id="contact-template-list" class="set-scroll" style="margin-top:10px;"></div>
+            <button onclick="cls()" class="btn-l" style="background:#FFF; color:#333; margin-top:10px;">閉じる</button>
+        </div>
+    </div>
+
+    <div id="ed-set" class="overlay">
+        <div class="win" style="height: 50%;">
+            <div class="set-scroll">
+                <p style="font-size:10px; color:#666;">データ管理</p>
+                <button class="btn-l" onclick="exportFullData()">全データをコピー</button>
+                <button class="btn-l" onclick="importFullData()" style="background:#007AFF;">全データをインポート</button>
+                <button class="btn-l" onclick="clearAllData()" style="background:#FF3B30; margin-top:20px;">全データを消去</button>
+            </div>
+            <button class="btn-l" onclick="cls()">戻る</button>
+        </div>
+    </div>
+
+    <div id="toast">完了しました</div>
+
+    <script>
+        const SK = 'rop_v139_db'; const CK = 'rop_v139_conf';
+        let db = JSON.parse(localStorage.getItem(SK)) || [];
+        let conf = JSON.parse(localStorage.getItem(CK)) || {
+            tabs: { cate01: "ブッキング", cate02: "グルメ", cate03: "AI", cate04: "保存" },
+            fs: { t: 7, b: 8 },
+            subStates: { cate01: "sub01", cate02: "sub01", cate03: "sub01", cate04: "sub01", none: "sub01" },
+            listCols: [
+                {id: 'no', n: 'No', w: 25}, {id: 'flag', n: 'フラグ', w: 40}, {id: 'meth', n: '手段', w: 35},
+                {id: 'name', n: 'グループ名', w: 100}, {id: 'date', n: '案内日', w: 45}, {id: 'yomi', n: 'ヨミ', w: 30}, {id: 'edit', n: '✏️', w: 45}
+            ]
+        };
+        let cur = 'cate01';
+
+        function esc(s) { if(!s) return ""; return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+        function boot() { applyConf(); go('cate01'); }
+        function applyConf() {
+            for(let i=1; i<=4; i++) document.getElementById(`tab${i}`).innerText = conf.tabs[`cate0${i}`];
+        }
+
+        function go(k) {
+            cur = k;
+            document.documentElement.style.setProperty('--cur-bg', k==='none'?'#C2B4B4':`var(--bg-${k})`);
+            document.querySelectorAll('.tab').forEach(t => {
+                const target = k==='none'?'tab-n':`tab${['cate01','cate02','cate03','cate04'].indexOf(k)+1}`;
+                t.classList.toggle('active', t.id === target);
+            });
+            renderSubTabs(); switchSub(conf.subStates[cur] || 'sub01');
+        }
+
+        function renderSubTabs() {
+            const bar = document.getElementById('sub-tab-bar'); bar.innerHTML = '';
+            const b1 = document.createElement('button'); b1.className = 'sub-tab-btn'; b1.innerText = 'カード'; b1.onclick = () => switchSub('sub01'); b1.id = 'subbtn-sub01'; bar.appendChild(b1);
+            if(cur === 'cate01') {
+                const b2 = document.createElement('button'); b2.className = 'sub-tab-btn'; b2.innerText = 'リスト'; b2.onclick = () => switchSub('sub02'); b2.id = 'subbtn-sub02'; bar.appendChild(b2);
+            }
+        }
+
+        function switchSub(subId) {
+            conf.subStates[cur] = subId; localStorage.setItem(CK, JSON.stringify(conf));
+            document.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.toggle('active', b.id === `subbtn-${subId}`));
+            document.getElementById('card-grid').style.display = subId === 'sub01' ? 'grid' : 'none';
+            document.getElementById('list-view').style.display = subId === 'sub02' ? 'block' : 'none';
+            upd();
+        }
+
+        // --- 軽量描画ロジック Ver.1.59 ---
+        function upd() {
+            const grid = document.getElementById('card-grid');
+            const tbody = document.getElementById('list-body');
+            const thead = document.getElementById('list-head');
+            grid.innerHTML = ''; tbody.innerHTML = ''; thead.innerHTML = '';
+
+            let filtered = db.filter(i => i.cat === cur);
+            const isListView = conf.subStates[cur] === 'sub02';
+
+            if(isListView) {
+                // リストヘッダー生成
+                const hr = document.createElement('tr');
+                conf.listCols.forEach(c => { const th = document.createElement('th'); th.style.width = c.w+'px'; th.innerText = c.n; hr.appendChild(th); });
+                thead.appendChild(hr);
+
+                // 大量データ対応：まずは200件ずつ処理する（フリーズ回避）
+                let displayCount = 1;
+                filtered.forEach((i, index) => {
+                    if(!i.list || (!i.list.name && !i.list.flag)) return;
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `<td>${displayCount++}</td>
+                        <td>${esc(i.list.flag)}</td><td>${esc(i.list.meth)}</td>
+                        <td style="text-align:left; font-weight:bold;">${esc(i.list.name)}</td>
+                        <td>${esc(i.list.date)}</td><td>${esc(i.list.yomi)}</td>
+                        <td><span class="list-action-btn" onclick="openContact('${i.id}')">📲</span></td>`;
+                    tbody.appendChild(tr);
+                });
+            } else {
+                filtered.forEach(i => {
+                    if(!i.card || !i.card.t) return;
+                    const d = document.createElement('div'); d.className = 'card';
+                    d.innerHTML = `<div class="card-header"><span class="header-title">${esc(i.card.t)}</span></div>
+                        <div class="card-body"><div class="card-date">${i.date}</div>${esc(i.card.b).replace(/\n/g,'<br>')}</div>`;
+                    grid.appendChild(d);
+                });
+            }
+        }
+
+        // --- Gmail強制コピー連動 Ver.1.59 ---
+        function openContact(listId) {
+            const listData = db.find(x => x.id === listId);
+            const templates = db.filter(i => i.cat === cur && i.card && i.card.t);
+            const listArea = document.getElementById('contact-template-list');
+            listArea.innerHTML = '';
+            templates.forEach(t => {
+                const div = document.createElement('div');
+                div.style = "background:#FFF; padding:12px; border-radius:8px; margin-bottom:8px; font-weight:bold; cursor:pointer;";
+                div.innerText = t.card.t;
+                div.onclick = () => showGmailConfirm(t.id, listId);
+                listArea.appendChild(div);
+            });
+            document.getElementById('ed-contact').style.display = 'flex';
+        }
+
+        function showGmailConfirm(cardId, listId) {
+            const c = db.find(x => x.id === cardId).card;
+            const l = db.find(x => x.id === listId).list;
+            const to = l.adress || ""; const sub = c.t || ""; const body = c.b || "";
+
+            document.getElementById('gm-to').innerText = to;
+            document.getElementById('gm-sub').innerText = sub;
+            document.getElementById('gm-body').innerText = body;
+            document.getElementById('gm-to-full').value = to;
+            document.getElementById('gm-sub-full').value = sub;
+            document.getElementById('gm-body-full').value = body;
+
+            const link = document.getElementById('btn-gmail-link');
+            link.href = `mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(sub)}&body=${encodeURIComponent(body)}`;
+            link.onclick = () => {
+                navigator.clipboard.writeText(body).then(() => {
+                    toast("本文をコピーしました！<br>Gmailを起動します");
+                    setTimeout(cls, 1000);
+                });
+            };
+            document.getElementById('ed-contact').style.display = 'none';
+            document.getElementById('ed-gmail-confirm').style.display = 'flex';
+        }
+
+        // --- データ移行管理 ---
+        function exportFullData() {
+            const data = { db, conf };
+            navigator.clipboard.writeText(JSON.stringify(data)).then(() => toast("全データをコピーしました"));
+        }
+        function importFullData() {
+            const val = prompt("データを貼り付けてください");
+            if(val) {
+                try {
+                    const p = JSON.parse(val);
+                    if(p.db) { db = p.db; if(p.conf) conf = p.conf; saveAll(); location.reload(); }
+                } catch(e) { alert("無効なデータです"); }
+            }
+        }
+        function clearAllData() { if(confirm("全データを削除しますか？")) { localStorage.clear(); location.reload(); } }
+        function saveAll() { localStorage.setItem(SK, JSON.stringify(db)); localStorage.setItem(CK, JSON.stringify(conf)); }
+        function cls() { document.querySelectorAll('.overlay').forEach(o => o.style.display = 'none'); }
+        function openSet() { document.getElementById('ed-set').style.display = 'flex'; }
+        function toast(m) { const t = document.getElementById('toast'); t.innerHTML = m; t.style.display = 'block'; setTimeout(() => t.style.display='none', 2000); }
+        function copyByVal(id) { navigator.clipboard.writeText(document.getElementById(id).value).then(() => toast("コピーしました")); }
+        function fabAction() { alert("新規登録はリスト編集から行えます（v1.59軽量化版）"); }
+    </script>
+</body>
+</html>
