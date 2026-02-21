@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RopMemo v1.65</title>
+    <title>RopMemo v1.66</title>
     <style>
         :root {
             --bg-cate01: #D9D2E9; --bg-cate02: #EAD1DC; --bg-cate03: #FFF2CC; --bg-cate04: #D1EAF0;
@@ -44,7 +44,7 @@
 
         #list-view { width: 100%; padding: 0 0 60px 0; display: none; }
         .list-table { width: 100%; border-collapse: collapse; font-size: 9px; table-layout: fixed; }
-        .list-table thead th { position: sticky; top: 0; background: var(--cur-bg); z-index: 20; padding: 8px 2px; color: #666; font-size: 8px; box-shadow: 0 1px 0 rgba(0,0,0,0.1); cursor: pointer; white-space: nowrap; }
+        .list-table thead th { position: sticky; top: 0; background: var(--cur-bg); z-index: 20; padding: 4px 2px; color: #666; font-size: 8px; box-shadow: 0 1px 0 rgba(0,0,0,0.1); cursor: pointer; white-space: normal; line-height: 1.2; vertical-align: middle; }
         .list-table td { padding: 8px 2px; text-align: center; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; vertical-align: middle; border-bottom: 1px solid rgba(0,0,0,0.05); }
         .list-table tbody tr:nth-child(even) { background: #F2F2F2 !important; }
         .list-table tbody tr:nth-child(odd) { background: #FFFFFF !important; }
@@ -99,7 +99,7 @@
 <body onload="boot()">
     <div id="header-outer">
         <div class="logo-text" onclick="openSet()">RopMemo<span>⚙</span></div>
-        <div class="ver-text">ver.1.65</div>
+        <div class="ver-text">ver.1.66</div>
     </div>
 
     <div id="main-window">
@@ -267,13 +267,19 @@
             subStates: { cate01: "sub01", cate02: "sub01", cate03: "sub01", cate04: "sub01", none: "sub01" },
             listCols: [
                 {id: 'no', n: 'No', w: 25}, {id: 'flag', n: 'フラグ', w: 40}, {id: 'meth', n: '手段', w: 35},
-                {id: 'name', n: 'グループ名', w: 90}, {id: 'date', n: '案内日', w: 45}, {id: 'yomi', n: 'ヨミ', w: 30}, {id: 'adress', n: '📲', w: 30}, {id: 'edit', n: '✏️', w: 30}
+                {id: 'name', n: 'グループ名', w: 90}, {id: 'date', n: '案内日', w: 45}, {id: 'yomi', n: 'ヨミ', w: 30}, {id: 'adress', n: 'スマート<br>連絡', w: 45}, {id: 'edit', n: '✏️', w: 30}
             ],
             mailerMode: 'standard'
         };
 
+        // バージョンアップに伴い、もしadress列が古い名前なら更新
+        if(conf.listCols[6].id === 'adress' && !conf.listCols[6].n.includes('連絡')) {
+            conf.listCols[6].n = 'スマート<br>連絡';
+            conf.listCols[6].w = 45;
+        }
+
         let sortKey = 'id', sortOrder = 'reg', cur = 'cate01', eid = null, lastCreatedId = null, isSubmitting = false;
-        let tempAdress = ""; // 📲クリック時の宛先一時保持
+        let tempAdress = ""; 
 
         function esc(s) { if(!s) return ""; return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
         function fmtDate() { const d = new Date(); const w = ["日","月","火","水","木","金","土"][d.getDay()]; return `${d.getFullYear()}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getDate().toString().padStart(2,'0')}(${w})${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`; }
@@ -340,6 +346,7 @@
         }
 
         function setSort(key) {
+            // スマート連絡(adress), No(no), 編集(edit) はソート対象外
             if (key === 'no' || key === 'edit' || key === 'adress') return;
             if (sortKey === key) {
                 if (sortOrder === 'asc') sortOrder = 'desc';
@@ -360,8 +367,9 @@
             const hr = document.createElement('tr');
             conf.listCols.forEach(c => {
                 const th = document.createElement('th'); th.style.width = c.w + 'px';
-                if(c.id === 'no' || c.id === 'edit' || c.id === 'adress') { th.innerHTML = `${c.n}<span class="sort-icon"></span>`; }
-                else {
+                if(c.id === 'no' || c.id === 'edit' || c.id === 'adress') { 
+                    th.innerHTML = `${c.n}`; // ソート不要項目はアイコンなし
+                } else {
                     let mark = sortKey === c.id ? (sortOrder === 'asc' ? "△" : (sortOrder === 'desc' ? "▽" : "⇵")) : "⇵";
                     th.innerHTML = `${c.n}<span class="sort-icon">${mark}</span>`;
                     th.onclick = () => setSort(c.id);
@@ -451,14 +459,11 @@
             }
         }
 
-        // 📲ボタン押下時：テンプレート選択画面を開く
         function openMailTmpl(id) {
             const i = db.find(x => x.id === id);
             tempAdress = i.list?.adress || "";
             const tmplArea = document.getElementById('tmpl-scroll');
             tmplArea.innerHTML = "";
-            
-            // 現在のカテゴリ内のカードを抽出
             const cards = db.filter(x => x.cat === cur && x.card && (x.card.t || x.card.b));
             if(cards.length === 0) {
                 tmplArea.innerHTML = "<div style='padding:20px; text-align:center; font-size:10px; color:#999;'>有効なカード（テンプレート）がありません</div>";
@@ -474,24 +479,20 @@
             document.getElementById('ed-tmpl').style.display = 'flex';
         }
 
-        // テンプレート確定後：メーラーを起動
         function sendMailFinal(cardId) {
             const card = db.find(x => x.id === cardId);
             const subject = card.card?.t || "";
             const body = card.card?.b || "";
-            
             navigator.clipboard.writeText(body).then(() => {
                 const encSub = encodeURIComponent(subject);
                 const encBody = encodeURIComponent(body);
-                
                 let url = "";
                 if(conf.mailerMode === 'gmail') {
                     url = `googlegmail:///co?to=${tempAdress}&subject=${encSub}&body=${encBody}`;
                 } else {
                     url = `mailto:${tempAdress}?subject=${encSub}&body=${encBody}`;
                 }
-                
-                cls(); // テンプレート画面を閉じる
+                cls();
                 toast("本文をコピーしました");
                 window.location.href = url;
             });
