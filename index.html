@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RopMemo v1.59</title>
+    <title>RopMemo v1.61</title>
     <style>
         :root {
             --bg-cate01: #D9D2E9; --bg-cate02: #EAD1DC; --bg-cate03: #FFF2CC; --bg-cate04: #D1EAF0;
@@ -36,39 +36,62 @@
         .card { width: 100%; aspect-ratio: 1/1; background: #FFF; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 2px 4px rgba(0,0,0,0.1); position: relative; border: 1px solid rgba(0,0,0,0.05); }
         .card-header { background: #505050; color: #FFF; font-size: var(--f-title); padding: 5px 9px; font-weight: bold; height: 22px; display: flex; align-items: center; justify-content: space-between; gap: 5px; flex-shrink: 0; }
         .header-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; }
-        .card-cp-btn { font-size: 6px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: #FFF; padding: 2px 5px; border-radius: 4px; cursor: pointer; }
-        .card-body { flex: 1; font-size: var(--f-body); padding: 10px; color: #333; line-height: 1.5; overflow-y: auto; word-break: break-all; min-height: 0; scrollbar-width: none; }
-        .card-date { font-size: 6px; color: #BBB; margin-bottom: 5px; }
-        .card-footer { font-size: var(--f-url); padding: 5px 9px; color: #888; border-top: 1px solid #F5F5F5; display: flex; justify-content: space-between; align-items: center; height: 22px; background: #fff; }
-        .edit-icon { cursor: pointer; font-size: 9px; margin-left: 8px; }
+        .card-cp-btn { font-size: 6px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: #FFF; padding: 2px 5px; border-radius: 4px; cursor: pointer; white-space: nowrap; }
+        .card-body { flex: 1; font-size: var(--f-body); padding: 10px; color: #333; line-height: 1.5; overflow-y: auto; word-break: break-all; position: relative; min-height: 0; scrollbar-width: none; }
+        .card-date { font-size: 6px; color: #BBB; margin-bottom: 5px; height: 8px; }
+        .card-footer { font-size: var(--f-url); padding: 5px 9px; color: #888; border-top: 1px solid #F5F5F5; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; height: 22px; background: #fff; }
+        .edit-icon { cursor: pointer; font-size: 9px; margin-left: 8px; opacity: 0.8; }
 
         #list-view { width: 100%; padding: 0 0 60px 0; display: none; }
         .list-table { width: 100%; border-collapse: collapse; font-size: 9px; table-layout: fixed; }
-        .list-table thead th { position: sticky; top: 0; background: var(--cur-bg); z-index: 20; padding: 8px 2px; color: #666; font-size: 8px; box-shadow: 0 1px 0 rgba(0,0,0,0.1); cursor: pointer; }
-        .list-table td { padding: 8px 2px; text-align: center; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; border-bottom: 1px solid rgba(0,0,0,0.05); background: #FFF; }
-        .list-action-btn { cursor: pointer; font-size: 11px; margin: 0 2px; }
+        .list-table thead th { position: sticky; top: 0; background: var(--cur-bg); z-index: 20; padding: 8px 2px; color: #666; font-size: 8px; box-shadow: 0 1px 0 rgba(0,0,0,0.1); cursor: pointer; user-select: none; white-space: nowrap; }
+        .list-table td { padding: 8px 2px; text-align: center; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; vertical-align: middle; border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .list-table tbody tr:nth-child(even) { background: #F2F2F2 !important; }
+        .list-table tbody tr:nth-child(odd) { background: #FFFFFF !important; }
+        .list-edit-btn { cursor: pointer; font-size: 11px; display: inline-block; transform: scale(0.9); opacity: 0.8; }
         .list-select { font-size: 9px; border: 1px solid #DDD; border-radius: 3px; padding: 1px; width: 92%; background: #FDFDFD; }
+
+        #fab-mask { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: none; z-index: 100; }
+        #fab-container { position: fixed; bottom: 20px; right: 4%; z-index: 101; display: flex; flex-direction: column; align-items: flex-end; gap: 12px; }
+        #fab-main { width: 68px; height: 68px; background: #E8E8E8; border: 2.5px solid #222; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 42px; color: #222; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.4); text-align: center; line-height: 1.1; }
+        #fab-main.list-mode { font-size: 10px; font-weight: bold; }
+        #fab-main.active { transform: rotate(135deg); background: #333; color: #EEE; border-color: #EEE; }
+        .fab-menu { position: absolute; bottom: 45px; right: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 15px; pointer-events: none; opacity: 0; transform: translateY(20px); transition: 0.3s; }
+        .fab-menu.active { pointer-events: auto; opacity: 1; transform: translateY(0); }
+        #btn-paste-quick { background: #E8E8E8; padding: 12px 20px; border-radius: 30px; border: 1.5px solid #222; font-size: 13px; font-weight: bold; color: #222; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.3); transform: translateX(-30px); }
+        #input-box-quick { width: 220px; height: 95px; background: #E8E8E8; border: 2.5px solid #222; border-radius: 25px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.3); transform: translateX(-80px); }
+        #qa { flex: 1; width: 100%; background: transparent; border: none; outline: none; padding: 12px 15px; font-size: 13px; resize: none; text-align: center; }
+        #btn-reg-quick { align-self: flex-end; background: #333; color: #FFF; border: none; padding: 4px 14px; margin: 0 12px 10px 0; border-radius: 12px; font-size: 10px; font-weight: bold; cursor: pointer; }
 
         .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; z-index: 1000; justify-content: center; align-items: flex-end; backdrop-filter: blur(2px); }
         .win { width: 92%; height: 44%; background: #D6D6D6; border-radius: 25px; margin-bottom: 5%; padding: 15px; display: flex; flex-direction: column; gap: 8px; position: relative; }
         .set-scroll { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; scrollbar-width: none; }
+        .set-row { background: #FFF; border-radius: 8px; padding: 10px; display: flex; flex-direction: column; gap: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
         .btn-l { width: 100%; height: 36px; background: #444; color: #FFF; border: none; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer; }
-        
-        #fab-main { position: fixed; bottom: 20px; right: 4%; width: 68px; height: 68px; background: #E8E8E8; border: 2.5px solid #222; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 42px; color: #222; cursor: pointer; z-index: 101; box-shadow: 0 4px 15px rgba(0,0,0,0.4); }
-        #toast { position: fixed; bottom: 41.5%; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); color: #fff; padding: 10px 24px; border-radius: 20px; font-size: 11px; font-weight: bold; display: none; z-index: 2147483647; text-align: center; }
-
-        /* Gmail確定画面用のスタイル */
-        .confirm-box { background: #FFF; border-radius: 12px; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
-        .btn-gmail-exec { background: #EA4335; color: #FFF; height: 50px; font-size: 14px; border-radius: 12px; font-weight: 900; box-shadow: 0 4px 0 #b33329; margin: 10px 0; display: flex; align-items: center; justify-content: center; text-decoration: none; border: none; width: 100%; }
-        .confirm-row { display: flex; align-items: center; justify-content: space-between; font-size: 11px; border-bottom: 1px solid #F0F0F0; padding-bottom: 5px; }
-        .confirm-val { font-weight: bold; color: #333; flex: 1; margin-left: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .set-label { font-size: 9px; color: #888; font-weight: bold; }
+        .input-mini { height: 28px; font-size: 11px; padding: 0 8px; border-radius: 5px; border: 1px solid #DDD; width: 100%; }
         .copy-btn-inline { font-size: 9px; background: #EEE; border: 1px solid #DDD; padding: 3px 7px; border-radius: 4px; cursor: pointer; }
+        .win-label { position: absolute; top: -12px; left: 20px; font-size: 8px; background: #555; color: #FFF; padding: 2px 8px; border-radius: 4px; font-weight: bold; z-index: 10; }
+        
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+
+        .set-tabs { display: flex; gap: 5px; margin-bottom: 5px; }
+        .set-tab-btn { flex:1; padding: 8px; font-size: 10px; border-radius: 8px; border: none; background: #CCC; color: #666; font-weight: bold; cursor: pointer; }
+        .set-tab-btn.active { background: #007AFF; color: #FFF; }
+
+        #toast { position: fixed; bottom: 41.5%; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); color: #fff; padding: 10px 24px; border-radius: 20px; font-size: 11px; font-weight: bold; display: none; z-index: 9999; text-align: center; }
+        .sort-icon { display: inline-block; width: 12px; text-align: center; font-size: 8px; margin-left: 1px; color: #007AFF; }
+        
+        .io-area { margin-top: 10px; border-top: 1px dashed #CCC; padding-top: 10px; }
+        .io-btn { background: #EEE; color: #333; font-size: 10px; padding: 6px; border-radius: 4px; border: 1px solid #DDD; cursor: pointer; width: 100%; margin-bottom: 5px; font-weight: bold; }
+        .io-text { width: 100%; height: 60px; font-size: 9px; padding: 5px; border: 1px solid #DDD; border-radius: 4px; resize: none; background: #FFF; }
     </style>
 </head>
 <body onload="boot()">
     <div id="header-outer">
         <div class="logo-text" onclick="openSet()">RopMemo<span>⚙</span></div>
-        <div class="ver-text">ver.1.59</div>
+        <div class="ver-text">ver.1.61</div>
     </div>
 
     <div id="main-window">
@@ -93,62 +116,162 @@
         </div>
     </div>
 
-    <div id="fab-main" onclick="fabAction()">＋</div>
+    <div id="fab-mask" onclick="toggleFab()"></div>
+    <div id="fab-container">
+        <div id="fab-menu" class="fab-menu">
+            <button id="btn-paste-quick" onclick="pasteNew()">コピーデータ貼り付け<br><span style="font-size:9px;opacity:0.6;">クイックカード作成</span></button>
+            <div id="input-box-quick"><textarea id="qa" placeholder="メモを入力"></textarea><button id="btn-reg-quick" onclick="manualNew()">登録</button></div>
+        </div>
+        <div id="fab-main" onclick="fabAction()">＋</div>
+    </div>
 
-    <div id="ed-gmail-confirm" class="overlay">
-        <div class="win" style="height: auto; max-height: 90%;">
-            <div class="confirm-box">
-                <div class="confirm-row"><span>宛先:</span><span id="gm-to" class="confirm-val"></span><button class="copy-btn-inline" onclick="copyByVal('gm-to-full')">コピー</button></div>
-                <div class="confirm-row"><span>件名:</span><span id="gm-sub" class="confirm-val"></span><button class="copy-btn-inline" onclick="copyByVal('gm-sub-full')">コピー</button></div>
-                <div style="background:#F9F9F9; padding:8px; border-radius:6px; font-size:10px; max-height:80px; overflow-y:auto; white-space:pre-wrap; border:1px solid #EEE;" id="gm-body"></div>
-                
-                <a id="btn-gmail-link" href="#" class="btn-gmail-exec">Gmailを起動する</a>
-                
-                <input type="hidden" id="gm-to-full"><input type="hidden" id="gm-sub-full"><textarea id="gm-body-full" style="display:none;"></textarea>
+    <div id="ed-card" class="overlay">
+        <div class="win">
+            <div class="set-row" style="flex-direction:row; justify-content:space-between; align-items:center;">
+                <input type="text" id="cn-title" style="border:none; font-weight:bold; font-size:13px; flex:1;" placeholder="タイトル">
+                <button class="copy-btn-inline" onclick="copyByVal('cn-title')">コピー</button>
             </div>
-            <button onclick="cls()" class="btn-l" style="background:#FFF; color:#333; margin-top:5px;">閉じる</button>
+            <div class="set-scroll">
+                <input type="text" id="cn-url" placeholder="URL" class="input-mini" style="margin-bottom:5px;">
+                <input type="text" id="cn-alt" placeholder="代替テキスト" class="input-mini" style="margin-bottom:5px;">
+                <select id="cn-cat" style="height:28px; font-size:11px; border-radius:5px; border:1px solid #DDD; width:100%; margin-bottom:5px;">
+                    <option value="cate01" id="opt-c1">ブッキング</option><option value="cate02" id="opt-c2">グルメ</option><option value="cate03" id="opt-c3">AI</option><option value="cate04" id="opt-c4">保存</option><option value="none">[未分類]</option>
+                </select>
+                <div style="flex:1; background:#FFF; border-radius:8px; padding:10px; display:flex; flex-direction:column; min-height:100px;">
+                    <textarea id="cn-body" style="flex:1; border:none; outline:none; resize:none; font-size:12px;" placeholder="本文"></textarea>
+                    <button class="copy-btn-inline" style="align-self:flex-end;" onclick="copyByVal('cn-body')">コピー</button>
+                </div>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-top:5px;">
+                <button onclick="cls()" style="font-size:11px; padding:8px 16px; border:none; background:#FFF; border-radius:6px;">戻る</button>
+                <div style="display:flex; gap:6px;">
+                    <button id="btn-del-trigger" onclick="document.getElementById('delete-overlay').style.display='flex'" style="font-size:11px; padding:8px 16px; border:none; background:#FFF; color:#FF3B30; border-radius:6px; display:none;">削除</button>
+                    <button onclick="saveC()" style="font-size:11px; padding:8px 16px; border:none; background:#FFF; font-weight:bold; color:#007AFF; border-radius:6px;">保存</button>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div id="ed-contact" class="overlay">
-        <div class="win" style="height: auto; max-height: 80%;">
-            <div id="contact-template-list" class="set-scroll" style="margin-top:10px;"></div>
-            <button onclick="cls()" class="btn-l" style="background:#FFF; color:#333; margin-top:10px;">閉じる</button>
+    <div id="ed-list" class="overlay">
+        <div class="win" style="height: auto; max-height: 92%; margin-bottom: 2%;">
+            <div class="win-label">[リストデータ詳細編集]</div>
+            <div class="set-scroll">
+                <div class="grid-3">
+                    <div class="set-row"><div class="set-label" id="lbl-furigana">50音</div><input type="text" id="ln-furigana" class="input-mini"></div>
+                    <div class="set-row"><div class="set-label" id="lbl-name">グループ名</div><input type="text" id="ln-name" class="input-mini"></div>
+                    <div class="set-row"><div class="set-label" id="lbl-tanto">担当者</div><input type="text" id="ln-tanto" class="input-mini"></div>
+                </div>
+                <div class="grid-3">
+                    <div class="set-row"><div class="set-label" id="lbl-flag">フラグ</div><select id="ln-flag" class="list-select"><option value="">なし</option><option value="🚩">🚩</option><option value="済">済</option><option value="🙆‍♀️">🙆‍♀️</option><option value="🙅‍♀️">🙅‍♀️</option></select></div>
+                    <div class="set-row"><div class="set-label" id="lbl-meth">手段</div><select id="ln-meth" class="list-select"><option value="">なし</option><option value="L">L</option><option value="✉️">✉️</option><option value="𝕏">𝕏</option><option value="🗒">🗒</option></select></div>
+                    <div class="set-row"><div class="set-label" id="lbl-date">案内日</div><input type="text" id="ln-date" class="input-mini"></div>
+                </div>
+                <div class="grid-2">
+                    <div class="set-row"><div class="set-label" id="lbl-yomi">ヨミ</div><input type="text" id="ln-yomi" class="input-mini"></div>
+                    <div class="set-row"><div class="set-label" id="lbl-adress">連絡先</div><input type="text" id="ln-adress" class="input-mini"></div>
+                </div>
+                <div class="set-row"><div class="set-label" id="lbl-note">要望</div><textarea id="ln-note" style="height:40px; font-size:11px; border:1px solid #DDD; border-radius:4px; padding:5px; resize:none;"></textarea></div>
+                <div class="grid-3">
+                    <div class="set-row"><div class="set-label" id="lbl-satueP">写真</div><input type="text" id="ln-satueP" class="input-mini"></div>
+                    <div class="set-row"><div class="set-label" id="lbl-satueM">動画</div><input type="text" id="ln-satueM" class="input-mini"></div>
+                    <div class="set-row"><div class="set-label" id="lbl-kako">出演経験</div><input type="text" id="ln-kako" class="input-mini"></div>
+                </div>
+                <div class="set-row"><div class="set-label" id="lbl-photo">アー写</div><input type="text" id="ln-photo" class="input-mini"></div>
+            </div>
+            <div style="display:flex; gap:8px; margin-top:5px;">
+                <button onclick="cls()" class="btn-l" style="background:#FFF; color:#333;">戻る</button>
+                <button id="btn-del-trigger-l" onclick="document.getElementById('delete-overlay').style.display='flex'" style="background:#FFF; color:#FF3B30; display:none;" class="btn-l">削除</button>
+                <button onclick="saveL()" class="btn-l">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="delete-overlay" class="overlay">
+        <div class="win" style="background:#D6D6D6; height:auto; width:70%;">
+            <div style="text-align:center; font-weight:bold; font-size:13px; margin:10px 0 20px 0; color:#333;">削除しますか？</div>
+            <div style="display:flex; gap:8px;"><button onclick="cls()" style="flex:1; height:34px; border:none; border-radius:8px; background:#FFF;">戻る</button><button onclick="execDel()" style="flex:1; height:34px; border:none; border-radius:8px; background:#FF3B30; color:#FFF;">削除</button></div>
         </div>
     </div>
 
     <div id="ed-set" class="overlay">
-        <div class="win" style="height: 50%;">
-            <div class="set-scroll">
-                <p style="font-size:10px; color:#666;">データ管理</p>
-                <button class="btn-l" onclick="exportFullData()">全データをコピー</button>
-                <button class="btn-l" onclick="importFullData()" style="background:#007AFF;">全データをインポート</button>
-                <button class="btn-l" onclick="clearAllData()" style="background:#FF3B30; margin-top:20px;">全データを消去</button>
+        <div class="win" style="background:#ECECEC; height: 50%;">
+            <div style="font-size:12px; font-weight:bold; margin-bottom:8px; display:flex; justify-content:space-between; color:#333;">⚙ アプリ設定 <span onclick="cls()" style="cursor:pointer; font-size:16px;">✕</span></div>
+            <div class="set-tabs">
+                <button id="set-tab-card" class="set-tab-btn active" onclick="switchSetTab('card')">カード表示設定</button>
+                <button id="set-tab-list" class="set-tab-btn" onclick="switchSetTab('list')">リスト表示設定</button>
             </div>
-            <button class="btn-l" onclick="cls()">戻る</button>
+            <div class="set-scroll">
+                <div id="set-content-card">
+                    <div class="set-row">
+                        <div class="set-label">カテゴリ名</div>
+                        <input type="text" id="sn-1" class="input-mini" style="margin-bottom:2px;">
+                        <input type="text" id="sn-2" class="input-mini" style="margin-bottom:2px;">
+                        <input type="text" id="sn-3" class="input-mini" style="margin-bottom:2px;">
+                        <input type="text" id="sn-4" class="input-mini" style="margin-bottom:2px;">
+                    </div>
+                    <div class="set-row">
+                        <div class="set-label">カードフォント (px)</div>
+                        <div style="display:flex; align-items:center; gap:10px; font-size:11px;">タイトル：<input type="number" id="sf-t" style="width:50px;"> 本文：<input type="number" id="sf-b" style="width:50px;"></div>
+                    </div>
+                </div>
+                <div id="set-content-list" style="display:none;">
+                    <div class="set-row" id="list-cols-config"></div>
+                    <div class="io-area">
+                        <div class="set-label" style="margin-bottom:5px;">Excel連携（インポート/エクスポート）</div>
+                        <button class="io-btn" onclick="exportListData()">全データをコピー (Excel用ヘッダー付)</button>
+                        <textarea id="io-input" class="io-text" placeholder="Excelからコピーしたデータを貼り付け (2行目から読み込み)"></textarea>
+                        <button class="io-btn" style="background:#007AFF; color:#FFF; border:none;" onclick="importListData()">貼り付けデータから新規登録</button>
+                    </div>
+                </div>
+            </div>
+            <button class="btn-l" style="background:#007AFF; height:40px; margin-top:5px;" onclick="saveSet()">設定を保存</button>
         </div>
     </div>
 
     <div id="toast">完了しました</div>
 
     <script>
-        const SK = 'rop_v139_db'; const CK = 'rop_v139_conf';
+        const SK = 'rop_v139_db'; 
+        const CK = 'rop_v139_conf';
         let db = JSON.parse(localStorage.getItem(SK)) || [];
+        const L_KEYS = ['furigana','name','tanto','flag','meth','date','yomi','adress','note','satueP','satueM','kako','photo'];
+        
         let conf = JSON.parse(localStorage.getItem(CK)) || {
             tabs: { cate01: "ブッキング", cate02: "グルメ", cate03: "AI", cate04: "保存" },
             fs: { t: 7, b: 8 },
             subStates: { cate01: "sub01", cate02: "sub01", cate03: "sub01", cate04: "sub01", none: "sub01" },
             listCols: [
                 {id: 'no', n: 'No', w: 25}, {id: 'flag', n: 'フラグ', w: 40}, {id: 'meth', n: '手段', w: 35},
-                {id: 'name', n: 'グループ名', w: 100}, {id: 'date', n: '案内日', w: 45}, {id: 'yomi', n: 'ヨミ', w: 30}, {id: 'edit', n: '✏️', w: 45}
+                {id: 'name', n: 'グループ名', w: 100}, {id: 'date', n: '案内日', w: 45}, {id: 'yomi', n: 'ヨミ', w: 30}, {id: 'edit', n: '✏️', w: 30}
             ]
         };
-        let cur = 'cate01';
+
+        let sortKey = 'id', sortOrder = 'reg', cur = 'cate01', eid = null, lastCreatedId = null, isSubmitting = false;
 
         function esc(s) { if(!s) return ""; return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+        function fmtDate() { const d = new Date(); const w = ["日","月","火","水","木","金","土"][d.getDay()]; return `${d.getFullYear()}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getDate().toString().padStart(2,'0')}(${w})${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`; }
+
         function boot() { applyConf(); go('cate01'); }
+
         function applyConf() {
-            for(let i=1; i<=4; i++) document.getElementById(`tab${i}`).innerText = conf.tabs[`cate0${i}`];
+            for(let i=1; i<=4; i++) {
+                const k = `cate0${i}`; const n = conf.tabs[k];
+                document.getElementById(`tab${i}`).innerText = n;
+                document.getElementById(`opt-c${i}`).innerText = n;
+                document.getElementById(`sn-${i}`).value = n;
+            }
+            document.documentElement.style.setProperty('--f-title', conf.fs.t + 'px');
+            document.documentElement.style.setProperty('--f-body', conf.fs.b + 'px');
+            document.getElementById('sf-t').value = conf.fs.t;
+            document.getElementById('sf-b').value = conf.fs.b;
+            const colArea = document.getElementById('list-cols-config');
+            colArea.innerHTML = '<div class="set-label">リスト各列の表示名と横幅(px)</div>';
+            conf.listCols.forEach((c, i) => {
+                const row = document.createElement('div');
+                row.style = "display:flex; gap:5px; align-items:center; margin-top:4px;";
+                row.innerHTML = `<input type="text" id="lc-n-${i}" value="${c.n}" style="flex:1; height:26px; font-size:10px; padding:0 5px; border:1px solid #DDD; border-radius:4px;"><input type="number" id="lc-w-${i}" value="${c.w}" style="width:45px; height:26px; font-size:10px; border:1px solid #DDD; border-radius:4px;">`;
+                colArea.appendChild(row);
+            });
         }
 
         function go(k) {
@@ -158,125 +281,190 @@
                 const target = k==='none'?'tab-n':`tab${['cate01','cate02','cate03','cate04'].indexOf(k)+1}`;
                 t.classList.toggle('active', t.id === target);
             });
-            renderSubTabs(); switchSub(conf.subStates[cur] || 'sub01');
+            renderSubTabs();
+            switchSub(conf.subStates[cur] || 'sub01');
         }
 
         function renderSubTabs() {
             const bar = document.getElementById('sub-tab-bar'); bar.innerHTML = '';
-            const b1 = document.createElement('button'); b1.className = 'sub-tab-btn'; b1.innerText = 'カード'; b1.onclick = () => switchSub('sub01'); b1.id = 'subbtn-sub01'; bar.appendChild(b1);
+            const b1 = document.createElement('button'); b1.className = 'sub-tab-btn'; b1.innerText = 'カード表示'; b1.onclick = () => switchSub('sub01'); b1.id = 'subbtn-sub01'; bar.appendChild(b1);
             if(cur === 'cate01') {
-                const b2 = document.createElement('button'); b2.className = 'sub-tab-btn'; b2.innerText = 'リスト'; b2.onclick = () => switchSub('sub02'); b2.id = 'subbtn-sub02'; bar.appendChild(b2);
+                const b2 = document.createElement('button'); b2.className = 'sub-tab-btn'; b2.innerText = 'リスト表示'; b2.onclick = () => switchSub('sub02'); b2.id = 'subbtn-sub02'; bar.appendChild(b2);
             }
         }
 
         function switchSub(subId) {
             conf.subStates[cur] = subId; localStorage.setItem(CK, JSON.stringify(conf));
             document.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.toggle('active', b.id === `subbtn-${subId}`));
-            document.getElementById('card-grid').style.display = subId === 'sub01' ? 'grid' : 'none';
-            document.getElementById('list-view').style.display = subId === 'sub02' ? 'block' : 'none';
+            const mode = (subId === 'sub02') ? 'list' : 'card';
+            document.getElementById('card-grid').style.display = mode === 'card' ? 'grid' : 'none';
+            document.getElementById('list-view').style.display = mode === 'list' ? 'block' : 'none';
+            const fb = document.getElementById('fab-main');
+            if(mode==='list') { fb.innerHTML = "新規リスト<br>登録"; fb.classList.add('list-mode'); }
+            else { fb.innerHTML = "＋"; fb.classList.remove('list-mode'); }
             upd();
         }
 
-        // --- 軽量描画ロジック Ver.1.59 ---
+        function setSort(key) {
+            if (key === 'no' || key === 'edit') return;
+            if (sortKey === key) {
+                if (sortOrder === 'asc') sortOrder = 'desc';
+                else if (sortOrder === 'desc') sortOrder = 'reg';
+                else sortOrder = 'asc';
+            } else { sortKey = key; sortOrder = 'asc'; }
+            upd();
+        }
+
+        // --- 高速描画最適化版 upd ---
+        let renderTimer = null;
         function upd() {
+            if(renderTimer) cancelAnimationFrame(renderTimer);
             const grid = document.getElementById('card-grid');
             const tbody = document.getElementById('list-body');
             const thead = document.getElementById('list-head');
             grid.innerHTML = ''; tbody.innerHTML = ''; thead.innerHTML = '';
+            
+            const hr = document.createElement('tr');
+            conf.listCols.forEach(c => {
+                const th = document.createElement('th'); th.style.width = c.w + 'px';
+                if(c.id === 'no' || c.id === 'edit') { th.innerHTML = `${c.n}<span class="sort-icon"></span>`; }
+                else {
+                    let mark = sortKey === c.id ? (sortOrder === 'asc' ? "△" : (sortOrder === 'desc' ? "▽" : "⇵")) : "⇵";
+                    th.innerHTML = `${c.n}<span class="sort-icon">${mark}</span>`;
+                    th.onclick = () => setSort(c.id);
+                }
+                hr.appendChild(th);
+            });
+            thead.appendChild(hr);
 
             let filtered = db.filter(i => i.cat === cur);
             const isListView = conf.subStates[cur] === 'sub02';
 
-            if(isListView) {
-                // リストヘッダー生成
-                const hr = document.createElement('tr');
-                conf.listCols.forEach(c => { const th = document.createElement('th'); th.style.width = c.w+'px'; th.innerText = c.n; hr.appendChild(th); });
-                thead.appendChild(hr);
-
-                // 大量データ対応：まずは200件ずつ処理する（フリーズ回避）
-                let displayCount = 1;
-                filtered.forEach((i, index) => {
-                    if(!i.list || (!i.list.name && !i.list.flag)) return;
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `<td>${displayCount++}</td>
-                        <td>${esc(i.list.flag)}</td><td>${esc(i.list.meth)}</td>
-                        <td style="text-align:left; font-weight:bold;">${esc(i.list.name)}</td>
-                        <td>${esc(i.list.date)}</td><td>${esc(i.list.yomi)}</td>
-                        <td><span class="list-action-btn" onclick="openContact('${i.id}')">📲</span></td>`;
-                    tbody.appendChild(tr);
+            if(isListView && sortOrder !== 'reg') {
+                filtered.sort((a, b) => {
+                    let valA = a.list?.[sortKey] || ""; let valB = b.list?.[sortKey] || "";
+                    if (sortKey === 'name') { valA = a.list?.furigana || valA; valB = b.list?.furigana || valB; }
+                    if (!valA && valB) return 1; if (valA && !valB) return -1;
+                    return sortOrder === 'asc' ? valA.localeCompare(valB, 'ja') : valB.localeCompare(valA, 'ja');
                 });
+            } else { filtered.sort((a,b) => b.id.localeCompare(a.id)); }
+
+            const dateOptions = []; const now = new Date();
+            for(let j=0; j<4; j++){
+                const target = new Date(now); target.setDate(now.getDate() - j);
+                dateOptions.push(`${target.getMonth()+1}/${target.getDate()}`);
+            }
+
+            // 大量データ分割描画 (Chunked Rendering)
+            let idx = 0;
+            const chunkSize = 50;
+            function renderChunk() {
+                const limit = Math.min(idx + chunkSize, filtered.length);
+                const fragment = document.createDocumentFragment();
+                for (; idx < limit; idx++) {
+                    const i = filtered[idx];
+                    if(isListView) {
+                        if(!i.list || (!i.list.name && !i.list.flag)) continue;
+                        const tr = document.createElement('tr');
+                        const mkSel = (key, baseOpts, current) => {
+                            let opts = [...baseOpts]; if(current && !opts.includes(String(current))) opts.push(String(current));
+                            let h = `<select class="list-select" onchange="quickSaveL('${i.id}','${key}',this.value)"><option value="">-</option>`;
+                            opts.forEach(o => h += `<option value="${o}" ${String(o)===String(current)?'selected':''}>${o}</option>`);
+                            return h + `</select>`;
+                        };
+                        tr.innerHTML = `<td>${idx+1}</td><td>${mkSel('flag',['🚩','🙆‍♀️','🙅‍♀️','済'],i.list?.flag)}</td><td>${mkSel('meth',['L','✉️','𝕏','🗒'],i.list?.meth)}</td><td style="text-align:left; font-weight:bold; padding-left:4px;">${esc(i.list?.name || '(未設定)')}</td><td>${mkSel('date',dateOptions,i.list?.date)}</td><td>${mkSel('yomi',[0,2,4,6,8,10,12,14],i.list?.yomi)}</td><td><span class="list-edit-btn" onclick="openEd('${i.id}')">✏️</span></td>`;
+                        fragment.appendChild(tr);
+                    } else {
+                        if(!i.card || (!i.card.t && !i.card.b)) continue;
+                        const d = document.createElement('div'); d.className = 'card';
+                        d.innerHTML = `<div class="card-header"><span class="header-title">${esc(i.card?.t)}</span><button class="card-cp-btn" onclick="event.stopPropagation(); copyByTxt('${i.id}')">本文コピー</button></div><div class="card-body"><div class="card-date">${i.date}</div>${esc(i.card?.b).replace(/\n/g,'<br>')}</div><div class="card-footer"><span>ID:${i.id}</span><span class="edit-icon" onclick="openEd('${i.id}')">✏️</span></div>`;
+                        fragment.appendChild(d);
+                    }
+                }
+                if(isListView) tbody.appendChild(fragment); else grid.appendChild(fragment);
+                if (idx < filtered.length) renderTimer = requestAnimationFrame(renderChunk);
+            }
+            renderChunk();
+        }
+
+        function quickSaveL(id, key, val) {
+            const item = db.find(x => x.id === id);
+            if(item && item.list) { item.list[key] = val; localStorage.setItem(SK, JSON.stringify(db)); toast("更新しました"); }
+        }
+
+        function toggleFab() { const a = document.getElementById('fab-main').classList.toggle('active'); document.getElementById('fab-menu').classList.toggle('active', a); document.getElementById('fab-mask').style.display = a ? 'block' : 'none'; }
+        function fabAction() { if(conf.subStates[cur] === 'sub02') openEd(null); else toggleFab(); }
+        
+        function openEd(id) {
+            eid = id; const i = db.find(x => x.id === id) || { card:{}, list:{}, cat:cur };
+            if(conf.subStates[cur] === 'sub02') {
+                L_KEYS.forEach(k => document.getElementById('ln-'+k).value = i.list?.[k] || '');
+                document.getElementById('btn-del-trigger-l').style.display = id ? 'block' : 'none';
+                document.getElementById('ed-list').style.display = 'flex';
             } else {
-                filtered.forEach(i => {
-                    if(!i.card || !i.card.t) return;
-                    const d = document.createElement('div'); d.className = 'card';
-                    d.innerHTML = `<div class="card-header"><span class="header-title">${esc(i.card.t)}</span></div>
-                        <div class="card-body"><div class="card-date">${i.date}</div>${esc(i.card.b).replace(/\n/g,'<br>')}</div>`;
-                    grid.appendChild(d);
-                });
+                document.getElementById('cn-title').value = i.card?.t || '';
+                document.getElementById('cn-body').value = i.card?.b || '';
+                document.getElementById('cn-url').value = i.card?.u || '';
+                document.getElementById('cn-alt').value = i.card?.a || '';
+                document.getElementById('cn-cat').value = i.cat || cur;
+                document.getElementById('btn-del-trigger').style.display = id ? 'block' : 'none';
+                document.getElementById('ed-card').style.display = 'flex';
             }
         }
 
-        // --- Gmail強制コピー連動 Ver.1.59 ---
-        function openContact(listId) {
-            const listData = db.find(x => x.id === listId);
-            const templates = db.filter(i => i.cat === cur && i.card && i.card.t);
-            const listArea = document.getElementById('contact-template-list');
-            listArea.innerHTML = '';
-            templates.forEach(t => {
-                const div = document.createElement('div');
-                div.style = "background:#FFF; padding:12px; border-radius:8px; margin-bottom:8px; font-weight:bold; cursor:pointer;";
-                div.innerText = t.card.t;
-                div.onclick = () => showGmailConfirm(t.id, listId);
-                listArea.appendChild(div);
-            });
-            document.getElementById('ed-contact').style.display = 'flex';
+        function saveL() {
+            if(isSubmitting) return; const name = document.getElementById('ln-name').value.trim(); if(!name) { toast("グループ名を入力してください"); return; }
+            isSubmitting = true; const data = {}; L_KEYS.forEach(k => data[k] = document.getElementById('ln-'+k).value);
+            if(!eid) db.push({ id: Date.now().toString(), cat:cur, date:fmtDate(), card:{}, list:data });
+            else db.find(x => x.id === eid).list = data;
+            saveAll(); setTimeout(() => { cls(); toast("保存完了"); isSubmitting = false; }, 200);
         }
 
-        function showGmailConfirm(cardId, listId) {
-            const c = db.find(x => x.id === cardId).card;
-            const l = db.find(x => x.id === listId).list;
-            const to = l.adress || ""; const sub = c.t || ""; const body = c.b || "";
-
-            document.getElementById('gm-to').innerText = to;
-            document.getElementById('gm-sub').innerText = sub;
-            document.getElementById('gm-body').innerText = body;
-            document.getElementById('gm-to-full').value = to;
-            document.getElementById('gm-sub-full').value = sub;
-            document.getElementById('gm-body-full').value = body;
-
-            const link = document.getElementById('btn-gmail-link');
-            link.href = `mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(sub)}&body=${encodeURIComponent(body)}`;
-            link.onclick = () => {
-                navigator.clipboard.writeText(body).then(() => {
-                    toast("本文をコピーしました！<br>Gmailを起動します");
-                    setTimeout(cls, 1000);
-                });
-            };
-            document.getElementById('ed-contact').style.display = 'none';
-            document.getElementById('ed-gmail-confirm').style.display = 'flex';
+        function saveC() {
+            if(isSubmitting) return; const title = document.getElementById('cn-title').value.trim(); const bodyTxt = document.getElementById('cn-body').value.trim(); if(!title && !bodyTxt) { toast("未入力です"); return; }
+            isSubmitting = true; const cat = document.getElementById('cn-cat').value; const data = { t:title, b:bodyTxt, u:document.getElementById('cn-url').value, a:document.getElementById('cn-alt').value };
+            if(!eid) db.push({ id: Date.now().toString(), cat, date:fmtDate(), card:data, list:{} });
+            else { const i = db.find(x => x.id === eid); i.card = data; i.cat = cat; }
+            saveAll(); setTimeout(() => { cls(); toast("保存完了"); isSubmitting = false; }, 200);
         }
 
-        // --- データ移行管理 ---
-        function exportFullData() {
-            const data = { db, conf };
-            navigator.clipboard.writeText(JSON.stringify(data)).then(() => toast("全データをコピーしました"));
-        }
-        function importFullData() {
-            const val = prompt("データを貼り付けてください");
-            if(val) {
-                try {
-                    const p = JSON.parse(val);
-                    if(p.db) { db = p.db; if(p.conf) conf = p.conf; saveAll(); location.reload(); }
-                } catch(e) { alert("無効なデータです"); }
-            }
-        }
-        function clearAllData() { if(confirm("全データを削除しますか？")) { localStorage.clear(); location.reload(); } }
-        function saveAll() { localStorage.setItem(SK, JSON.stringify(db)); localStorage.setItem(CK, JSON.stringify(conf)); }
+        function execDel() { db = db.filter(x => x.id !== eid); saveAll(); cls(); toast("削除しました"); }
+        function saveAll() { localStorage.setItem(SK, JSON.stringify(db)); upd(); }
         function cls() { document.querySelectorAll('.overlay').forEach(o => o.style.display = 'none'); }
-        function openSet() { document.getElementById('ed-set').style.display = 'flex'; }
-        function toast(m) { const t = document.getElementById('toast'); t.innerHTML = m; t.style.display = 'block'; setTimeout(() => t.style.display='none', 2000); }
-        function copyByVal(id) { navigator.clipboard.writeText(document.getElementById(id).value).then(() => toast("コピーしました")); }
-        function fabAction() { alert("新規登録はリスト編集から行えます（v1.59軽量化版）"); }
+        function toast(m) { const t = document.getElementById('toast'); t.innerHTML = m; t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 1500); }
+        function copyByTxt(id) { const i = db.find(x => x.id === id); navigator.clipboard.writeText(i.card?.b).then(() => { toast("コピー完了"); window.location.href = "googlegmail://"; }); }
+        function copyByVal(id) { navigator.clipboard.writeText(document.getElementById(id).value).then(() => toast("コピー完了")); }
+        function switchSetTab(t) { document.querySelectorAll('.set-tab-btn').forEach(b => b.classList.toggle('active', b.id === `set-tab-${t}`)); document.getElementById('set-content-card').style.display = t === 'card' ? 'block' : 'none'; document.getElementById('set-content-list').style.display = t === 'list' ? 'block' : 'none'; }
+        function openSet() { document.getElementById('ed-set').style.display = 'flex'; switchSetTab('card'); }
+        function saveSet() { 
+            for(let i=1; i<=4; i++) conf.tabs[`cate0${i}`] = document.getElementById(`sn-${i}`).value; 
+            conf.fs = { t: parseInt(document.getElementById('sf-t').value), b: parseInt(document.getElementById('sf-b').value) }; 
+            conf.listCols.forEach((c, i) => { c.n = document.getElementById(`lc-n-${i}`).value; c.w = parseInt(document.getElementById(`lc-w-${i}`).value); });
+            localStorage.setItem(CK, JSON.stringify(conf)); location.reload(); 
+        }
+
+        function createCard(v) { const id = Date.now().toString(); db.push({ id, cat:'none', date:fmtDate(), card:{t:'メモ', b:v, u:'', a:''}, list:{} }); saveAll(); }
+        async function pasteNew() { try { const t = await navigator.clipboard.readText(); if(!t) return; toggleFab(); createCard(t); go('none'); toast("クイック登録完了"); } catch(e){} }
+        function manualNew() { const v = document.getElementById('qa').value; if(!v) return; toggleFab(); createCard(v); document.getElementById('qa').value=''; go('none'); toast("登録完了"); }
+
+        function exportListData() {
+            const header = L_KEYS.join('\t');
+            const rows = db.filter(i => i.list && i.list.name).map(i => L_KEYS.map(k => String(i.list[k] || '').replace(/\t|\n|\r/g, ' ')).join('\t'));
+            navigator.clipboard.writeText([header, ...rows].join('\n')).then(() => toast("Excel用データをコピーしました"));
+        }
+
+        function importListData() {
+            const input = document.getElementById('io-input').value.trim(); if(!input) { toast("データがありません"); return; }
+            const lines = input.split(/\r?\n/); if(lines.length < 2) { toast("データが見つかりません"); return; }
+            let count = 0;
+            for(let i = 1; i < lines.length; i++) {
+                const cols = lines[i].split('\t'); if(cols.length < 2) continue;
+                const listData = {}; L_KEYS.forEach((k, idx) => listData[k] = cols[idx] || '');
+                db.push({ id: (Date.now() + i).toString(), cat: cur, date: fmtDate(), card: {}, list: listData });
+                count++;
+            }
+            if(count > 0) { saveAll(); document.getElementById('io-input').value = ''; toast(`${count}件インポート完了`); }
+        }
     </script>
 </body>
 </html>
