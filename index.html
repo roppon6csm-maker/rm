@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RopMemo v1.68</title>
+    <title>RopMemo v1.69</title>
     <style>
         :root {
             --bg-cate01: #D9D2E9; --bg-cate02: #EAD1DC; --bg-cate03: #FFF2CC; --bg-cate04: #D1EAF0;
@@ -94,12 +94,20 @@
         .tmpl-list-btn { width: 100%; text-align: left; padding: 12px; background: #FFF; border: none; border-bottom: 1px solid #EEE; font-size: 11px; font-weight: bold; color: #333; }
         .tmpl-list-btn:last-child { border-bottom: none; }
         .tmpl-list-btn:active { background: #F0F0F0; }
+
+        /* ウェルカムモーダル用スタイル */
+        #welcome-overlay { display: none; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
+        .welcome-win { width: 85%; background: #FFF; border-radius: 25px; padding: 30px 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; display: flex; flex-direction: column; gap: 20px; animation: popUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes popUp { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .welcome-msg { font-size: 13px; line-height: 1.8; color: #333; font-weight: bold; white-space: pre-wrap; }
+        .welcome-logo { font-size: 24px; font-weight: 900; color: #000; margin-top: 10px; border-top: 1px solid #EEE; padding-top: 15px; }
+        .welcome-btn { background: #007AFF; color: #FFF; border: none; padding: 12px 0; border-radius: 12px; font-weight: bold; font-size: 14px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,122,255,0.3); }
     </style>
 </head>
 <body onload="boot()">
     <div id="header-outer">
         <div class="logo-text" onclick="openSet()">RopMemo<span>⚙</span></div>
-        <div class="ver-text">ver.1.68</div>
+        <div class="ver-text">ver.1.69</div>
     </div>
 
     <div id="main-window">
@@ -133,11 +141,22 @@
         <div id="fab-main" onclick="fabAction()">＋</div>
     </div>
 
+    <div id="welcome-overlay" class="overlay">
+        <div class="welcome-win">
+            <div class="welcome-msg">ポチポチするだけでブッキング管理！
+よく使うテンプレを簡単登録！
+宛先ごとの個別出しわけも自動ワンポチ！
+
+気になる動画や情報もクイック登録！</div>
+            <div class="welcome-logo">『RopMemo』</div>
+            <button class="welcome-btn" onclick="cls()">はじめる</button>
+        </div>
+    </div>
+
     <div id="ed-tmpl" class="overlay">
         <div class="win" style="height: auto; max-height: 80%;">
             <div class="win-label">[テンプレート選択]</div>
-            <div id="tmpl-scroll" class="set-scroll" style="background:#FFF; border-radius:8px; overflow-y:auto;">
-                </div>
+            <div id="tmpl-scroll" class="set-scroll" style="background:#FFF; border-radius:8px; overflow-y:auto;"></div>
             <button onclick="cls()" class="btn-l" style="background:#FFF; color:#333; margin-top:8px;">キャンセル</button>
         </div>
     </div>
@@ -234,7 +253,6 @@
                 <div id="set-content-list" style="display:none;">
                     <div class="set-row">
                         <div class="set-label">メール下書き連携</div>
-                        <div style="font-size:8px; color:#555; font-weight:bold; line-height:1.2; margin-bottom:4px;">リスト表示画面の📲から送信テンプレートを選択するだけで宛先、件名、本文が入力された状態でメーラーが開きます</div>
                         <div class="mailer-toggle">
                             <button id="mb-standard" class="mailer-btn" onclick="setMailer('standard')">端末の標準メーラー</button>
                             <button id="mb-gmail" class="mailer-btn" onclick="setMailer('gmail')">Gmail</button>
@@ -242,10 +260,9 @@
                     </div>
                     <div class="set-row" id="list-cols-config"></div>
                     <div class="io-area">
-                        <div class="set-label" style="margin-bottom:5px;">Excel連携（インポート/エクスポート）</div>
-                        <button class="io-btn" onclick="exportListData()">全データをコピー (Excel用ヘッダー付)</button>
-                        <textarea id="io-input" class="io-text" placeholder="Excelからコピーしたデータを貼り付け (2行目から読み込み)"></textarea>
-                        <button class="io-btn" style="background:#007AFF; color:#FFF; border:none;" onclick="importListData()">貼り付けデータから新規登録</button>
+                        <button class="io-btn" onclick="exportListData()">全データをコピー (Excel用)</button>
+                        <textarea id="io-input" class="io-text" placeholder="Excelデータを貼り付け"></textarea>
+                        <button class="io-btn" style="background:#007AFF; color:#FFF; border:none;" onclick="importListData()">インポート</button>
                     </div>
                 </div>
             </div>
@@ -256,8 +273,7 @@
     <div id="toast">完了しました</div>
 
     <script>
-        const SK = 'rop_v139_db'; 
-        const CK = 'rop_v139_conf';
+        const SK = 'rop_v139_db'; const CK = 'rop_v139_conf';
         let db = JSON.parse(localStorage.getItem(SK)) || [];
         const L_KEYS = ['furigana','name','tanto','flag','meth','date','yomi','adress','note','satueP','satueM','kako','photo'];
         
@@ -272,39 +288,28 @@
             mailerMode: 'standard'
         };
 
-        let sortKey = 'id', sortOrder = 'reg', cur = 'cate01', eid = null, lastCreatedId = null, isSubmitting = false;
+        let sortKey = 'id', sortOrder = 'reg', cur = 'cate01', eid = null, isSubmitting = false;
         let tempAdress = ""; 
 
         function esc(s) { if(!s) return ""; return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
         function fmtDate() { const d = new Date(); const w = ["日","月","火","水","木","金","土"][d.getDay()]; return `${d.getFullYear()}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getDate().toString().padStart(2,'0')}(${w})${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`; }
 
         function boot() { 
-            // 起動時のデータ整合性チェック
             fixConfStructure();
             applyConf(); 
-            go('cate01'); 
+            go('cate01');
+            openWelcome(); // 起動時に表示
         }
 
+        function openWelcome() { document.getElementById('welcome-overlay').style.display = 'flex'; }
+
         function fixConfStructure() {
-            // adress列が欠落している、または順序が不正な場合の修復ロジック
             let cols = conf.listCols;
             let adIdx = cols.findIndex(c => c.id === 'adress');
             let edIdx = cols.findIndex(c => c.id === 'edit');
-            
-            // adress列がなければ作成
-            if (adIdx === -1) {
-                cols.splice(edIdx === -1 ? cols.length : edIdx, 0, {id: 'adress', n: 'スマート<br>連絡', w: 25});
-            } else {
-                // adress列があるがedit列より後にあれば前に移動
-                if (edIdx !== -1 && adIdx > edIdx) {
-                    let adCol = cols.splice(adIdx, 1)[0];
-                    cols.splice(edIdx, 0, adCol);
-                }
-            }
-            // edit列がなければ末尾に追加
-            if (cols.findIndex(c => c.id === 'edit') === -1) {
-                cols.push({id: 'edit', n: '✏️', w: 30});
-            }
+            if (adIdx === -1) { cols.splice(edIdx === -1 ? cols.length : edIdx, 0, {id: 'adress', n: 'スマート<br>連絡', w: 25}); }
+            else if (edIdx !== -1 && adIdx > edIdx) { let adCol = cols.splice(adIdx, 1)[0]; cols.splice(edIdx, 0, adCol); }
+            if (cols.findIndex(c => c.id === 'edit') === -1) { cols.push({id: 'edit', n: '✏️', w: 30}); }
             localStorage.setItem(CK, JSON.stringify(conf));
         }
 
@@ -319,13 +324,10 @@
             document.documentElement.style.setProperty('--f-body', conf.fs.b + 'px');
             document.getElementById('sf-t').value = conf.fs.t;
             document.getElementById('sf-b').value = conf.fs.b;
-            
-            // リスト表示設定の項目生成
             const colArea = document.getElementById('list-cols-config');
             colArea.innerHTML = '<div class="set-label">リスト各列の表示名と横幅(px)</div>';
             conf.listCols.forEach((c, i) => {
-                const row = document.createElement('div');
-                row.style = "display:flex; gap:5px; align-items:center; margin-top:4px;";
+                const row = document.createElement('div'); row.style = "display:flex; gap:5px; align-items:center; margin-top:4px;";
                 row.innerHTML = `<input type="text" id="lc-n-${i}" value="${c.n}" style="flex:1; height:26px; font-size:10px; padding:0 5px; border:1px solid #DDD; border-radius:4px;"><input type="number" id="lc-w-${i}" value="${c.w}" style="width:45px; height:26px; font-size:10px; border:1px solid #DDD; border-radius:4px;">`;
                 colArea.appendChild(row);
             });
@@ -345,8 +347,7 @@
                 const target = k==='none'?'tab-n':`tab${['cate01','cate02','cate03','cate04'].indexOf(k)+1}`;
                 t.classList.toggle('active', t.id === target);
             });
-            renderSubTabs();
-            switchSub(conf.subStates[cur] || 'sub01');
+            renderSubTabs(); switchSub(conf.subStates[cur] || 'sub01');
         }
 
         function renderSubTabs() {
@@ -371,39 +372,26 @@
 
         function setSort(key) {
             if (key === 'no' || key === 'edit' || key === 'adress') return;
-            if (sortKey === key) {
-                if (sortOrder === 'asc') sortOrder = 'desc';
-                else if (sortOrder === 'desc') sortOrder = 'reg';
-                else sortOrder = 'asc';
-            } else { sortKey = key; sortOrder = 'asc'; }
-            upd();
+            if (sortKey === key) { if (sortOrder === 'asc') sortOrder = 'desc'; else if (sortOrder === 'desc') sortOrder = 'reg'; else sortOrder = 'asc'; }
+            else { sortKey = key; sortOrder = 'asc'; } upd();
         }
 
         let renderTimer = null;
         function upd() {
             if(renderTimer) cancelAnimationFrame(renderTimer);
-            const grid = document.getElementById('card-grid');
-            const tbody = document.getElementById('list-body');
-            const thead = document.getElementById('list-head');
+            const grid = document.getElementById('card-grid'); const tbody = document.getElementById('list-body'); const thead = document.getElementById('list-head');
             grid.innerHTML = ''; tbody.innerHTML = ''; thead.innerHTML = '';
-            
             const hr = document.createElement('tr');
             conf.listCols.forEach(c => {
                 const th = document.createElement('th'); th.style.width = c.w + 'px';
-                if(c.id === 'no' || c.id === 'edit' || c.id === 'adress') { 
-                    th.innerHTML = `${c.n}`;
-                } else {
-                    let mark = sortKey === c.id ? (sortOrder === 'asc' ? "△" : (sortOrder === 'desc' ? "▽" : "⇵")) : "⇵";
-                    th.innerHTML = `${c.n}<span class="sort-icon">${mark}</span>`;
-                    th.onclick = () => setSort(c.id);
-                }
+                if(c.id === 'no' || c.id === 'edit' || c.id === 'adress') { th.innerHTML = `${c.n}`; }
+                else { let mark = sortKey === c.id ? (sortOrder === 'asc' ? "△" : (sortOrder === 'desc' ? "▽" : "⇵")) : "⇵"; th.innerHTML = `${c.n}<span class="sort-icon">${mark}</span>`; th.onclick = () => setSort(c.id); }
                 hr.appendChild(th);
             });
             thead.appendChild(hr);
 
             let filtered = db.filter(i => i.cat === cur);
             const isListView = conf.subStates[cur] === 'sub02';
-
             if(isListView && sortOrder !== 'reg') {
                 filtered.sort((a, b) => {
                     let valA = a.list?.[sortKey] || ""; let valB = b.list?.[sortKey] || "";
@@ -414,16 +402,11 @@
             } else { filtered.sort((a,b) => b.id.localeCompare(a.id)); }
 
             const dateOptions = []; const now = new Date();
-            for(let j=0; j<4; j++){
-                const target = new Date(now); target.setDate(now.getDate() - j);
-                dateOptions.push(`${target.getMonth()+1}/${target.getDate()}`);
-            }
+            for(let j=0; j<4; j++){ const t = new Date(now); t.setDate(now.getDate() - j); dateOptions.push(`${t.getMonth()+1}/${t.getDate()}`); }
 
-            let idx = 0;
-            const chunkSize = 50;
+            let idx = 0; const chunkSize = 50;
             function renderChunk() {
-                const limit = Math.min(idx + chunkSize, filtered.length);
-                const fragment = document.createDocumentFragment();
+                const limit = Math.min(idx + chunkSize, filtered.length); const fragment = document.createDocumentFragment();
                 for (; idx < limit; idx++) {
                     const i = filtered[idx];
                     if(isListView) {
@@ -435,14 +418,7 @@
                             opts.forEach(o => h += `<option value="${o}" ${String(o)===String(current)?'selected':''}>${o}</option>`);
                             return h + `</select>`;
                         };
-                        tr.innerHTML = `<td>${idx+1}</td>
-                            <td>${mkSel('flag',['🚩','🙆‍♀️','🙅‍♀️','済'],i.list?.flag)}</td>
-                            <td>${mkSel('meth',['L','✉️','𝕏','🗒'],i.list?.meth)}</td>
-                            <td style="text-align:left; font-weight:bold; padding-left:4px;">${esc(i.list?.name || '(未設定)')}</td>
-                            <td>${mkSel('date',dateOptions,i.list?.date)}</td>
-                            <td>${mkSel('yomi',[0,2,4,6,8,10,12,14],i.list?.yomi)}</td>
-                            <td><span class="list-edit-btn" onclick="openMailTmpl('${i.id}')">📲</span></td>
-                            <td><span class="list-edit-btn" onclick="openEd('${i.id}')">✏️</span></td>`;
+                        tr.innerHTML = `<td>${idx+1}</td><td>${mkSel('flag',['🚩','🙆‍♀️','🙅‍♀️','済'],i.list?.flag)}</td><td>${mkSel('meth',['L','✉️','𝕏','🗒'],i.list?.meth)}</td><td style="text-align:left; font-weight:bold; padding-left:4px;">${esc(i.list?.name || '(未設定)')}</td><td>${mkSel('date',dateOptions,i.list?.date)}</td><td>${mkSel('yomi',[0,2,4,6,8,10,12,14],i.list?.yomi)}</td><td><span class="list-edit-btn" onclick="openMailTmpl('${i.id}')">📲</span></td><td><span class="list-edit-btn" onclick="openEd('${i.id}')">✏️</span></td>`;
                         fragment.appendChild(tr);
                     } else {
                         if(!i.card || (!i.card.t && !i.card.b)) continue;
@@ -457,11 +433,7 @@
             renderChunk();
         }
 
-        function quickSaveL(id, key, val) {
-            const item = db.find(x => x.id === id);
-            if(item && item.list) { item.list[key] = val; localStorage.setItem(SK, JSON.stringify(db)); toast("更新しました"); }
-        }
-
+        function quickSaveL(id, key, val) { const item = db.find(x => x.id === id); if(item && item.list) { item.list[key] = val; localStorage.setItem(SK, JSON.stringify(db)); toast("更新しました"); } }
         function toggleFab() { const a = document.getElementById('fab-main').classList.toggle('active'); document.getElementById('fab-menu').classList.toggle('active', a); document.getElementById('fab-mask').style.display = a ? 'block' : 'none'; }
         function fabAction() { if(conf.subStates[cur] === 'sub02') openEd(null); else toggleFab(); }
         
@@ -469,55 +441,32 @@
             eid = id; const i = db.find(x => x.id === id) || { card:{}, list:{}, cat:cur };
             if(conf.subStates[cur] === 'sub02') {
                 L_KEYS.forEach(k => document.getElementById('ln-'+k).value = i.list?.[k] || '');
-                document.getElementById('btn-del-trigger-l').style.display = id ? 'block' : 'none';
-                document.getElementById('ed-list').style.display = 'flex';
+                document.getElementById('btn-del-trigger-l').style.display = id ? 'block' : 'none'; document.getElementById('ed-list').style.display = 'flex';
             } else {
-                document.getElementById('cn-title').value = i.card?.t || '';
-                document.getElementById('cn-body').value = i.card?.b || '';
-                document.getElementById('cn-url').value = i.card?.u || '';
-                document.getElementById('cn-alt').value = i.card?.a || '';
-                document.getElementById('cn-cat').value = i.cat || cur;
-                document.getElementById('btn-del-trigger').style.display = id ? 'block' : 'none';
-                document.getElementById('ed-card').style.display = 'flex';
+                document.getElementById('cn-title').value = i.card?.t || ''; document.getElementById('cn-body').value = i.card?.b || ''; document.getElementById('cn-url').value = i.card?.u || ''; document.getElementById('cn-alt').value = i.card?.a || ''; document.getElementById('cn-cat').value = i.cat || cur;
+                document.getElementById('btn-del-trigger').style.display = id ? 'block' : 'none'; document.getElementById('ed-card').style.display = 'flex';
             }
         }
 
         function openMailTmpl(id) {
-            const i = db.find(x => x.id === id);
-            tempAdress = i.list?.adress || "";
-            const tmplArea = document.getElementById('tmpl-scroll');
-            tmplArea.innerHTML = "";
+            const i = db.find(x => x.id === id); tempAdress = i.list?.adress || ""; const tmplArea = document.getElementById('tmpl-scroll'); tmplArea.innerHTML = "";
             const cards = db.filter(x => x.cat === cur && x.card && (x.card.t || x.card.b));
-            if(cards.length === 0) {
-                tmplArea.innerHTML = "<div style='padding:20px; text-align:center; font-size:10px; color:#999;'>有効なテンプレートがありません</div>";
-            } else {
-                cards.forEach(c => {
-                    const btn = document.createElement('button');
-                    btn.className = "tmpl-list-btn";
-                    btn.innerText = c.card.t || "(タイトルなし)";
-                    btn.onclick = () => sendMailFinal(c.id);
-                    tmplArea.appendChild(btn);
-                });
-            }
+            if(cards.length === 0) { tmplArea.innerHTML = "<div style='padding:20px; text-align:center; font-size:10px; color:#999;'>テンプレートがありません</div>"; }
+            else { cards.forEach(c => { const btn = document.createElement('button'); btn.className = "tmpl-list-btn"; btn.innerText = c.card.t || "(タイトルなし)"; btn.onclick = () => sendMailFinal(c.id); tmplArea.appendChild(btn); }); }
             document.getElementById('ed-tmpl').style.display = 'flex';
         }
 
         function sendMailFinal(cardId) {
-            const card = db.find(x => x.id === cardId);
-            const subject = card.card?.t || "";
-            const body = card.card?.b || "";
+            const card = db.find(x => x.id === cardId); const subject = card.card?.t || ""; const body = card.card?.b || "";
             navigator.clipboard.writeText(body).then(() => {
-                const encSub = encodeURIComponent(subject);
-                const encBody = encodeURIComponent(body);
+                const encSub = encodeURIComponent(subject); const encBody = encodeURIComponent(body);
                 let url = (conf.mailerMode === 'gmail') ? `googlegmail:///co?to=${tempAdress}&subject=${encSub}&body=${encBody}` : `mailto:${tempAdress}?subject=${encSub}&body=${encBody}`;
-                cls();
-                toast("本文をコピーしました");
-                window.location.href = url;
+                cls(); toast("本文をコピーしました"); window.location.href = url;
             });
         }
 
         function saveL() {
-            if(isSubmitting) return; const name = document.getElementById('ln-name').value.trim(); if(!name) { toast("グループ名を入力してください"); return; }
+            if(isSubmitting) return; const name = document.getElementById('ln-name').value.trim(); if(!name) { toast("グループ名を入力"); return; }
             isSubmitting = true; const data = {}; L_KEYS.forEach(k => data[k] = document.getElementById('ln-'+k).value);
             if(!eid) db.push({ id: Date.now().toString(), cat:cur, date:fmtDate(), card:{}, list:data });
             else db.find(x => x.id === eid).list = data;
@@ -536,7 +485,6 @@
         function saveAll() { localStorage.setItem(SK, JSON.stringify(db)); upd(); }
         function cls() { document.querySelectorAll('.overlay').forEach(o => o.style.display = 'none'); }
         function toast(m) { const t = document.getElementById('toast'); t.innerHTML = m; t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 1500); }
-        
         function copyByTxt(id) { const i = db.find(x => x.id === id); navigator.clipboard.writeText(i.card?.b).then(() => { toast("コピー完了"); }); }
         function copyByVal(id) { navigator.clipboard.writeText(document.getElementById(id).value).then(() => toast("コピー完了")); }
         function switchSetTab(t) { document.querySelectorAll('.set-tab-btn').forEach(b => b.classList.toggle('active', b.id === `set-tab-${t}`)); document.getElementById('set-content-card').style.display = t === 'card' ? 'block' : 'none'; document.getElementById('set-content-list').style.display = t === 'list' ? 'block' : 'none'; }
@@ -549,27 +497,23 @@
             localStorage.setItem(CK, JSON.stringify(conf)); location.reload(); 
         }
 
-        function createCard(v) { const id = Date.now().toString(); db.push({ id, cat:'none', date:fmtDate(), card:{t:'メモ', b:v, u:'', a:''}, list:{} }); saveAll(); }
+        function createCard(v) { db.push({ id: Date.now().toString(), cat:'none', date:fmtDate(), card:{t:'メモ', b:v, u:'', a:''}, list:{} }); saveAll(); }
         async function pasteNew() { try { const t = await navigator.clipboard.readText(); if(!t) return; toggleFab(); createCard(t); go('none'); toast("クイック登録完了"); } catch(e){} }
         function manualNew() { const v = document.getElementById('qa').value; if(!v) return; toggleFab(); createCard(v); document.getElementById('qa').value=''; go('none'); toast("登録完了"); }
 
         function exportListData() {
-            const header = L_KEYS.join('\t');
-            const rows = db.filter(i => i.list && i.list.name).map(i => L_KEYS.map(k => String(i.list[k] || '').replace(/\t|\n|\r/g, ' ')).join('\t'));
-            navigator.clipboard.writeText([header, ...rows].join('\n')).then(() => toast("Excel用データをコピーしました"));
+            const header = L_KEYS.join('\t'); const rows = db.filter(i => i.list && i.list.name).map(i => L_KEYS.map(k => String(i.list[k] || '').replace(/\t|\n|\r/g, ' ')).join('\t'));
+            navigator.clipboard.writeText([header, ...rows].join('\n')).then(() => toast("コピーしました"));
         }
 
         function importListData() {
-            const input = document.getElementById('io-input').value.trim(); if(!input) { toast("データがありません"); return; }
-            const lines = input.split(/\r?\n/); if(lines.length < 2) { toast("データが見つかりません"); return; }
-            let count = 0;
-            for(let i = 1; i < lines.length; i++) {
+            const input = document.getElementById('io-input').value.trim(); if(!input) return; const lines = input.split(/\r?\n/);
+            let count = 0; for(let i = 1; i < lines.length; i++) {
                 const cols = lines[i].split('\t'); if(cols.length < 2) continue;
                 const listData = {}; L_KEYS.forEach((k, idx) => listData[k] = cols[idx] || '');
-                db.push({ id: (Date.now() + i).toString(), cat: cur, date: fmtDate(), card: {}, list: listData });
-                count++;
+                db.push({ id: (Date.now() + i).toString(), cat: cur, date: fmtDate(), card: {}, list: listData }); count++;
             }
-            if(count > 0) { saveAll(); document.getElementById('io-input').value = ''; toast(`${count}件インポート完了`); }
+            if(count > 0) { saveAll(); document.getElementById('io-input').value = ''; toast(`${count}件登録`); }
         }
     </script>
 </body>
