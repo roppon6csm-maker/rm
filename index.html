@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RopMemo v1.66</title>
+    <title>RopMemo v1.67</title>
     <style>
         :root {
             --bg-cate01: #D9D2E9; --bg-cate02: #EAD1DC; --bg-cate03: #FFF2CC; --bg-cate04: #D1EAF0;
@@ -99,7 +99,7 @@
 <body onload="boot()">
     <div id="header-outer">
         <div class="logo-text" onclick="openSet()">RopMemo<span>⚙</span></div>
-        <div class="ver-text">ver.1.66</div>
+        <div class="ver-text">ver.1.67</div>
     </div>
 
     <div id="main-window">
@@ -272,19 +272,27 @@
             mailerMode: 'standard'
         };
 
-        // バージョンアップに伴い、もしadress列が古い名前なら更新
-        if(conf.listCols[6].id === 'adress' && !conf.listCols[6].n.includes('連絡')) {
-            conf.listCols[6].n = 'スマート<br>連絡';
-            conf.listCols[6].w = 45;
-        }
-
         let sortKey = 'id', sortOrder = 'reg', cur = 'cate01', eid = null, lastCreatedId = null, isSubmitting = false;
         let tempAdress = ""; 
 
         function esc(s) { if(!s) return ""; return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
         function fmtDate() { const d = new Date(); const w = ["日","月","火","水","木","金","土"][d.getDay()]; return `${d.getFullYear()}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getDate().toString().padStart(2,'0')}(${w})${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`; }
 
-        function boot() { applyConf(); go('cate01'); }
+        function boot() { 
+            // Ver.1.67 強制補正ロジック: 保存済み設定のadress列名を「スマート連絡」に更新
+            let needsUpdate = false;
+            if(conf.listCols[6] && conf.listCols[6].id === 'adress') {
+                if(conf.listCols[6].n === '' || !conf.listCols[6].n.includes('スマート')) {
+                    conf.listCols[6].n = 'スマート<br>連絡';
+                    conf.listCols[6].w = 45;
+                    needsUpdate = true;
+                }
+            }
+            if(needsUpdate) localStorage.setItem(CK, JSON.stringify(conf));
+
+            applyConf(); 
+            go('cate01'); 
+        }
 
         function applyConf() {
             for(let i=1; i<=4; i++) {
