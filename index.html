@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RopMemo v1.67</title>
+    <title>RopMemo v1.68</title>
     <style>
         :root {
             --bg-cate01: #D9D2E9; --bg-cate02: #EAD1DC; --bg-cate03: #FFF2CC; --bg-cate04: #D1EAF0;
@@ -99,7 +99,7 @@
 <body onload="boot()">
     <div id="header-outer">
         <div class="logo-text" onclick="openSet()">RopMemo<span>⚙</span></div>
-        <div class="ver-text">ver.1.67</div>
+        <div class="ver-text">ver.1.68</div>
     </div>
 
     <div id="main-window">
@@ -267,7 +267,7 @@
             subStates: { cate01: "sub01", cate02: "sub01", cate03: "sub01", cate04: "sub01", none: "sub01" },
             listCols: [
                 {id: 'no', n: 'No', w: 25}, {id: 'flag', n: 'フラグ', w: 40}, {id: 'meth', n: '手段', w: 35},
-                {id: 'name', n: 'グループ名', w: 90}, {id: 'date', n: '案内日', w: 45}, {id: 'yomi', n: 'ヨミ', w: 30}, {id: 'adress', n: 'スマート<br>連絡', w: 45}, {id: 'edit', n: '✏️', w: 30}
+                {id: 'name', n: 'グループ名', w: 90}, {id: 'date', n: '案内日', w: 45}, {id: 'yomi', n: 'ヨミ', w: 30}, {id: 'adress', n: 'スマート<br>連絡', w: 25}, {id: 'edit', n: '✏️', w: 30}
             ],
             mailerMode: 'standard'
         };
@@ -279,19 +279,33 @@
         function fmtDate() { const d = new Date(); const w = ["日","月","火","水","木","金","土"][d.getDay()]; return `${d.getFullYear()}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getDate().toString().padStart(2,'0')}(${w})${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`; }
 
         function boot() { 
-            // Ver.1.67 強制補正ロジック: 保存済み設定のadress列名を「スマート連絡」に更新
-            let needsUpdate = false;
-            if(conf.listCols[6] && conf.listCols[6].id === 'adress') {
-                if(conf.listCols[6].n === '' || !conf.listCols[6].n.includes('スマート')) {
-                    conf.listCols[6].n = 'スマート<br>連絡';
-                    conf.listCols[6].w = 45;
-                    needsUpdate = true;
-                }
-            }
-            if(needsUpdate) localStorage.setItem(CK, JSON.stringify(conf));
-
+            // 起動時のデータ整合性チェック
+            fixConfStructure();
             applyConf(); 
             go('cate01'); 
+        }
+
+        function fixConfStructure() {
+            // adress列が欠落している、または順序が不正な場合の修復ロジック
+            let cols = conf.listCols;
+            let adIdx = cols.findIndex(c => c.id === 'adress');
+            let edIdx = cols.findIndex(c => c.id === 'edit');
+            
+            // adress列がなければ作成
+            if (adIdx === -1) {
+                cols.splice(edIdx === -1 ? cols.length : edIdx, 0, {id: 'adress', n: 'スマート<br>連絡', w: 25});
+            } else {
+                // adress列があるがedit列より後にあれば前に移動
+                if (edIdx !== -1 && adIdx > edIdx) {
+                    let adCol = cols.splice(adIdx, 1)[0];
+                    cols.splice(edIdx, 0, adCol);
+                }
+            }
+            // edit列がなければ末尾に追加
+            if (cols.findIndex(c => c.id === 'edit') === -1) {
+                cols.push({id: 'edit', n: '✏️', w: 30});
+            }
+            localStorage.setItem(CK, JSON.stringify(conf));
         }
 
         function applyConf() {
@@ -305,6 +319,8 @@
             document.documentElement.style.setProperty('--f-body', conf.fs.b + 'px');
             document.getElementById('sf-t').value = conf.fs.t;
             document.getElementById('sf-b').value = conf.fs.b;
+            
+            // リスト表示設定の項目生成
             const colArea = document.getElementById('list-cols-config');
             colArea.innerHTML = '<div class="set-label">リスト各列の表示名と横幅(px)</div>';
             conf.listCols.forEach((c, i) => {
@@ -354,7 +370,6 @@
         }
 
         function setSort(key) {
-            // スマート連絡(adress), No(no), 編集(edit) はソート対象外
             if (key === 'no' || key === 'edit' || key === 'adress') return;
             if (sortKey === key) {
                 if (sortOrder === 'asc') sortOrder = 'desc';
@@ -376,7 +391,7 @@
             conf.listCols.forEach(c => {
                 const th = document.createElement('th'); th.style.width = c.w + 'px';
                 if(c.id === 'no' || c.id === 'edit' || c.id === 'adress') { 
-                    th.innerHTML = `${c.n}`; // ソート不要項目はアイコンなし
+                    th.innerHTML = `${c.n}`;
                 } else {
                     let mark = sortKey === c.id ? (sortOrder === 'asc' ? "△" : (sortOrder === 'desc' ? "▽" : "⇵")) : "⇵";
                     th.innerHTML = `${c.n}<span class="sort-icon">${mark}</span>`;
@@ -474,7 +489,7 @@
             tmplArea.innerHTML = "";
             const cards = db.filter(x => x.cat === cur && x.card && (x.card.t || x.card.b));
             if(cards.length === 0) {
-                tmplArea.innerHTML = "<div style='padding:20px; text-align:center; font-size:10px; color:#999;'>有効なカード（テンプレート）がありません</div>";
+                tmplArea.innerHTML = "<div style='padding:20px; text-align:center; font-size:10px; color:#999;'>有効なテンプレートがありません</div>";
             } else {
                 cards.forEach(c => {
                     const btn = document.createElement('button');
@@ -494,12 +509,7 @@
             navigator.clipboard.writeText(body).then(() => {
                 const encSub = encodeURIComponent(subject);
                 const encBody = encodeURIComponent(body);
-                let url = "";
-                if(conf.mailerMode === 'gmail') {
-                    url = `googlegmail:///co?to=${tempAdress}&subject=${encSub}&body=${encBody}`;
-                } else {
-                    url = `mailto:${tempAdress}?subject=${encSub}&body=${encBody}`;
-                }
+                let url = (conf.mailerMode === 'gmail') ? `googlegmail:///co?to=${tempAdress}&subject=${encSub}&body=${encBody}` : `mailto:${tempAdress}?subject=${encSub}&body=${encBody}`;
                 cls();
                 toast("本文をコピーしました");
                 window.location.href = url;
@@ -531,6 +541,7 @@
         function copyByVal(id) { navigator.clipboard.writeText(document.getElementById(id).value).then(() => toast("コピー完了")); }
         function switchSetTab(t) { document.querySelectorAll('.set-tab-btn').forEach(b => b.classList.toggle('active', b.id === `set-tab-${t}`)); document.getElementById('set-content-card').style.display = t === 'card' ? 'block' : 'none'; document.getElementById('set-content-list').style.display = t === 'list' ? 'block' : 'none'; }
         function openSet() { document.getElementById('ed-set').style.display = 'flex'; switchSetTab('card'); }
+        
         function saveSet() { 
             for(let i=1; i<=4; i++) conf.tabs[`cate0${i}`] = document.getElementById(`sn-${i}`).value; 
             conf.fs = { t: parseInt(document.getElementById('sf-t').value), b: parseInt(document.getElementById('sf-b').value) }; 
