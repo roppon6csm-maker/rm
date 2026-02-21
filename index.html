@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RopMemo v1.62</title>
+    <title>RopMemo v1.65</title>
     <style>
         :root {
             --bg-cate01: #D9D2E9; --bg-cate02: #EAD1DC; --bg-cate03: #FFF2CC; --bg-cate04: #D1EAF0;
@@ -86,12 +86,20 @@
         .io-area { margin-top: 10px; border-top: 1px dashed #CCC; padding-top: 10px; }
         .io-btn { background: #EEE; color: #333; font-size: 10px; padding: 6px; border-radius: 4px; border: 1px solid #DDD; cursor: pointer; width: 100%; margin-bottom: 5px; font-weight: bold; }
         .io-text { width: 100%; height: 60px; font-size: 9px; padding: 5px; border: 1px solid #DDD; border-radius: 4px; resize: none; background: #FFF; }
+
+        .mailer-toggle { display: flex; gap: 0; background: #EEE; border-radius: 6px; overflow: hidden; margin-top: 5px; border: 1px solid #DDD; }
+        .mailer-btn { flex: 1; border: none; padding: 8px; font-size: 10px; cursor: pointer; background: transparent; color: #666; font-weight: bold; }
+        .mailer-btn.active { background: #007AFF; color: #FFF; }
+
+        .tmpl-list-btn { width: 100%; text-align: left; padding: 12px; background: #FFF; border: none; border-bottom: 1px solid #EEE; font-size: 11px; font-weight: bold; color: #333; }
+        .tmpl-list-btn:last-child { border-bottom: none; }
+        .tmpl-list-btn:active { background: #F0F0F0; }
     </style>
 </head>
 <body onload="boot()">
     <div id="header-outer">
         <div class="logo-text" onclick="openSet()">RopMemo<span>⚙</span></div>
-        <div class="ver-text">ver.1.62</div>
+        <div class="ver-text">ver.1.65</div>
     </div>
 
     <div id="main-window">
@@ -123,6 +131,15 @@
             <div id="input-box-quick"><textarea id="qa" placeholder="メモを入力"></textarea><button id="btn-reg-quick" onclick="manualNew()">登録</button></div>
         </div>
         <div id="fab-main" onclick="fabAction()">＋</div>
+    </div>
+
+    <div id="ed-tmpl" class="overlay">
+        <div class="win" style="height: auto; max-height: 80%;">
+            <div class="win-label">[テンプレート選択]</div>
+            <div id="tmpl-scroll" class="set-scroll" style="background:#FFF; border-radius:8px; overflow-y:auto;">
+                </div>
+            <button onclick="cls()" class="btn-l" style="background:#FFF; color:#333; margin-top:8px;">キャンセル</button>
+        </div>
     </div>
 
     <div id="ed-card" class="overlay">
@@ -215,6 +232,14 @@
                     </div>
                 </div>
                 <div id="set-content-list" style="display:none;">
+                    <div class="set-row">
+                        <div class="set-label">メール下書き連携</div>
+                        <div style="font-size:8px; color:#555; font-weight:bold; line-height:1.2; margin-bottom:4px;">リスト表示画面の📲から送信テンプレートを選択するだけで宛先、件名、本文が入力された状態でメーラーが開きます</div>
+                        <div class="mailer-toggle">
+                            <button id="mb-standard" class="mailer-btn" onclick="setMailer('standard')">端末の標準メーラー</button>
+                            <button id="mb-gmail" class="mailer-btn" onclick="setMailer('gmail')">Gmail</button>
+                        </div>
+                    </div>
                     <div class="set-row" id="list-cols-config"></div>
                     <div class="io-area">
                         <div class="set-label" style="margin-bottom:5px;">Excel連携（インポート/エクスポート）</div>
@@ -243,10 +268,12 @@
             listCols: [
                 {id: 'no', n: 'No', w: 25}, {id: 'flag', n: 'フラグ', w: 40}, {id: 'meth', n: '手段', w: 35},
                 {id: 'name', n: 'グループ名', w: 90}, {id: 'date', n: '案内日', w: 45}, {id: 'yomi', n: 'ヨミ', w: 30}, {id: 'adress', n: '📲', w: 30}, {id: 'edit', n: '✏️', w: 30}
-            ]
+            ],
+            mailerMode: 'standard'
         };
 
         let sortKey = 'id', sortOrder = 'reg', cur = 'cate01', eid = null, lastCreatedId = null, isSubmitting = false;
+        let tempAdress = ""; // 📲クリック時の宛先一時保持
 
         function esc(s) { if(!s) return ""; return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
         function fmtDate() { const d = new Date(); const w = ["日","月","火","水","木","金","土"][d.getDay()]; return `${d.getFullYear()}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getDate().toString().padStart(2,'0')}(${w})${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`; }
@@ -272,6 +299,13 @@
                 row.innerHTML = `<input type="text" id="lc-n-${i}" value="${c.n}" style="flex:1; height:26px; font-size:10px; padding:0 5px; border:1px solid #DDD; border-radius:4px;"><input type="number" id="lc-w-${i}" value="${c.w}" style="width:45px; height:26px; font-size:10px; border:1px solid #DDD; border-radius:4px;">`;
                 colArea.appendChild(row);
             });
+            updateMailerUI();
+        }
+
+        function setMailer(m) { conf.mailerMode = m; updateMailerUI(); }
+        function updateMailerUI() {
+            document.getElementById('mb-standard').classList.toggle('active', conf.mailerMode === 'standard');
+            document.getElementById('mb-gmail').classList.toggle('active', conf.mailerMode === 'gmail');
         }
 
         function go(k) {
@@ -376,7 +410,7 @@
                             <td style="text-align:left; font-weight:bold; padding-left:4px;">${esc(i.list?.name || '(未設定)')}</td>
                             <td>${mkSel('date',dateOptions,i.list?.date)}</td>
                             <td>${mkSel('yomi',[0,2,4,6,8,10,12,14],i.list?.yomi)}</td>
-                            <td><span class="list-edit-btn" onclick="sendGmail('${i.id}')">📲</span></td>
+                            <td><span class="list-edit-btn" onclick="openMailTmpl('${i.id}')">📲</span></td>
                             <td><span class="list-edit-btn" onclick="openEd('${i.id}')">✏️</span></td>`;
                         fragment.appendChild(tr);
                     } else {
@@ -417,6 +451,52 @@
             }
         }
 
+        // 📲ボタン押下時：テンプレート選択画面を開く
+        function openMailTmpl(id) {
+            const i = db.find(x => x.id === id);
+            tempAdress = i.list?.adress || "";
+            const tmplArea = document.getElementById('tmpl-scroll');
+            tmplArea.innerHTML = "";
+            
+            // 現在のカテゴリ内のカードを抽出
+            const cards = db.filter(x => x.cat === cur && x.card && (x.card.t || x.card.b));
+            if(cards.length === 0) {
+                tmplArea.innerHTML = "<div style='padding:20px; text-align:center; font-size:10px; color:#999;'>有効なカード（テンプレート）がありません</div>";
+            } else {
+                cards.forEach(c => {
+                    const btn = document.createElement('button');
+                    btn.className = "tmpl-list-btn";
+                    btn.innerText = c.card.t || "(タイトルなし)";
+                    btn.onclick = () => sendMailFinal(c.id);
+                    tmplArea.appendChild(btn);
+                });
+            }
+            document.getElementById('ed-tmpl').style.display = 'flex';
+        }
+
+        // テンプレート確定後：メーラーを起動
+        function sendMailFinal(cardId) {
+            const card = db.find(x => x.id === cardId);
+            const subject = card.card?.t || "";
+            const body = card.card?.b || "";
+            
+            navigator.clipboard.writeText(body).then(() => {
+                const encSub = encodeURIComponent(subject);
+                const encBody = encodeURIComponent(body);
+                
+                let url = "";
+                if(conf.mailerMode === 'gmail') {
+                    url = `googlegmail:///co?to=${tempAdress}&subject=${encSub}&body=${encBody}`;
+                } else {
+                    url = `mailto:${tempAdress}?subject=${encSub}&body=${encBody}`;
+                }
+                
+                cls(); // テンプレート画面を閉じる
+                toast("本文をコピーしました");
+                window.location.href = url;
+            });
+        }
+
         function saveL() {
             if(isSubmitting) return; const name = document.getElementById('ln-name').value.trim(); if(!name) { toast("グループ名を入力してください"); return; }
             isSubmitting = true; const data = {}; L_KEYS.forEach(k => data[k] = document.getElementById('ln-'+k).value);
@@ -438,17 +518,7 @@
         function cls() { document.querySelectorAll('.overlay').forEach(o => o.style.display = 'none'); }
         function toast(m) { const t = document.getElementById('toast'); t.innerHTML = m; t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 1500); }
         
-        function sendGmail(id) {
-            const i = db.find(x => x.id === id);
-            const body = i.card?.b || "";
-            const adress = i.list?.adress || "";
-            navigator.clipboard.writeText(body).then(() => {
-                toast("本文をコピーしました");
-                window.location.href = `mailto:${adress}`;
-            });
-        }
-
-        function copyByTxt(id) { const i = db.find(x => x.id === id); navigator.clipboard.writeText(i.card?.b).then(() => { toast("コピー完了"); window.location.href = "googlegmail://"; }); }
+        function copyByTxt(id) { const i = db.find(x => x.id === id); navigator.clipboard.writeText(i.card?.b).then(() => { toast("コピー完了"); }); }
         function copyByVal(id) { navigator.clipboard.writeText(document.getElementById(id).value).then(() => toast("コピー完了")); }
         function switchSetTab(t) { document.querySelectorAll('.set-tab-btn').forEach(b => b.classList.toggle('active', b.id === `set-tab-${t}`)); document.getElementById('set-content-card').style.display = t === 'card' ? 'block' : 'none'; document.getElementById('set-content-list').style.display = t === 'list' ? 'block' : 'none'; }
         function openSet() { document.getElementById('ed-set').style.display = 'flex'; switchSetTab('card'); }
