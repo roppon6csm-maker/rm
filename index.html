@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RopMemo v1.87</title>
+    <title>RopMemo v1.88</title>
     <style>
         :root {
             --bg-cate01: #D9D2E9; --bg-cate02: #EAD1DC; --bg-cate03: #FFF2CC; --bg-cate04: #D1EAF0;
@@ -145,7 +145,7 @@
 
         .dest-info { background: rgba(0,0,0,0.05); border-radius: 10px; padding: 10px; margin-bottom: 8px; font-size: 11px; border-left: 4px solid #555; }
         .dest-row { display: flex; margin-bottom: 2px; }
-        .dest-label { width: 55px; color: #888; font-weight: bold; font-size: 9px; }
+        .dest-label { width: 65px; color: #888; font-weight: bold; font-size: 9px; }
         .dest-val { flex: 1; color: #333; font-weight: bold; }
         .tmpl-list-btn { width: 100%; text-align: left; padding: 14px; background: #FFF; border: none; border-bottom: 1px solid #EEE; font-size: 12px; font-weight: bold; color: #333; }
         .tmpl-list-btn:last-child { border-bottom: none; }
@@ -157,7 +157,7 @@
 <body onload="boot()">
     <div id="header-outer">
         <div class="logo-text" onclick="openSet()">RopMemo<span>⚙</span></div>
-        <div class="ver-text">ver.1.87</div>
+        <div class="ver-text">ver.1.88</div>
     </div>
 
     <div id="main-window">
@@ -200,13 +200,13 @@
 気になる動画や情報もクイック登録！</div>
             <div class="welcome-logo">『RopMemo』</div>
             <button class="welcome-btn" onclick="cls()">はじめる</button>
-            <div class="welcome-ver">ver.1.87</div>
+            <div class="welcome-ver">ver.1.88</div>
         </div>
     </div>
 
     <div id="ed-tmpl" class="overlay">
         <div class="win" style="height: auto; max-height: 80%;">
-            <div class="win-label">[テンプレート選択]</div>
+            <div style="font-size:14px; font-weight:900; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center; color:#000;">⚙ テンプレート選択 <span onclick="cls()" style="cursor:pointer; font-size:20px; color:#888;">✕</span></div>
             <div id="dest-box" class="dest-info"></div>
             <div id="tmpl-scroll" class="set-scroll" style="background:#FFF; border-radius:8px; overflow-y:auto;"></div>
             <button onclick="cls()" class="btn-l" style="background:#FFF; color:#333; margin-top:8px;">キャンセル</button>
@@ -365,7 +365,7 @@
         };
 
         let sortKey = 'id', sortOrder = 'reg', cur = 'cate01', eid = null, isSubmitting = false;
-        let tempDest = { name: "", tanto: "", adress: "" }; 
+        let tempDest = { name: "", tanto: "", adress: "", meth: "", twitterID: "" }; 
 
         function esc(s) { if(!s) return ""; return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
         function fmtDate() { const d = new Date(); const w = ["日","月","火","水","木","金","土"][d.getDay()]; return `${d.getFullYear()}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getDate().toString().padStart(2,'0')}(${w})${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`; }
@@ -492,7 +492,6 @@
                         opts.forEach(o => h += `<option value="${o}" ${String(o)===String(current)?'selected':''}>${o}</option>`);
                         return h + `</select>`;
                     };
-                    /* No.列は表示上の行番号(idx+1)をそのまま入れるだけの単純な仕組み (ver.1.87) */
                     const displayNo = tbody.children.length + 1;
                     tr.innerHTML = `<td>${displayNo}</td><td>${mkSel('flag',['🚩','🙆‍♀️','🙅‍♀️','済'],i.list?.flag)}</td><td>${mkSel('meth',['L','✉️','𝕏','🗒'],i.list?.meth)}</td><td style="text-align:left; font-weight:bold; padding-left:4px;">${esc(i.list?.name || '(未設定)')}</td><td>${mkSel('date',dateOptions,i.list?.date)}</td><td>${mkSel('yomi',["-",0,2,4,6,8,10,12,14],i.list?.yomi)}</td><td><span class="list-edit-btn" onclick="openMailTmpl('${i.id}')">📲</span></td><td><span class="list-edit-btn" onclick="openEd('${i.id}')">✏️</span></td>`;
                     tbody.appendChild(tr);
@@ -529,8 +528,14 @@
         }
 
         function openMailTmpl(id) {
-            const i = db.find(x => x.id === id); tempDest = { name: i.list?.name || "", tanto: i.list?.tanto || "", adress: i.list?.adress || "" };
-            document.getElementById('dest-box').innerHTML = `<div class="dest-row"><div class="dest-label">グループ</div><div class="dest-val">${esc(tempDest.name)}</div></div><div class="dest-row"><div class="dest-label">担当者</div><div class="dest-val">${esc(tempDest.tanto || '---')}</div></div><div class="dest-row"><div class="dest-label">連絡先</div><div class="dest-val">${esc(tempDest.adress || '---')}</div></div>`;
+            const i = db.find(x => x.id === id); 
+            tempDest = { name: i.list?.name || "", tanto: i.list?.tanto || "", adress: i.list?.adress || "", meth: i.list?.meth || "", twitterID: i.list?.twitterID || "" };
+            
+            let adressLabel = "連絡先";
+            if(tempDest.meth === 'L') adressLabel = "LINEで連絡";
+            else if(tempDest.meth === '𝕏') adressLabel = "𝕏でDM 連絡";
+
+            document.getElementById('dest-box').innerHTML = `<div class="dest-row"><div class="dest-label">グループ</div><div class="dest-val">${esc(tempDest.name)}</div></div><div class="dest-row"><div class="dest-label">担当者</div><div class="dest-val">${esc(tempDest.tanto || '---')}</div></div><div class="dest-row"><div class="dest-label">${adressLabel}</div><div class="dest-val">${esc(tempDest.adress || (tempDest.meth === '𝕏' ? '設定あり' : '---'))}</div></div>`;
             const tmplArea = document.getElementById('tmpl-scroll'); tmplArea.innerHTML = "";
             const cards = db.filter(x => x.cat === cur && x.card && (x.card.t || x.card.b));
             if(cards.length === 0) tmplArea.innerHTML = "<div style='padding:20px; text-align:center; font-size:10px; color:#999;'>テンプレートがありません</div>";
@@ -542,10 +547,22 @@
             const card = db.find(x => x.id === cardId); const subject = card.card?.t || ""; const originalBody = card.card?.b || "";
             let ateName = tempDest.tanto ? `${tempDest.name}\n${tempDest.tanto}` : `${tempDest.name}様`; 
             const finalBody = `${ateName}\n\n${originalBody}`;
-            navigator.clipboard.writeText(finalBody).then(() => {
-                let url = (conf.mailerMode === 'gmail') ? `googlegmail:///co?to=${tempDest.adress}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(finalBody)}` : `mailto:${tempDest.adress}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(finalBody)}`;
-                cls(); toast("本文をコピーしました"); window.location.href = url;
-            });
+
+            if(tempDest.meth === 'L') {
+                navigator.clipboard.writeText(finalBody).then(() => {
+                    cls(); toast("宛名を差し込んだテンプレート本文を\nコピーしました。\nLINEを起動して個別連絡してください", 3000);
+                });
+            } else if(tempDest.meth === '𝕏') {
+                navigator.clipboard.writeText(finalBody).then(() => {
+                    cls(); toast("宛名を差し込んだテンプレート本文を\nコピーしました。\n𝕏のプロフ画面に遷移します", 3000);
+                    setTimeout(() => { if(tempDest.twitterID) window.location.href = tempDest.twitterID; }, 3000);
+                });
+            } else {
+                navigator.clipboard.writeText(finalBody).then(() => {
+                    let url = (conf.mailerMode === 'gmail') ? `googlegmail:///co?to=${tempDest.adress}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(finalBody)}` : `mailto:${tempDest.adress}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(finalBody)}`;
+                    cls(); toast("本文をコピーしました"); window.location.href = url;
+                });
+            }
         }
 
         function saveL() {
@@ -567,7 +584,7 @@
         function execDel() { db = db.filter(x => x.id !== eid); saveAll(); cls(); toast("削除しました"); }
         function saveAll() { localStorage.setItem(SK, JSON.stringify(db)); upd(); }
         function cls() { document.querySelectorAll('.overlay').forEach(o => o.style.display = 'none'); if(document.getElementById('welcome-overlay').style.display==='none') sessionStorage.setItem('rop_welcome','1'); }
-        function toast(m) { const t = document.getElementById('toast'); t.innerHTML = m; t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 2000); }
+        function toast(m, ms = 2000) { const t = document.getElementById('toast'); t.innerHTML = m.replace(/\n/g,'<br>'); t.style.display = 'block'; setTimeout(() => t.style.display = 'none', ms); }
         function copyByTxt(id) { const i = db.find(x => x.id === id); navigator.clipboard.writeText(i.card?.b).then(() => { toast("コピー完了"); }); }
         function copyByVal(id) { navigator.clipboard.writeText(document.getElementById(id).value).then(() => toast("コピー完了")); }
         function switchSetTab(t) { document.querySelectorAll('.set-tab-btn').forEach(b => b.classList.toggle('active', b.id === `set-tab-${t}`)); document.getElementById('set-content-card').style.display = t === 'card' ? 'block' : 'none'; document.getElementById('set-content-list').style.display = t === 'list' ? 'block' : 'none'; }
