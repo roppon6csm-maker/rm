@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RopMemo v1.82</title>
+    <title>RopMemo v1.83</title>
     <style>
         :root {
             --bg-cate01: #D9D2E9; --bg-cate02: #EAD1DC; --bg-cate03: #FFF2CC; --bg-cate04: #D1EAF0;
@@ -17,25 +17,14 @@
         }
         body { background-color: #000; height: 100vh; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; overflow: hidden; position: relative; }
         
-        /* タップエフェクト (ver.1.82 継承) */
+        /* タップエフェクト (ver.1.82継承) */
         .tap-ripple {
-            position: fixed;
-            width: 30px;
-            height: 30px;
-            background: rgba(255, 255, 255, 0.75);
-            border-radius: 50%;
-            pointer-events: none;
-            transform: translate(-50%, -50%) scale(0);
-            z-index: 99999;
-            transition: transform 0.1s ease-out;
-            box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
+            position: fixed; width: 30px; height: 30px; background: rgba(255, 255, 255, 0.75);
+            border-radius: 50%; pointer-events: none; transform: translate(-50%, -50%) scale(0);
+            z-index: 99999; transition: transform 0.1s ease-out; box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
         }
         .tap-ripple.active { transform: translate(-50%, -50%) scale(1); }
-        .tap-ripple.fade-out { 
-            transform: translate(-50%, -50%) scale(1.4);
-            opacity: 0;
-            transition: transform 0.4s ease-out, opacity 0.4s ease-out;
-        }
+        .tap-ripple.fade-out { transform: translate(-50%, -50%) scale(1.4); opacity: 0; transition: transform 0.4s ease-out, opacity 0.4s ease-out; }
 
         #header-outer { width: 92%; display: flex; flex-direction: column; align-items: flex-end; margin-bottom: 3px; color: #999; position: relative; }
         .logo-text { font-size: 26px; font-weight: 900; letter-spacing: -1.5px; cursor: pointer; display: flex; align-items: center; color: #FFF; opacity: 0.8; }
@@ -90,7 +79,6 @@
         .win { width: 92%; height: 92%; background: #D6D6D6; border-radius: 25px; margin-bottom: 2%; padding: 15px; display: flex; flex-direction: column; gap: 8px; position: relative; }
         .set-scroll { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; scrollbar-width: none; padding-bottom: 20px; }
         .set-row { background: #FFF; border-radius: 8px; padding: 10px; display: flex; flex-direction: column; gap: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 15px; }
-        .set-row:last-child { margin-bottom: 0; }
         .set-section-title { font-size: 12px; font-weight: bold; color: #333; margin: 5px 0 8px 4px; display: flex; align-items: center; gap: 5px; }
         .btn-l { width: 100%; height: 44px; background: #444; color: #FFF; border: none; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; flex-shrink: 0; }
         .set-label { font-size: 10px; color: #888; font-weight: bold; margin-bottom: 2px; }
@@ -120,31 +108,34 @@
         .set-tab-btn { flex:1; padding: 12px; font-size: 11px; border-radius: 10px; border: none; background: #CCC; color: #666; font-weight: bold; cursor: pointer; }
         .set-tab-btn.active { background: #007AFF; color: #FFF; box-shadow: 0 2px 6px rgba(0,122,255,0.3); }
 
-        #toast { position: fixed; bottom: 41.5%; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); color: #fff; padding: 10px 24px; border-radius: 20px; font-size: 11px; font-weight: bold; display: none; z-index: 9999; text-align: center; }
-        .sort-icon { display: inline-block; width: 12px; text-align: center; font-size: 8px; margin-left: 1px; color: #007AFF; }
-        
-        /* データ管理センターUI (ver.1.82) */
-        .data-center { margin-top: 5px; padding-top: 5px; }
-        .data-count-badge { display: flex; gap: 10px; margin-bottom: 12px; }
-        .count-item { background: #555; color: #FFF; padding: 4px 12px; border-radius: 15px; font-size: 9px; font-weight: bold; }
-        .io-panel { background: #E6E6E6; border-radius: 12px; padding: 15px; display: flex; flex-direction: column; gap: 10px; border: 1px solid rgba(0,0,0,0.05); margin-bottom: 15px; }
-        .io-btn { background: #FFF; color: #333; font-size: 11px; padding: 10px; border-radius: 8px; border: 1px solid #BBB; cursor: pointer; width: 100%; font-weight: bold; text-align: center; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-        .io-btn:active { background: #EEE; transform: translateY(1px); }
-        .io-text { width: 100%; height: 140px; font-size: 10px; padding: 10px; border: 1px solid #BBB; border-radius: 8px; resize: none; background: #FFF; line-height: 1.5; font-family: monospace; }
-        .io-desc { font-size: 9px; color: #666; line-height: 1.5; margin-bottom: 4px; }
+        /* データ管理UI刷新 (ver.1.83) */
+        .data-card { background: #FFF; border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .data-card-title { font-size: 11px; font-weight: bold; color: #333; margin-bottom: 8px; }
+        .data-stats-row { display: flex; gap: 10px; margin-bottom: 5px; }
+        .data-stat-box { flex: 1; background: #F8F8F8; padding: 10px; border-radius: 8px; text-align: center; border: 1px solid #EEE; }
+        .stat-val { font-size: 16px; font-weight: bold; color: #007AFF; display: block; }
+        .stat-lab { font-size: 8px; color: #888; }
+        .data-help-box { border: 1.5px solid #EEE; border-radius: 10px; padding: 12px; margin-top: 8px; background: #FCFCFC; }
+        .data-help-step { font-size: 10px; color: #444; margin-bottom: 10px; line-height: 1.5; }
+        .data-help-step b { color: #000; display: block; margin-bottom: 2px; }
+        .data-help-step:last-child { margin-bottom: 0; }
+        .data-sub-text { font-size: 9px; color: #888; margin-top: 3px; }
+        .btn-data-main { width: 100%; padding: 14px; border: none; border-radius: 12px; font-size: 13px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .btn-data-main:active { opacity: 0.7; transform: scale(0.98); }
+        .btn-backup { background: #007AFF; color: #FFF; box-shadow: 0 4px 10px rgba(0,122,255,0.25); }
+        .btn-import { background: #34C759; color: #FFF; box-shadow: 0 4px 10px rgba(52,199,89,0.25); }
 
         .mailer-toggle { display: flex; gap: 0; background: #EEE; border-radius: 8px; overflow: hidden; margin-top: 5px; border: 1px solid #DDD; }
         .mailer-btn { flex: 1; border: none; padding: 10px; font-size: 11px; cursor: pointer; background: transparent; color: #666; font-weight: bold; }
         .mailer-btn.active { background: #007AFF; color: #FFF; }
 
-        .tmpl-list-btn { width: 100%; text-align: left; padding: 14px; background: #FFF; border: none; border-bottom: 1px solid #EEE; font-size: 12px; font-weight: bold; color: #333; }
-        .tmpl-list-btn:last-child { border-bottom: none; }
-        .tmpl-list-btn:active { background: #F0F0F0; }
-
+        #toast { position: fixed; bottom: 41.5%; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); color: #fff; padding: 10px 24px; border-radius: 20px; font-size: 11px; font-weight: bold; display: none; z-index: 9999; text-align: center; line-height: 1.4; }
+        
+        /* 起動モーダル配色戻し (ver.1.83) */
         #welcome-overlay { display: none; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
-        .welcome-win { width: 85%; background: #FFF; border-radius: 25px; padding: 30px 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; display: flex; flex-direction: column; gap: 20px; animation: popUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; }
+        .welcome-win { width: 85%; background: #FFF; border-radius: 25px; padding: 30px 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; display: flex; flex-direction: column; gap: 20px; animation: popUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; color: #333; }
         @keyframes popUp { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        .welcome-msg { font-size: 13px; line-height: 1.8; color: #333; font-weight: bold; white-space: pre-wrap; }
+        .welcome-msg { font-size: 13px; line-height: 1.8; color: #444; font-weight: bold; white-space: pre-wrap; }
         .welcome-logo { font-size: 24px; font-weight: 900; color: #000; margin-top: 10px; border-top: 1px solid #EEE; padding-top: 15px; }
         .welcome-btn { background: #007AFF; color: #FFF; border: none; padding: 12px 0; border-radius: 12px; font-weight: bold; font-size: 14px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,122,255,0.3); }
         .welcome-ver { position: absolute; bottom: 12px; right: 20px; font-size: 8px; color: #CCC; }
@@ -153,12 +144,15 @@
         .dest-row { display: flex; margin-bottom: 2px; }
         .dest-label { width: 55px; color: #888; font-weight: bold; font-size: 9px; }
         .dest-val { flex: 1; color: #333; font-weight: bold; }
+        .tmpl-list-btn { width: 100%; text-align: left; padding: 14px; background: #FFF; border: none; border-bottom: 1px solid #EEE; font-size: 12px; font-weight: bold; color: #333; }
+        .tmpl-list-btn:last-child { border-bottom: none; }
+        .tmpl-list-btn:active { background: #F0F0F0; }
     </style>
 </head>
 <body onload="boot()">
     <div id="header-outer">
         <div class="logo-text" onclick="openSet()">RopMemo<span>⚙</span></div>
-        <div class="ver-text">ver.1.82</div>
+        <div class="ver-text">ver.1.83</div>
     </div>
 
     <div id="main-window">
@@ -201,7 +195,7 @@
 気になる動画や情報もクイック登録！</div>
             <div class="welcome-logo">『RopMemo』</div>
             <button class="welcome-btn" onclick="cls()">はじめる</button>
-            <div class="welcome-ver">ver.1.82</div>
+            <div class="welcome-ver">ver.1.83</div>
         </div>
     </div>
 
@@ -299,7 +293,6 @@
                             <input type="text" id="sn-4" class="input-mini w-100" placeholder="4: 保存" style="margin-bottom:2px;">
                         </div>
                     </div>
-
                     <div class="set-section-title">◾︎ カード表示画面</div>
                     <div class="set-row">
                         <div class="set-label">カードフォントサイズ (px)</div>
@@ -308,7 +301,6 @@
                             <div>本文：<input type="number" id="sf-b" style="width:60px; height:32px; text-align:center; border:1px solid #DDD; border-radius:6px;"></div>
                         </div>
                     </div>
-
                     <div class="set-section-title">◾︎ リスト表示画面</div>
                     <div class="set-row">
                         <div class="set-label">リスト表示設定（名称 / 横幅）</div>
@@ -323,23 +315,37 @@
                     </div>
                 </div>
                 <div id="set-content-list" style="display:none;">
-                    <div class="data-center">
-                        <div class="data-count-badge">
-                            <div class="count-item">カード登録: <span id="cnt-card">0</span>件</div>
-                            <div class="count-item">リスト登録: <span id="cnt-list">0</span>件</div>
+                    <div class="data-card">
+                        <div class="data-card-title">◾︎ 現在の登録データ</div>
+                        <div class="data-stats-row">
+                            <div class="data-stat-box"><span id="cnt-card" class="stat-val">0</span><span class="stat-lab">[カード登録：x件]</span></div>
+                            <div class="data-stat-box"><span id="cnt-list" class="stat-val">0</span><span class="stat-lab">[リスト登録：x件]</span></div>
                         </div>
-                        <div class="io-panel">
-                            <div class="io-desc">【全データ一括バックアップ】<br>下のボタンで現在の全データをテキスト化します。機種変更時やバックアップの際は、表示された全文字をコピーしてメモ帳等に保存してください。</div>
-                            <button class="io-btn" style="background:#555; color:#FFF; border:none;" onclick="exportAllJSON()">全データを書き出し</button>
-                            <textarea id="io-input" class="io-text" placeholder="復元する場合は、ここにバックアップテキストを貼り付けて下の「一括復元」を押してください"></textarea>
-                            <div style="display:flex; gap:8px;">
-                                <button class="io-btn" style="background:#007AFF; color:#FFF; border:none; flex:1; height:44px;" onclick="importAllJSON()">一括復元</button>
-                                <button class="io-btn" style="background:#34C759; color:#FFF; border:none; flex:1; height:44px;" onclick="importExcelMode()">Excel読込</button>
+                    </div>
+
+                    <div class="data-card">
+                        <div class="data-card-title">◾︎ データのバックアップとインポート</div>
+                        <div class="data-section-sub">
+                            <div class="data-card-title" style="font-size:10px; margin-top:10px;">◾︎ データのバックアップ</div>
+                            <div class="data-sub-text">アプリ内のデータを万が一に備えて保管する</div>
+                            <div class="data-help-box">
+                                <div class="data-card-title" style="font-size:9px; margin-bottom:5px;">◾︎ バックアップ手順</div>
+                                <div class="data-help-step"><b>・データコピー</b>バックアップボタンを押すとアプリ内の全カードデータと全リストデータがテキストデータとしてコピーされます。</div>
+                                <div class="data-help-step"><b>・保管</b>コピーされたデータをExcelやGoogleスプレッドシートにそのまま貼り付ける事で表組みされた状態で貼り付けられます。このファイルをバックアップデータとして保管してください。</div>
                             </div>
+                            <button class="btn-data-main btn-backup" onclick="exportExcelAll()" style="margin-top:10px;">データをバックアップ</button>
+                            <div class="data-sub-text" style="text-align:center;">アプリ内データがクリップボードにコピーされます</div>
                         </div>
-                        <div class="io-panel">
-                            <div class="io-desc">【Excel・スプレッドシート連携】<br>現在表示中のカテゴリのリストをExcelに貼り付け可能な形式でコピーします。</div>
-                            <button class="io-btn" onclick="exportExcelList()">表示中のリストをコピー</button>
+
+                        <div class="data-section-sub" style="margin-top:20px; border-top:1px solid #EEE; padding-top:15px;">
+                            <div class="data-card-title" style="font-size:10px;">◾︎ データのインポート</div>
+                            <div class="data-sub-text">アプリにデータを流し込んで(インポート)、データを一括追加したり復元したりできます。</div>
+                            <div class="data-help-box">
+                                <div class="data-card-title" style="font-size:9px; margin-bottom:5px;">◾︎ インポート手順</div>
+                                <div class="data-help-step"><b>・データ準備</b>バックアップファイル(ExcelやGoogleスプレッドシート)を開いてインポートするデータを項目名の行も含めて全て選択してコピーします。</div>
+                                <div class="data-help-step"><b>・インポート</b>コピーした状態でインポートボタンを押す事でデータがアプリに流し込まれます。</div>
+                            </div>
+                            <button class="btn-data-main btn-import" onclick="importExcelAll()" style="margin-top:10px;">データをインポート</button>
                         </div>
                     </div>
                 </div>
@@ -374,10 +380,9 @@
         function fmtDate() { const d = new Date(); const w = ["日","月","火","水","木","金","土"][d.getDay()]; return `${d.getFullYear()}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getDate().toString().padStart(2,'0')}(${w})${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`; }
 
         function boot() { 
-            fixConfStructure();
-            applyConf(); 
-            go('cate01');
-            openWelcome();
+            fixConfStructure(); applyConf(); go('cate01');
+            const welcomeSeen = sessionStorage.getItem('rop_welcome');
+            if(!welcomeSeen) { document.getElementById('welcome-overlay').style.display = 'flex'; }
             initTapEffect();
         }
 
@@ -387,8 +392,7 @@
                 if (!conf.tapEffect) return;
                 const ripple = document.createElement('div');
                 ripple.className = 'tap-ripple';
-                ripple.style.left = e.clientX + 'px';
-                ripple.style.top = e.clientY + 'px';
+                ripple.style.left = e.clientX + 'px'; ripple.style.top = e.clientY + 'px';
                 document.body.appendChild(ripple);
                 requestAnimationFrame(() => ripple.classList.add('active'));
                 activeRipple = ripple;
@@ -399,12 +403,7 @@
             document.addEventListener('pointercancel', endRipple);
         }
 
-        function openWelcome() { document.getElementById('welcome-overlay').style.display = 'flex'; }
-
         function fixConfStructure() {
-            let cols = conf.listCols;
-            if (cols.findIndex(c => c.id === 'adress') === -1) { cols.push({id: 'adress', n: 'スマート<br>連絡', w: 25}); }
-            if (cols.findIndex(c => c.id === 'edit') === -1) { cols.push({id: 'edit', n: '✏️', w: 30}); }
             if (conf.tapEffect === undefined) conf.tapEffect = true;
             localStorage.setItem(CK, JSON.stringify(conf));
         }
@@ -429,21 +428,21 @@
                 row.innerHTML = `<input type="text" id="lc-n-${i}" value="${c.n}" style="flex:1; height:32px; font-size:11px; border:1px solid #DDD; border-radius:6px; padding:0 8px;"><input type="number" id="lc-w-${i}" value="${c.w}" style="width:50px; height:32px; font-size:11px; border:1px solid #DDD; border-radius:6px; text-align:center;">`;
                 colArea.appendChild(row);
             });
-            updateMailerUI();
-            updateDataCounters();
+            updateMailerUI(); updateDataCounters();
         }
 
         function updateDataCounters() {
             const cardCount = db.filter(i => i.card && (i.card.t || i.card.b)).length;
             const listCount = db.filter(i => i.list && i.list.name).length;
-            document.getElementById('cnt-card').innerText = cardCount;
-            document.getElementById('cnt-list').innerText = listCount;
+            const cEl = document.getElementById('cnt-card'); const lEl = document.getElementById('cnt-list');
+            if(cEl) cEl.innerText = cardCount; if(lEl) lEl.innerText = listCount;
         }
 
         function setMailer(m) { conf.mailerMode = m; updateMailerUI(); }
         function updateMailerUI() {
-            document.getElementById('mb-standard').classList.toggle('active', conf.mailerMode === 'standard');
-            document.getElementById('mb-gmail').classList.toggle('active', conf.mailerMode === 'gmail');
+            const bS = document.getElementById('mb-standard'); const bG = document.getElementById('mb-gmail');
+            if(bS) bS.classList.toggle('active', conf.mailerMode === 'standard');
+            if(bG) bG.classList.toggle('active', conf.mailerMode === 'gmail');
         }
 
         function go(k) {
@@ -482,6 +481,7 @@
 
         function upd() {
             const grid = document.getElementById('card-grid'); const tbody = document.getElementById('list-body'); const thead = document.getElementById('list-head');
+            if(!grid || !tbody || !thead) return;
             grid.innerHTML = ''; tbody.innerHTML = ''; thead.innerHTML = '';
             const hr = document.createElement('tr');
             conf.listCols.forEach(c => {
@@ -585,8 +585,8 @@
 
         function execDel() { db = db.filter(x => x.id !== eid); saveAll(); cls(); toast("削除しました"); }
         function saveAll() { localStorage.setItem(SK, JSON.stringify(db)); upd(); }
-        function cls() { document.querySelectorAll('.overlay').forEach(o => o.style.display = 'none'); }
-        function toast(m) { const t = document.getElementById('toast'); t.innerHTML = m; t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 1500); }
+        function cls() { document.querySelectorAll('.overlay').forEach(o => o.style.display = 'none'); if(document.getElementById('welcome-overlay').style.display==='none') sessionStorage.setItem('rop_welcome','1'); }
+        function toast(m) { const t = document.getElementById('toast'); t.innerHTML = m; t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 2000); }
         function copyByTxt(id) { const i = db.find(x => x.id === id); navigator.clipboard.writeText(i.card?.b).then(() => { toast("コピー完了"); }); }
         function copyByVal(id) { navigator.clipboard.writeText(document.getElementById(id).value).then(() => toast("コピー完了")); }
         function switchSetTab(t) { document.querySelectorAll('.set-tab-btn').forEach(b => b.classList.toggle('active', b.id === `set-tab-${t}`)); document.getElementById('set-content-card').style.display = t === 'card' ? 'block' : 'none'; document.getElementById('set-content-list').style.display = t === 'list' ? 'block' : 'none'; }
@@ -600,48 +600,39 @@
             localStorage.setItem(CK, JSON.stringify(conf)); location.reload(); 
         }
 
-        function exportAllJSON() {
-            const data = { db: db, conf: conf, version: "1.82" };
-            const jsonStr = JSON.stringify(data);
-            document.getElementById('io-input').value = jsonStr;
-            document.getElementById('io-input').select();
-            toast("データを書き出しました");
+        /* 統合バックアップ (Excel互換タブ区切り) */
+        function exportExcelAll() {
+            const cKeys = ['id','cat','date','t','b','u','a'];
+            const lKeys = ['id','cat','date',...L_KEYS];
+            let output = "[CARDS]\n" + cKeys.join('\t') + "\n";
+            db.forEach(i => { if(i.card?.t || i.card?.b) output += [i.id, i.cat, i.date, i.card.t, i.card.b, i.card.u, i.card.a].map(v => String(v||'').replace(/\t|\n|\r/g, ' ')).join('\t') + "\n"; });
+            output += "\n[LISTS]\n" + lKeys.join('\t') + "\n";
+            db.forEach(i => { if(i.list?.name) output += [i.id, i.cat, i.date, ...L_KEYS.map(k => i.list[k])].map(v => String(v||'').replace(/\t|\n|\r/g, ' ')).join('\t') + "\n"; });
+            navigator.clipboard.writeText(output).then(() => { toast("コピー完了。<br>ExcelやGoogleスプレッドシートに<br>貼り付けてください"); });
         }
 
-        function importAllJSON() {
-            const input = document.getElementById('io-input').value.trim();
-            if(!input) return;
+        async function importExcelAll() {
             try {
-                const imported = JSON.parse(input);
-                if(imported.db && Array.isArray(imported.db)) {
-                    if(confirm("現在のデータは全て上書きされます。復元しますか？")) {
-                        db = imported.db;
-                        if(imported.conf) conf = imported.conf;
-                        saveAll();
-                        localStorage.setItem(CK, JSON.stringify(conf));
-                        location.reload();
+                const text = await navigator.clipboard.readText();
+                if(!text || (!text.includes('[CARDS]') && !text.includes('[LISTS]'))) { alert("有効なバックアップデータをコピーした状態で実行してください。"); return; }
+                if(!confirm("現在のデータにインポートデータを追加しますか？")) return;
+                const sections = text.split(/\n\s*\n/);
+                sections.forEach(sec => {
+                    const lines = sec.trim().split(/\r?\n/); if(lines.length < 2) return;
+                    const type = lines[0].trim(); const header = lines[1].split('\t');
+                    for(let i=2; i<lines.length; i++) {
+                        const row = lines[i].split('\t'); if(row.length < 2) continue;
+                        const data = {}; header.forEach((h, idx) => data[h] = row[idx] || '');
+                        if(type === '[CARDS]') {
+                            db.push({ id: Date.now().toString() + i, cat: data.cat||'none', date: data.date||fmtDate(), card: {t:data.t, b:data.b, u:data.u, a:data.a}, list: {} });
+                        } else if(type === '[LISTS]') {
+                            const lObj = {}; L_KEYS.forEach(k => lObj[k] = data[k] || '');
+                            db.push({ id: Date.now().toString() + i, cat: data.cat||'none', date: data.date||fmtDate(), card: {}, list: lObj });
+                        }
                     }
-                } else { alert("有効なバックアップデータではありません。"); }
-            } catch(e) { alert("データの形式が正しくありません。"); }
-        }
-
-        function exportExcelList() {
-            const header = L_KEYS.join('\t'); 
-            const filtered = db.filter(i => i.cat === cur && i.list && i.list.name);
-            const rows = filtered.map(i => L_KEYS.map(k => String(i.list[k] || '').replace(/\t|\n|\r/g, ' ')).join('\t'));
-            navigator.clipboard.writeText([header, ...rows].join('\n')).then(() => toast("リストをコピーしました"));
-        }
-
-        function importExcelMode() {
-            const input = document.getElementById('io-input').value.trim();
-            if(!input) { alert("Excelからコピーしたデータを貼り付けてください。"); return; }
-            const lines = input.split(/\r?\n/); let count = 0;
-            for(let i = 1; i < lines.length; i++) {
-                const cols = lines[i].split('\t'); if(cols.length < 2) continue;
-                const listData = {}; L_KEYS.forEach((k, idx) => listData[k] = cols[idx] || '');
-                db.push({ id: (Date.now() + i).toString(), cat: cur, date: fmtDate(), card: {}, list: listData }); count++;
-            }
-            if(count > 0) { saveAll(); document.getElementById('io-input').value = ''; toast(`${count}件インポート完了`); }
+                });
+                saveAll(); toast("インポート完了しました");
+            } catch(e) { alert("インポートに失敗しました。クリップボードを確認してください。"); }
         }
 
         function createCard(v) { db.push({ id: Date.now().toString(), cat:'none', date:fmtDate(), card:{t:'メモ', b:v, u:'', a:''}, list:{} }); saveAll(); }
