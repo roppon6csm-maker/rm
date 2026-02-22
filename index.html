@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RopMemo v1.75</title>
+    <title>RopMemo v1.76</title>
     <style>
         :root {
             --bg-cate01: #D9D2E9; --bg-cate02: #EAD1DC; --bg-cate03: #FFF2CC; --bg-cate04: #D1EAF0;
@@ -14,13 +14,18 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background-color: #000; height: 100vh; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; overflow: hidden; }
         
-        /* タップフィードバック効果 */
-        .tap-target:active { position: relative; }
-        .tap-target:active::after {
-            content: ""; position: absolute; inset: 0; background: var(--tap-color); 
-            pointer-events: none; z-index: 99; border-radius: inherit; animation: tap-flash 0.3s ease-out;
+        /* ⭕️サイズ スポットフィードバック */
+        .tap-target { position: relative; overflow: hidden; }
+        .ripple {
+            position: absolute; width: 32px; height: 32px;
+            background: var(--tap-color); border-radius: 50%;
+            pointer-events: none; transform: translate(-50%, -50%) scale(0);
+            animation: ripple-ani 0.3s ease-out forwards; z-index: 999;
         }
-        @keyframes tap-flash { from { opacity: 0.8; } to { opacity: 0; } }
+        @keyframes ripple-ani {
+            0% { transform: translate(-50%, -50%) scale(0.3); opacity: 0.8; }
+            100% { transform: translate(-50%, -50%) scale(1.2); opacity: 0; }
+        }
 
         #header-outer { width: 92%; display: flex; flex-direction: column; align-items: flex-end; margin-bottom: 3px; color: #999; position: relative; }
         .logo-text { font-size: 26px; font-weight: 900; letter-spacing: -1.5px; cursor: pointer; display: flex; align-items: center; color: #FFF; opacity: 0.8; }
@@ -112,16 +117,16 @@
 
         #welcome-overlay { display: none; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
         .welcome-win { width: 85%; background: #FFF; border-radius: 25px; padding: 30px 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; display: flex; flex-direction: column; gap: 20px; animation: popUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        @keyframes popUp { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         .welcome-msg { font-size: 13px; line-height: 1.8; color: #333; font-weight: bold; white-space: pre-wrap; }
         .welcome-logo { font-size: 24px; font-weight: 900; color: #000; margin-top: 10px; border-top: 1px solid #EEE; padding-top: 15px; }
         .welcome-btn { background: #007AFF; color: #FFF; border: none; padding: 12px 0; border-radius: 12px; font-weight: bold; font-size: 14px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,122,255,0.3); }
+        @keyframes popUp { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     </style>
 </head>
 <body onload="boot()">
     <div id="header-outer">
         <div class="logo-text tap-target" onclick="openSet()">RopMemo<span>⚙</span></div>
-        <div class="ver-text">ver.1.75</div>
+        <div class="ver-text">ver.1.76</div>
     </div>
 
     <div id="main-window">
@@ -311,45 +316,46 @@
         let tempAdress = ""; 
 
         function esc(s) { if(!s) return ""; return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
-        function fmtDate() { const d = new Date(); const w = ["日","月","火","水","木","金","土"][d.getDay()]; return `${d.getFullYear()}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getDate().toString().padStart(2,'0')}(${w})${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`; }
+        function fmtDate() { const d = new Date(); const w = ["日","月","水","木","金","土"][d.getDay()]; return `${d.getFullYear()}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getDate().toString().padStart(2,'0')}(${w})${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`; }
 
         function boot() { 
-            fixConfStructure();
-            applyConf(); 
-            go('cate01');
-            openWelcome();
+            fixConfStructure(); applyConf(); go('cate01'); openWelcome();
+            // ⭕️スポットエフェクトのグローバル設定
+            document.addEventListener('touchstart', (e) => {
+                if(conf.tap === 'none') return;
+                const target = e.target.closest('.tap-target');
+                if(!target) return;
+                const ripple = document.createElement('div'); ripple.className = 'ripple';
+                const rect = target.getBoundingClientRect();
+                const touch = e.touches[0];
+                const x = touch.clientX - rect.left;
+                const y = touch.clientY - rect.top;
+                ripple.style.left = `${x}px`; ripple.style.top = `${y}px`;
+                target.appendChild(ripple);
+                setTimeout(() => ripple.remove(), 350);
+            }, {passive: true});
         }
 
         function openWelcome() { document.getElementById('welcome-overlay').style.display = 'flex'; }
-
         function fixConfStructure() {
             let cols = conf.listCols;
-            let adIdx = cols.findIndex(c => c.id === 'adress');
-            let edIdx = cols.findIndex(c => c.id === 'edit');
-            if (adIdx === -1) { cols.splice(edIdx === -1 ? cols.length : edIdx, 0, {id: 'adress', n: 'スマート<br>連絡', w: 25}); }
-            if (cols.findIndex(c => c.id === 'edit') === -1) { cols.push({id: 'edit', n: '✏️', w: 30}); }
+            if (cols.findIndex(c => c.id === 'adress') === -1) { cols.splice(cols.findIndex(c => c.id === 'edit'), 0, {id: 'adress', n: 'スマート<br>連絡', w: 25}); }
             localStorage.setItem(CK, JSON.stringify(conf));
         }
 
         function applyConf() {
             for(let i=1; i<=4; i++) {
                 const k = `cate0${i}`; const n = conf.tabs[k];
-                document.getElementById(`tab${i}`).innerText = n;
-                document.getElementById(`opt-c${i}`).innerText = n;
-                document.getElementById(`sn-${i}`).value = n;
+                document.getElementById(`tab${i}`).innerText = n; document.getElementById(`opt-c${i}`).innerText = n; document.getElementById(`sn-${i}`).value = n;
             }
             document.documentElement.style.setProperty('--f-title', conf.fs.t + 'px');
             document.documentElement.style.setProperty('--f-body', conf.fs.b + 'px');
             document.getElementById('sf-t').value = conf.fs.t;
             document.getElementById('sf-b').value = conf.fs.b;
             document.getElementById('sf-tap').value = conf.tap || 'none';
-            
-            // タップカラー設定
-            const colors = { none: 'transparent', white: 'rgba(255,255,255,0.4)', blue: 'rgba(0,122,255,0.5)', amber: 'rgba(255,191,0,0.5)' };
+            const colors = { none:'transparent', white:'rgba(255,255,255,0.7)', blue:'rgba(0,122,255,0.7)', amber:'rgba(255,191,0,0.7)' };
             document.documentElement.style.setProperty('--tap-color', colors[conf.tap] || 'transparent');
-
-            const colArea = document.getElementById('list-cols-config');
-            colArea.innerHTML = '<div class="set-label">リスト各列の表示名と横幅(px)</div>';
+            const colArea = document.getElementById('list-cols-config'); colArea.innerHTML = '<div class="set-label">リスト各列の表示名と横幅(px)</div>';
             conf.listCols.forEach((c, i) => {
                 const row = document.createElement('div'); row.style = "display:flex; gap:5px; align-items:center; margin-top:4px;";
                 row.innerHTML = `<input type="text" id="lc-n-${i}" value="${c.n}" style="flex:1; height:26px; font-size:10px; padding:0 5px; border:1px solid #DDD; border-radius:4px;"><input type="number" id="lc-w-${i}" value="${c.w}" style="width:45px; height:26px; font-size:10px; border:1px solid #DDD; border-radius:4px;">`;
@@ -365,8 +371,7 @@
         }
 
         function go(k) {
-            cur = k;
-            document.documentElement.style.setProperty('--cur-bg', k==='none'?'#C2B4B4':`var(--bg-${k})`);
+            cur = k; document.documentElement.style.setProperty('--cur-bg', k==='none'?'#C2B4B4':`var(--bg-${k})`);
             document.querySelectorAll('.tab').forEach(t => {
                 const target = k==='none'?'tab-n':`tab${['cate01','cate02','cate03','cate04'].indexOf(k)+1}`;
                 t.classList.toggle('active', t.id === target);
@@ -388,8 +393,7 @@
             const mode = (subId === 'sub02') ? 'list' : 'card';
             document.getElementById('card-grid').style.display = mode === 'card' ? 'grid' : 'none';
             document.getElementById('list-view').style.display = mode === 'list' ? 'block' : 'none';
-            document.getElementById('fab-main').innerHTML = "＋";
-            upd();
+            document.getElementById('fab-main').innerHTML = "＋"; upd();
         }
 
         function setSort(key) {
@@ -440,7 +444,7 @@
                             opts.forEach(o => h += `<option value="${o}" ${String(o)===String(current)?'selected':''}>${o}</option>`);
                             return h + `</select>`;
                         };
-                        // Noはidxベースで常に1から
+                        // Noはidxベースで常に1から固定
                         tr.innerHTML = `<td>${idx+1}</td><td>${mkSel('flag',['🚩','🙆‍♀️','🙅‍♀️','済'],i.list?.flag)}</td><td>${mkSel('meth',['L','✉️','𝕏','🗒'],i.list?.meth)}</td><td style="text-align:left; font-weight:bold; padding-left:4px;">${esc(i.list?.name || '(未設定)')}</td><td>${mkSel('date',dateOptions,i.list?.date)}</td><td>${mkSel('yomi',[0,2,4,6,8,10,12,14],i.list?.yomi)}</td><td><span class="list-edit-btn" onclick="openMailTmpl('${i.id}')">📲</span></td><td><span class="list-edit-btn" onclick="openEd('${i.id}')">✏️</span></td>`;
                         fragment.appendChild(tr);
                     } else {
@@ -474,8 +478,8 @@
         function openMailTmpl(id) {
             const i = db.find(x => x.id === id); tempAdress = i.list?.adress || ""; const tmplArea = document.getElementById('tmpl-scroll'); tmplArea.innerHTML = "";
             const cards = db.filter(x => x.cat === cur && x.card && (x.card.t || x.card.b));
-            if(cards.length === 0) { tmplArea.innerHTML = "<div style='padding:20px; text-align:center; font-size:10px; color:#999;'>テンプレートがありません</div>"; }
-            else { cards.forEach(c => { const btn = document.createElement('button'); btn.className = "tmpl-list-btn tap-target"; btn.innerText = c.card.t || "(タイトルなし)"; btn.onclick = () => sendMailFinal(c.id); tmplArea.appendChild(btn); }); }
+            if(cards.length === 0) tmplArea.innerHTML = "<div style='padding:20px; text-align:center; font-size:10px; color:#999;'>テンプレートがありません</div>";
+            else cards.forEach(c => { const btn = document.createElement('button'); btn.className = "tmpl-list-btn tap-target"; btn.innerText = c.card.t || "(タイトルなし)"; btn.onclick = () => sendMailFinal(c.id); tmplArea.appendChild(btn); });
             document.getElementById('ed-tmpl').style.display = 'flex';
         }
 
@@ -491,16 +495,14 @@
         function saveL() {
             if(isSubmitting) return; const name = document.getElementById('ln-name').value.trim(); if(!name) { toast("グループ名を入力"); return; }
             isSubmitting = true; const data = {}; L_KEYS.forEach(k => { const el = document.getElementById('ln-'+k); if(el) data[k] = el.value; });
-            if(!eid) db.push({ id: Date.now().toString(), cat:cur, date:fmtDate(), card:{}, list:data });
-            else db.find(x => x.id === eid).list = data;
+            if(!eid) db.push({ id: Date.now().toString(), cat:cur, date:fmtDate(), card:{}, list:data }); else db.find(x => x.id === eid).list = data;
             saveAll(); setTimeout(() => { cls(); toast("保存完了"); isSubmitting = false; }, 200);
         }
 
         function saveC() {
             if(isSubmitting) return; const title = document.getElementById('cn-title').value.trim(); const bodyTxt = document.getElementById('cn-body').value.trim(); if(!title && !bodyTxt) { toast("未入力です"); return; }
             isSubmitting = true; const cat = document.getElementById('cn-cat').value; const data = { t:title, b:bodyTxt, u:document.getElementById('cn-url').value, a:document.getElementById('cn-alt').value };
-            if(!eid) db.push({ id: Date.now().toString(), cat, date:fmtDate(), card:data, list:{} });
-            else { const i = db.find(x => x.id === eid); i.card = data; i.cat = cat; }
+            if(!eid) db.push({ id: Date.now().toString(), cat, date:fmtDate(), card:data, list:{} }); else { const i = db.find(x => x.id === eid); i.card = data; i.cat = cat; }
             saveAll(); setTimeout(() => { cls(); toast("保存完了"); isSubmitting = false; }, 200);
         }
 
