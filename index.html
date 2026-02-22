@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RopMemo v1.85</title>
+    <title>RopMemo v1.86</title>
     <style>
         :root {
             --bg-cate01: #D9D2E9; --bg-cate02: #EAD1DC; --bg-cate03: #FFF2CC; --bg-cate04: #D1EAF0;
@@ -79,7 +79,7 @@
         .win { width: 92%; height: 92%; background: #D6D6D6; border-radius: 25px; margin-bottom: 2%; padding: 15px; display: flex; flex-direction: column; gap: 8px; position: relative; }
         .set-scroll { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; scrollbar-width: none; padding-bottom: 20px; }
         
-        /* リスト詳細編集 縦margin調整 (ver.1.85) */
+        /* 詳細編集 縦margin調整 (ver.1.86継承) */
         .set-row { background: #FFF; border-radius: 8px; padding: 10px; display: flex; flex-direction: column; gap: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 10px; }
         .set-section-title { font-size: 12px; font-weight: bold; color: #333; margin: 5px 0 8px 4px; display: flex; align-items: center; gap: 5px; }
         .btn-l { width: 100%; height: 44px; background: #444; color: #FFF; border: none; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; flex-shrink: 0; }
@@ -98,7 +98,6 @@
         input:checked + .slider:before { transform: translateX(20px); }
 
         .flex-box { display: flex; flex-wrap: wrap; gap: 6px; width: 100%; }
-        /* リスト詳細比率調整 (ver.1.85) */
         .shrink-font { font-size: 10px !important; white-space: nowrap; overflow: hidden; }
         .w-16 { width: calc(16% - 6px); }
         .w-18 { width: calc(18% - 6px); }
@@ -115,7 +114,6 @@
         .set-tab-btn { flex:1; padding: 12px; font-size: 11px; border-radius: 10px; border: none; background: #CCC; color: #666; font-weight: bold; cursor: pointer; }
         .set-tab-btn.active { background: #007AFF; color: #FFF; box-shadow: 0 2px 6px rgba(0,122,255,0.3); }
 
-        /* データ管理UI刷新 (ver.1.84) */
         .data-card { background: #FFF; border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
         .data-card-title { font-size: 11px; font-weight: bold; color: #333; margin-bottom: 8px; }
         .data-stats-row { display: flex; gap: 10px; margin-bottom: 5px; }
@@ -138,7 +136,6 @@
 
         #toast { position: fixed; bottom: 41.5%; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); color: #fff; padding: 10px 24px; border-radius: 20px; font-size: 11px; font-weight: bold; display: none; z-index: 9999; text-align: center; line-height: 1.4; }
         
-        /* 起動モーダル配色戻し (ver.1.83) */
         #welcome-overlay { display: none; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
         .welcome-win { width: 85%; background: #FFF; border-radius: 25px; padding: 30px 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; display: flex; flex-direction: column; gap: 20px; animation: popUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; color: #333; }
         @keyframes popUp { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
@@ -155,7 +152,6 @@
         .tmpl-list-btn:last-child { border-bottom: none; }
         .tmpl-list-btn:active { background: #F0F0F0; }
 
-        /* Xアカウント プレースホルダ/リンク表示用 (ver.1.85) */
         .x-placeholder { color: #BBB; font-size: 10px; pointer-events: none; }
         .x-link { font-size: 11px; color: #007AFF; text-decoration: underline; font-weight: bold; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     </style>
@@ -163,7 +159,7 @@
 <body onload="boot()">
     <div id="header-outer">
         <div class="logo-text" onclick="openSet()">RopMemo<span>⚙</span></div>
-        <div class="ver-text">ver.1.85</div>
+        <div class="ver-text">ver.1.86</div>
     </div>
 
     <div id="main-window">
@@ -206,7 +202,7 @@
 気になる動画や情報もクイック登録！</div>
             <div class="welcome-logo">『RopMemo』</div>
             <button class="welcome-btn" onclick="cls()">はじめる</button>
-            <div class="welcome-ver">ver.1.85</div>
+            <div class="welcome-ver">ver.1.86</div>
         </div>
     </div>
 
@@ -379,7 +375,6 @@
     <script>
         const SK = 'rop_v139_db'; const CK = 'rop_v139_conf';
         let db = JSON.parse(localStorage.getItem(SK)) || [];
-        /* L_KEYS 拡張 (ver.1.85) */
         const L_KEYS = ['furigana','name','tanto','adress','twitterID','flag','meth','date','yomi','satueP','satueM','kako','note','photo'];
         
         let conf = JSON.parse(localStorage.getItem(CK)) || {
@@ -537,6 +532,7 @@
                         opts.forEach(o => h += `<option value="${o}" ${String(o)===String(current)?'selected':''}>${o}</option>`);
                         return h + `</select>`;
                     };
+                    /* No.列をidx+1で固定 (ver.1.86) */
                     tr.innerHTML = `<td>${idx+1}</td><td>${mkSel('flag',['🚩','🙆‍♀️','🙅‍♀️','済'],i.list?.flag)}</td><td>${mkSel('meth',['L','✉️','𝕏','🗒'],i.list?.meth)}</td><td style="text-align:left; font-weight:bold; padding-left:4px;">${esc(i.list?.name || '(未設定)')}</td><td>${mkSel('date',dateOptions,i.list?.date)}</td><td>${mkSel('yomi',["-",0,2,4,6,8,10,12,14],i.list?.yomi)}</td><td><span class="list-edit-btn" onclick="openMailTmpl('${i.id}')">📲</span></td><td><span class="list-edit-btn" onclick="openEd('${i.id}')">✏️</span></td>`;
                     tbody.appendChild(tr);
                 } else {
@@ -565,16 +561,12 @@
             }
         }
 
-        /* Xアカウント リンク判定表示 (ver.1.85) */
         function updateXLinkDisplay(val) {
             const display = document.getElementById('x-link-display');
             if(!val) { display.innerHTML = ''; return; }
             const isX = /twitter\.com|x\.com/.test(val);
-            if(isX) {
-                display.innerHTML = `<a href="${val}" target="_blank" class="x-link">[𝕏アカウントへのリンク]</a>`;
-            } else {
-                display.innerHTML = `<div style="font-size:10px; color:#666; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${esc(val)}</div>`;
-            }
+            if(isX) { display.innerHTML = `<a href="${val}" target="_blank" class="x-link">[𝕏アカウントへのリンク]</a>`; }
+            else { display.innerHTML = `<div style="font-size:10px; color:#666; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${esc(val)}</div>`; }
         }
 
         function openMailTmpl(id) {
@@ -634,7 +626,6 @@
             localStorage.setItem(CK, JSON.stringify(conf)); location.reload(); 
         }
 
-        /* 統合バックアップ (Excel互換タブ区切り) */
         function exportExcelAll() {
             const cKeys = ['id','cat','date','t','b','u','a'];
             const lKeys = ['id','cat','date',...L_KEYS];
@@ -645,28 +636,16 @@
             navigator.clipboard.writeText(output).then(() => { toast("コピー完了。<br>ExcelやGoogleスプレッドシートに<br>貼り付けてください"); });
         }
 
-        /* インポート 独自モーダル2段階フロー (ver.1.84) */
-        function confirmImport1() {
-            const msg = "データをインポートしますか？";
-            showCustomConfirm(msg, "はい", "キャンセル", () => confirmImport2());
-        }
-
-        function confirmImport2() {
-            const msg = "既に発番済の行を修正や上書きしたデータは上書き登録されます。\nデータをインポートしますか？";
-            showCustomConfirm(msg, "インポートする", "キャンセル", () => importExcelAll());
-        }
+        function confirmImport1() { showCustomConfirm("データをインポートしますか？", "はい", "キャンセル", () => confirmImport2()); }
+        function confirmImport2() { showCustomConfirm("既に発番済の行を修正や上書きしたデータは上書き登録されます。\nデータをインポートしますか？", "インポートする", "キャンセル", () => importExcelAll()); }
 
         function showCustomConfirm(msg, okTxt, cancelTxt, onOk) {
             const over = document.getElementById('delete-overlay');
             const msgEl = document.getElementById('del-msg');
             const okBtn = document.getElementById('del-exec');
             const cancelBtn = document.getElementById('del-cancel');
-            
-            msgEl.innerText = msg;
-            okBtn.innerText = okTxt;
-            okBtn.style.background = "#007AFF"; // インポート系は青
+            msgEl.innerText = msg; okBtn.innerText = okTxt; okBtn.style.background = "#007AFF"; 
             cancelBtn.innerText = cancelTxt;
-            
             okBtn.onclick = () => { over.style.display = 'none'; onOk(); resetDelModal(); };
             cancelBtn.onclick = () => { over.style.display = 'none'; resetDelModal(); };
             over.style.display = 'flex';
@@ -674,11 +653,8 @@
 
         function resetDelModal() {
             const okBtn = document.getElementById('del-exec');
-            okBtn.style.background = "#FF3B30";
-            okBtn.innerText = "削除";
-            okBtn.onclick = execDel;
-            document.getElementById('del-msg').innerText = "削除しますか？";
-            document.getElementById('del-cancel').innerText = "戻る";
+            okBtn.style.background = "#FF3B30"; okBtn.innerText = "削除"; okBtn.onclick = execDel;
+            document.getElementById('del-msg').innerText = "削除しますか？"; document.getElementById('del-cancel').innerText = "戻る";
         }
 
         async function importExcelAll() {
@@ -692,23 +668,14 @@
                     for(let i=2; i<lines.length; i++) {
                         const row = lines[i].split('\t'); if(row.length < 2) continue;
                         const data = {}; header.forEach((h, idx) => data[h] = row[idx] || '');
-                        
                         let target = db.find(x => x.id === data.id);
                         if(type === '[CARDS]') {
-                            if(target) {
-                                target.cat = data.cat || target.cat;
-                                target.card = {t:data.t, b:data.b, u:data.u, a:data.a};
-                            } else {
-                                db.push({ id: data.id || Date.now().toString() + i, cat: data.cat||'none', date: data.date||fmtDate(), card: {t:data.t, b:data.b, u:data.u, a:data.a}, list: {} });
-                            }
+                            if(target) { target.cat = data.cat || target.cat; target.card = {t:data.t, b:data.b, u:data.u, a:data.a}; }
+                            else { db.push({ id: data.id || Date.now().toString() + i, cat: data.cat||'none', date: data.date||fmtDate(), card: {t:data.t, b:data.b, u:data.u, a:data.a}, list: {} }); }
                         } else if(type === '[LISTS]') {
                             const lObj = {}; L_KEYS.forEach(k => lObj[k] = data[k] || '');
-                            if(target) {
-                                target.cat = data.cat || target.cat;
-                                target.list = lObj;
-                            } else {
-                                db.push({ id: data.id || Date.now().toString() + i, cat: data.cat||'none', date: data.date||fmtDate(), card: {}, list: lObj });
-                            }
+                            if(target) { target.cat = data.cat || target.cat; target.list = lObj; }
+                            else { db.push({ id: data.id || Date.now().toString() + i, cat: data.cat||'none', date: data.date||fmtDate(), card: {}, list: lObj }); }
                         }
                     }
                 });
