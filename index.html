@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RopMemo v1.73</title>
+    <title>RopMemo v1.75</title>
     <style>
         :root {
             --bg-cate01: #D9D2E9; --bg-cate02: #EAD1DC; --bg-cate03: #FFF2CC; --bg-cate04: #D1EAF0;
@@ -113,7 +113,7 @@
 <body onload="boot()">
     <div id="header-outer">
         <div class="logo-text" onclick="openSet()">RopMemo<span>⚙</span></div>
-        <div class="ver-text">ver.1.73</div>
+        <div class="ver-text">ver.1.75</div>
     </div>
 
     <div id="main-window">
@@ -408,12 +408,14 @@
             for(let j=0; j<4; j++){ const t = new Date(now); t.setDate(now.getDate() - j); dateOptions.push(`${t.getMonth()+1}/${t.getDate()}`); }
 
             let idx = 0; const chunkSize = 50;
+            let displayCount = 0; // 表示用の通し番号カウンタ
             function renderChunk() {
                 const limit = Math.min(idx + chunkSize, filtered.length); const fragment = document.createDocumentFragment();
                 for (; idx < limit; idx++) {
                     const i = filtered[idx];
                     if(isListView) {
                         if(!i.list || (!i.list.name && !i.list.flag)) continue;
+                        displayCount++;
                         const tr = document.createElement('tr');
                         const mkSel = (key, baseOpts, current) => {
                             let opts = [...baseOpts]; if(current && !opts.includes(String(current))) opts.push(String(current));
@@ -421,7 +423,7 @@
                             opts.forEach(o => h += `<option value="${o}" ${String(o)===String(current)?'selected':''}>${o}</option>`);
                             return h + `</select>`;
                         };
-                        tr.innerHTML = `<td>${idx+1}</td><td>${mkSel('flag',['🚩','🙆‍♀️','🙅‍♀️','済'],i.list?.flag)}</td><td>${mkSel('meth',['L','✉️','𝕏','🗒'],i.list?.meth)}</td><td style="text-align:left; font-weight:bold; padding-left:4px;">${esc(i.list?.name || '(未設定)')}</td><td>${mkSel('date',dateOptions,i.list?.date)}</td><td>${mkSel('yomi',[0,2,4,6,8,10,12,14],i.list?.yomi)}</td><td><span class="list-edit-btn" onclick="openMailTmpl('${i.id}')">📲</span></td><td><span class="list-edit-btn" onclick="openEd('${i.id}')">✏️</span></td>`;
+                        tr.innerHTML = `<td>${displayCount}</td><td>${mkSel('flag',['🚩','🙆‍♀️','🙅‍♀️','済'],i.list?.flag)}</td><td>${mkSel('meth',['L','✉️','𝕏','🗒'],i.list?.meth)}</td><td style="text-align:left; font-weight:bold; padding-left:4px;">${esc(i.list?.name || '(未設定)')}</td><td>${mkSel('date',dateOptions,i.list?.date)}</td><td>${mkSel('yomi',[0,2,4,6,8,10,12,14],i.list?.yomi)}</td><td><span class="list-edit-btn" onclick="openMailTmpl('${i.id}')">📲</span></td><td><span class="list-edit-btn" onclick="openEd('${i.id}')">✏️</span></td>`;
                         fragment.appendChild(tr);
                     } else {
                         if(!i.card || (!i.card.t && !i.card.b)) continue;
