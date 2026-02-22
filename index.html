@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang=""ja"">
+<html lang="ja">
 <head>
-    <meta charset=""UTF-8"">
-    <meta name=""viewport"" content=""width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"">
-    <title>RopMemo v1.74</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>RopMemo v1.73</title>
     <style>
         :root {
             --bg-cate01: #D9D2E9; --bg-cate02: #EAD1DC; --bg-cate03: #FFF2CC; --bg-cate04: #D1EAF0;
@@ -73,6 +73,7 @@
         .copy-btn-inline { font-size: 9px; background: #EEE; border: 1px solid #DDD; padding: 3px 7px; border-radius: 4px; cursor: pointer; }
         .win-label { position: absolute; top: -12px; left: 20px; font-size: 8px; background: #555; color: #FFF; padding: 2px 8px; border-radius: 4px; font-weight: bold; z-index: 10; }
         
+        /* 新しい比率用のスタイル */
         .flex-box { display: flex; flex-wrap: wrap; gap: 4px; width: 100%; }
         .w-16 { width: calc(16% - 4px); }
         .w-18 { width: calc(18% - 4px); }
@@ -109,167 +110,172 @@
         .welcome-btn { background: #007AFF; color: #FFF; border: none; padding: 12px 0; border-radius: 12px; font-weight: bold; font-size: 14px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,122,255,0.3); }
     </style>
 </head>
-<body onload=""boot()"">
-    <div id=""header-outer"">
-        <div class=""logo-text"" onclick=""openSet()"">RopMemo<span>⚙</span></div>
-        <div class=""ver-text"">ver.1.74</div>
+<body onload="boot()">
+    <div id="header-outer">
+        <div class="logo-text" onclick="openSet()">RopMemo<span>⚙</span></div>
+        <div class="ver-text">ver.1.73</div>
     </div>
 
-    <div id=""main-window"">
-        <div class=""tabs"">
-            <div id=""tab1"" class=""tab active"" onclick=""go('cate01')"">ブッキング</div>
-            <div id=""tab2"" class=""tab"" onclick=""go('cate02')"">グルメ</div>
-            <div id=""tab3"" class=""tab"" onclick=""go('cate03')"">AI</div>
-            <div id=""tab4"" class=""tab"" onclick=""go('cate04')"">保存</div>
-            <div id=""tab-n"" class=""tab tab-n"" onclick=""go('none')"">未分類</div>
+    <div id="main-window">
+        <div class="tabs">
+            <div id="tab1" class="tab active" onclick="go('cate01')">ブッキング</div>
+            <div id="tab2" class="tab" onclick="go('cate02')">グルメ</div>
+            <div id="tab3" class="tab" onclick="go('cate03')">AI</div>
+            <div id="tab4" class="tab" onclick="go('cate04')">保存</div>
+            <div id="tab-n" class="tab tab-n" onclick="go('none')">未分類</div>
         </div>
-        <div id=""content-area"">
-            <div id=""sub-tab-bar""></div>
-            <div id=""scroll-pane"">
-                <div id=""card-grid""></div>
-                <div id=""list-view"">
-                    <table class=""list-table"">
-                        <thead id=""list-head""></thead>
-                        <tbody id=""list-body""></tbody>
+        <div id="content-area">
+            <div id="sub-tab-bar"></div>
+            <div id="scroll-pane">
+                <div id="card-grid"></div>
+                <div id="list-view">
+                    <table class="list-table">
+                        <thead id="list-head"></thead>
+                        <tbody id="list-body"></tbody>
                     </table>
                 </div>
             </div>
         </div>
     </div>
 
-    <div id=""fab-mask"" onclick=""toggleFab()""></div>
-    <div id=""fab-container"">
-        <div id=""fab-menu"" class=""fab-menu"">
-            <button id=""btn-paste-quick"" onclick=""pasteNew()"">コピーデータ貼り付け<br><span style=""font-size:8px;opacity:0.6;"">クイックカード作成</span></button>
-            <div id=""input-box-quick""><textarea id=""qa"" placeholder=""メモを入力""></textarea><button id=""btn-reg-quick"" onclick=""manualNew()"">登録</button></div>
+    <div id="fab-mask" onclick="toggleFab()"></div>
+    <div id="fab-container">
+        <div id="fab-menu" class="fab-menu">
+            <button id="btn-paste-quick" onclick="pasteNew()">コピーデータ貼り付け<br><span style="font-size:8px;opacity:0.6;">クイックカード作成</span></button>
+            <div id="input-box-quick"><textarea id="qa" placeholder="メモを入力"></textarea><button id="btn-reg-quick" onclick="manualNew()">登録</button></div>
         </div>
-        <div id=""fab-main"" onclick=""fabAction()"">＋</div>
+        <div id="fab-main" onclick="fabAction()">＋</div>
     </div>
 
-    <div id=""welcome-overlay"" class=""overlay"">
-        <div class=""welcome-win"">
-            <div class=""welcome-msg"">ポチポチするだけでブッキング管理！
+    <div id="welcome-overlay" class="overlay">
+        <div class="welcome-win">
+            <div class="welcome-msg">ポチポチするだけでブッキング管理！
 よく使うテンプレを簡単登録！
 宛先ごとの個別出しわけも自動ワンポチ！
 
 気になる動画や情報もクイック登録！</div>
-            <div class=""welcome-logo"">『RopMemo』</div>
-            <button class=""welcome-btn"" onclick=""cls()"">はじめる</button>
+            <div class="welcome-logo">『RopMemo』</div>
+            <button class="welcome-btn" onclick="cls()">はじめる</button>
         </div>
     </div>
 
-    <div id=""ed-tmpl"" class=""overlay"">
-        <div class=""win"" style=""height: auto; max-height: 80%;"">
-            <div class=""win-label"">[テンプレート選択]</div>
-            <div id=""tmpl-scroll"" class=""set-scroll"" style=""background:#FFF; border-radius:8px; overflow-y:auto;""></div>
-            <button onclick=""cls()"" class=""btn-l"" style=""background:#FFF; color:#333; margin-top:8px;"">キャンセル</button>
+    <div id="ed-tmpl" class="overlay">
+        <div class="win" style="height: auto; max-height: 80%;">
+            <div class="win-label">[テンプレート選択]</div>
+            <div id="tmpl-scroll" class="set-scroll" style="background:#FFF; border-radius:8px; overflow-y:auto;"></div>
+            <button onclick="cls()" class="btn-l" style="background:#FFF; color:#333; margin-top:8px;">キャンセル</button>
         </div>
     </div>
 
-    <div id=""ed-card"" class=""overlay"">
-        <div class=""win"">
-            <div class=""set-row"" style=""flex-direction:row; justify-content:space-between; align-items:center;"">
-                <input type=""text"" id=""cn-title"" style=""border:none; font-weight:bold; font-size:13px; flex:1;"" placeholder=""タイトル"">
-                <button class=""copy-btn-inline"" onclick=""copyByVal('cn-title')"">コピー</button>
+    <div id="ed-card" class="overlay">
+        <div class="win">
+            <div class="set-row" style="flex-direction:row; justify-content:space-between; align-items:center;">
+                <input type="text" id="cn-title" style="border:none; font-weight:bold; font-size:13px; flex:1;" placeholder="タイトル">
+                <button class="copy-btn-inline" onclick="copyByVal('cn-title')">コピー</button>
             </div>
-            <div class=""set-scroll"">
-                <input type=""text"" id=""cn-url"" placeholder=""URL"" class=""input-mini"" style=""margin-bottom:5px;"">
-                <input type=""text"" id=""cn-alt"" placeholder=""代替テキスト"" class=""input-mini"" style=""margin-bottom:5px;"">
-                <select id=""cn-cat"" style=""height:28px; font-size:11px; border-radius:5px; border:1px solid #DDD; width:100%; margin-bottom:5px;"">
-                    <option value=""cate01"" id=""opt-c1"">ブッキング</option><option value=""cate02"" id=""opt-c2"">グルメ</option><option value=""cate03"" id=""opt-c3"">AI</option><option value=""cate04"" id=""opt-c4"">保存</option><option value=""none"">[未分類]</option>
+            <div class="set-scroll">
+                <input type="text" id="cn-url" placeholder="URL" class="input-mini" style="margin-bottom:5px;">
+                <input type="text" id="cn-alt" placeholder="代替テキスト" class="input-mini" style="margin-bottom:5px;">
+                <select id="cn-cat" style="height:28px; font-size:11px; border-radius:5px; border:1px solid #DDD; width:100%; margin-bottom:5px;">
+                    <option value="cate01" id="opt-c1">ブッキング</option><option value="cate02" id="opt-c2">グルメ</option><option value="cate03" id="opt-c3">AI</option><option value="cate04" id="opt-c4">保存</option><option value="none">[未分類]</option>
                 </select>
-                <div style=""flex:1; background:#FFF; border-radius:8px; padding:10px; display:flex; flex-direction:column; min-height:100px;"">
-                    <textarea id=""cn-body"" style=""flex:1; border:none; outline:none; resize:none; font-size:12px;"" placeholder=""本文""></textarea>
-                    <button class=""copy-btn-inline"" style=""align-self:flex-end;"" onclick=""copyByVal('cn-body')"">コピー</button>
+                <div style="flex:1; background:#FFF; border-radius:8px; padding:10px; display:flex; flex-direction:column; min-height:100px;">
+                    <textarea id="cn-body" style="flex:1; border:none; outline:none; resize:none; font-size:12px;" placeholder="本文"></textarea>
+                    <button class="copy-btn-inline" style="align-self:flex-end;" onclick="copyByVal('cn-body')">コピー</button>
                 </div>
             </div>
-            <div style=""display:flex; justify-content:space-between; margin-top:5px;"">
-                <button onclick=""cls()"" style=""font-size:11px; padding:8px 16px; border:none; background:#FFF; border-radius:6px;"">戻る</button>
-                <div style=""display:flex; gap:6px;"">
-                    <button id=""btn-del-trigger"" onclick=""document.getElementById('delete-overlay').style.display='flex'"" style=""font-size:11px; padding:8px 16px; border:none; background:#FFF; color:#FF3B30; border-radius:6px; display:none;"">削除</button>
-                    <button onclick=""saveC()"" style=""font-size:11px; padding:8px 16px; border:none; background:#FFF; font-weight:bold; color:#007AFF; border-radius:6px;"">保存</button>
+            <div style="display:flex; justify-content:space-between; margin-top:5px;">
+                <button onclick="cls()" style="font-size:11px; padding:8px 16px; border:none; background:#FFF; border-radius:6px;">戻る</button>
+                <div style="display:flex; gap:6px;">
+                    <button id="btn-del-trigger" onclick="document.getElementById('delete-overlay').style.display='flex'" style="font-size:11px; padding:8px 16px; border:none; background:#FFF; color:#FF3B30; border-radius:6px; display:none;">削除</button>
+                    <button onclick="saveC()" style="font-size:11px; padding:8px 16px; border:none; background:#FFF; font-weight:bold; color:#007AFF; border-radius:6px;">保存</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <div id=""ed-list"" class=""overlay"">
-        <div class=""win"" style=""height: auto; max-height: 92%; margin-bottom: 2%;"">
-            <div class=""win-label"">[リストデータ詳細編集]</div>
-            <div class=""set-scroll"">
-                <div class=""flex-box"">
-                    <div class=""set-row w-20""><div class=""set-label"">50音</div><input type=""text"" id=""ln-furigana"" class=""input-mini""><span class=""id-label"">furigana</span></div>
-                    <div class=""set-row w-80""><div class=""set-label"">グループ名</div><input type=""text"" id=""ln-name"" class=""input-mini""><span class=""id-label"">name</span></div>
-                    <div class=""set-row w-100""><div class=""set-label"">担当者</div><input type=""text"" id=""ln-tanto"" class=""input-mini""><span class=""id-label"">tanto</span></div>
-                    <div class=""set-row w-100""><div class=""set-label"">連絡先</div><input type=""text"" id=""ln-adress"" class=""input-mini""><span class=""id-label"">adress</span></div>
-                    <div class=""set-row w-18""><div class=""set-label"">フラグ</div><select id=""ln-flag"" class=""list-select""><option value="""">-</option><option value=""🚩"">🚩</option><option value=""済"">済</option><option value=""🙆‍♀️"">🙆‍♀️</option><option value=""🙅‍♀️"">🙅‍♀️</option></select><span class=""id-label"">flag</span></div>
-                    <div class=""set-row w-18""><div class=""set-label"">手段</div><select id=""ln-meth"" class=""list-select""><option value="""">-</option><option value=""L"">L</option><option value=""✉️"">✉️</option><option value=""𝕏"">𝕏</option><option value=""🗒"">🗒</option></select><span class=""id-label"">meth</span></div>
-                    <div class=""set-row w-30""><div class=""set-label"">案内日</div><input type=""text"" id=""ln-date"" class=""input-mini""><span class=""id-label"">date</span></div>
-                    <div class=""set-row w-16""><div class=""set-label"">ヨミ</div><input type=""text"" id=""ln-yomi"" class=""input-mini""><span class=""id-label"">yomi</span></div>
-                    <div class=""set-row w-18""><div class=""set-label"">出演経験</div><select id=""ln-kako"" class=""list-select""><option value="""">-</option><option value=""有"">有</option><option value=""無"">無</option></select><span class=""id-label"">kako</span></div>
-                    <div class=""set-row w-18""><div class=""set-label"">写真</div><select id=""ln-satueP"" class=""list-select""><option value="""">-</option><option value=""⭕️"">⭕️</option><option value=""❌"">❌</option></select><span class=""id-label"">satueP</span></div>
-                    <div class=""set-row w-18""><div class=""set-label"">動画</div><select id=""ln-satueM"" class=""list-select""><option value="""">-</option><option value=""⭕️"">⭕️</option><option value=""❌"">❌</option></select><span class=""id-label"">satueM</span></div>
-                    <div class=""set-row w-60""><div class=""set-label"">要望</div><textarea id=""ln-note"" style=""height:28px; font-size:11px; border:1px solid #DDD; border-radius:4px; padding:5px; resize:none; width:100%;""></textarea><span class=""id-label"">note</span></div>
-                    <div class=""set-row w-100""><div class=""set-label"">アー写</div><input type=""text"" id=""ln-photo"" class=""input-mini""><span class=""id-label"">photo</span></div>
+    <div id="ed-list" class="overlay">
+        <div class="win" style="height: auto; max-height: 92%; margin-bottom: 2%;">
+            <div class="win-label">[リストデータ詳細編集]</div>
+            <div class="set-scroll">
+                <div class="flex-box">
+                    <div class="set-row w-20"><div class="set-label">50音</div><input type="text" id="ln-furigana" class="input-mini"><span class="id-label">furigana</span></div>
+                    <div class="set-row w-80"><div class="set-label">グループ名</div><input type="text" id="ln-name" class="input-mini"><span class="id-label">name</span></div>
+                    
+                    <div class="set-row w-100"><div class="set-label">担当者</div><input type="text" id="ln-tanto" class="input-mini"><span class="id-label">tanto</span></div>
+                    
+                    <div class="set-row w-100"><div class="set-label">連絡先</div><input type="text" id="ln-adress" class="input-mini"><span class="id-label">adress</span></div>
+                    
+                    <div class="set-row w-18"><div class="set-label">フラグ</div><select id="ln-flag" class="list-select"><option value="">なし</option><option value="🚩">🚩</option><option value="済">済</option><option value="🙆‍♀️">🙆‍♀️</option><option value="🙅‍♀️">🙅‍♀️</option></select><span class="id-label">flag</span></div>
+                    <div class="set-row w-18"><div class="set-label">手段</div><select id="ln-meth" class="list-select"><option value="">なし</option><option value="L">L</option><option value="✉️">✉️</option><option value="𝕏">𝕏</option><option value="🗒">🗒</option></select><span class="id-label">meth</span></div>
+                    <div class="set-row w-30"><div class="set-label">案内日</div><input type="text" id="ln-date" class="input-mini"><span class="id-label">date</span></div>
+                    <div class="set-row w-16"><div class="set-label">ヨミ</div><input type="text" id="ln-yomi" class="input-mini"><span class="id-label">yomi</span></div>
+                    <div class="set-row w-18"><div class="set-label">出演経験</div><select id="ln-kako" class="list-select"><option value="">なし</option><option value="有">有</option><option value="無">無</option></select><span class="id-label">kako</span></div>
+                    
+                    <div class="set-row w-18"><div class="set-label">写真</div><select id="ln-satueP" class="list-select"><option value="">なし</option><option value="⭕️">⭕️</option><option value="❌">❌</option></select><span class="id-label">satueP</span></div>
+                    <div class="set-row w-18"><div class="set-label">動画</div><select id="ln-satueM" class="list-select"><option value="">なし</option><option value="⭕️">⭕️</option><option value="❌">❌</option></select><span class="id-label">satueM</span></div>
+                    <div class="set-row w-60"><div class="set-label">要望</div><textarea id="ln-note" style="height:28px; font-size:11px; border:1px solid #DDD; border-radius:4px; padding:5px; resize:none; width:100%;"></textarea><span class="id-label">note</span></div>
+                    
+                    <div class="set-row w-100"><div class="set-label">アー写</div><input type="text" id="ln-photo" class="input-mini"><span class="id-label">photo</span></div>
                 </div>
             </div>
-            <div style=""display:flex; gap:8px; margin-top:5px;"">
-                <button onclick=""cls()"" class=""btn-l"" style=""background:#FFF; color:#333;"">戻る</button>
-                <button id=""btn-del-trigger-l"" onclick=""document.getElementById('delete-overlay').style.display='flex'"" style=""background:#FFF; color:#FF3B30; display:none;"" class=""btn-l"">削除</button>
-                <button onclick=""saveL()"" class=""btn-l"">保存</button>
+            <div style="display:flex; gap:8px; margin-top:5px;">
+                <button onclick="cls()" class="btn-l" style="background:#FFF; color:#333;">戻る</button>
+                <button id="btn-del-trigger-l" onclick="document.getElementById('delete-overlay').style.display='flex'" style="background:#FFF; color:#FF3B30; display:none;" class="btn-l">削除</button>
+                <button onclick="saveL()" class="btn-l">保存</button>
             </div>
         </div>
     </div>
 
-    <div id=""delete-overlay"" class=""overlay"">
-        <div class=""win"" style=""background:#D6D6D6; height:auto; width:70%;"">
-            <div style=""text-align:center; font-weight:bold; font-size:13px; margin:10px 0 20px 0; color:#333;"">削除しますか？</div>
-            <div style=""display:flex; gap:8px;""><button onclick=""cls()"" style=""flex:1; height:34px; border:none; border-radius:8px; background:#FFF;"">戻る</button><button onclick=""execDel()"" style=""flex:1; height:34px; border:none; border-radius:8px; background:#FF3B30; color:#FFF;"">削除</button></div>
+    <div id="delete-overlay" class="overlay">
+        <div class="win" style="background:#D6D6D6; height:auto; width:70%;">
+            <div style="text-align:center; font-weight:bold; font-size:13px; margin:10px 0 20px 0; color:#333;">削除しますか？</div>
+            <div style="display:flex; gap:8px;"><button onclick="cls()" style="flex:1; height:34px; border:none; border-radius:8px; background:#FFF;">戻る</button><button onclick="execDel()" style="flex:1; height:34px; border:none; border-radius:8px; background:#FF3B30; color:#FFF;">削除</button></div>
         </div>
     </div>
 
-    <div id=""ed-set"" class=""overlay"">
-        <div class=""win"" style=""background:#ECECEC; height: 50%;"">
-            <div style=""font-size:12px; font-weight:bold; margin-bottom:8px; display:flex; justify-content:space-between; color:#333;"">⚙ アプリ設定 <span onclick=""cls()"" style=""cursor:pointer; font-size:16px;"">✕</span></div>
-            <div class=""set-tabs"">
-                <button id=""set-tab-card"" class=""set-tab-btn active"" onclick=""switchSetTab('card')"">カード表示設定</button>
-                <button id=""set-tab-list"" class=""set-tab-btn"" onclick=""switchSetTab('list')"">リスト表示設定</button>
+    <div id="ed-set" class="overlay">
+        <div class="win" style="background:#ECECEC; height: 50%;">
+            <div style="font-size:12px; font-weight:bold; margin-bottom:8px; display:flex; justify-content:space-between; color:#333;">⚙ アプリ設定 <span onclick="cls()" style="cursor:pointer; font-size:16px;">✕</span></div>
+            <div class="set-tabs">
+                <button id="set-tab-card" class="set-tab-btn active" onclick="switchSetTab('card')">カード表示設定</button>
+                <button id="set-tab-list" class="set-tab-btn" onclick="switchSetTab('list')">リスト表示設定</button>
             </div>
-            <div class=""set-scroll"">
-                <div id=""set-content-card"">
-                    <div class=""set-row"">
-                        <div class=""set-label"">カテゴリ名</div>
-                        <input type=""text"" id=""sn-1"" class=""input-mini"" style=""margin-bottom:2px;"">
-                        <input type=""text"" id=""sn-2"" class=""input-mini"" style=""margin-bottom:2px;"">
-                        <input type=""text"" id=""sn-3"" class=""input-mini"" style=""margin-bottom:2px;"">
-                        <input type=""text"" id=""sn-4"" class=""input-mini"" style=""margin-bottom:2px;"">
+            <div class="set-scroll">
+                <div id="set-content-card">
+                    <div class="set-row">
+                        <div class="set-label">カテゴリ名</div>
+                        <input type="text" id="sn-1" class="input-mini" style="margin-bottom:2px;">
+                        <input type="text" id="sn-2" class="input-mini" style="margin-bottom:2px;">
+                        <input type="text" id="sn-3" class="input-mini" style="margin-bottom:2px;">
+                        <input type="text" id="sn-4" class="input-mini" style="margin-bottom:2px;">
                     </div>
-                    <div class=""set-row"">
-                        <div class=""set-label"">カードフォント (px)</div>
-                        <div style=""display:flex; align-items:center; gap:10px; font-size:11px;"">タイトル：<input type=""number"" id=""sf-t"" style=""width:50px;""> 本文：<input type=""number"" id=""sf-b"" style=""width:50px;""></div>
+                    <div class="set-row">
+                        <div class="set-label">カードフォント (px)</div>
+                        <div style="display:flex; align-items:center; gap:10px; font-size:11px;">タイトル：<input type="number" id="sf-t" style="width:50px;"> 本文：<input type="number" id="sf-b" style="width:50px;"></div>
                     </div>
                 </div>
-                <div id=""set-content-list"" style=""display:none;"">
-                    <div class=""set-row"">
-                        <div class=""set-label"">メール下書き連携</div>
-                        <div class=""mailer-toggle"">
-                            <button id=""mb-standard"" class=""mailer-btn"" onclick=""setMailer('standard')"">端末の標準メーラー</button>
-                            <button id=""mb-gmail"" class=""mailer-btn"" onclick=""setMailer('gmail')"">Gmail</button>
+                <div id="set-content-list" style="display:none;">
+                    <div class="set-row">
+                        <div class="set-label">メール下書き連携</div>
+                        <div class="mailer-toggle">
+                            <button id="mb-standard" class="mailer-btn" onclick="setMailer('standard')">端末の標準メーラー</button>
+                            <button id="mb-gmail" class="mailer-btn" onclick="setMailer('gmail')">Gmail</button>
                         </div>
                     </div>
-                    <div class=""set-row"" id=""list-cols-config""></div>
-                    <div class=""io-area"">
-                        <button class=""io-btn"" onclick=""exportListData()"">全データをコピー (Excel用)</button>
-                        <textarea id=""io-input"" class=""io-text"" placeholder=""Excelデータを貼り付け""></textarea>
-                        <button class=""io-btn"" style=""background:#007AFF; color:#FFF; border:none;"" onclick=""importListData()"">インポート</button>
+                    <div class="set-row" id="list-cols-config"></div>
+                    <div class="io-area">
+                        <button class="io-btn" onclick="exportListData()">全データをコピー (Excel用)</button>
+                        <textarea id="io-input" class="io-text" placeholder="Excelデータを貼り付け"></textarea>
+                        <button class="io-btn" style="background:#007AFF; color:#FFF; border:none;" onclick="importListData()">インポート</button>
                     </div>
                 </div>
             </div>
-            <button class=""btn-l"" style=""background:#007AFF; height:40px; margin-top:5px;"" onclick=""saveSet()"">設定を保存</button>
+            <button class="btn-l" style="background:#007AFF; height:40px; margin-top:5px;" onclick="saveSet()">設定を保存</button>
         </div>
     </div>
 
-    <div id=""toast"">完了しました</div>
+    <div id="toast">完了しました</div>
 
     <script>
         const SK = 'rop_v139_db'; const CK = 'rop_v139_conf';
@@ -277,9 +283,9 @@
         const L_KEYS = ['furigana','name','tanto','flag','meth','date','yomi','adress','note','satueP','satueM','kako','photo'];
         
         let conf = JSON.parse(localStorage.getItem(CK)) || {
-            tabs: { cate01: ""ブッキング"", cate02: ""グルメ"", cate03: ""AI"", cate04: ""保存"" },
+            tabs: { cate01: "ブッキング", cate02: "グルメ", cate03: "AI", cate04: "保存" },
             fs: { t: 7, b: 8 },
-            subStates: { cate01: ""sub01"", cate02: ""sub01"", cate03: ""sub01"", cate04: ""sub01"", none: ""sub01"" },
+            subStates: { cate01: "sub01", cate02: "sub01", cate03: "sub01", cate04: "sub01", none: "sub01" },
             listCols: [
                 {id: 'no', n: 'No', w: 25}, {id: 'flag', n: 'フラグ', w: 40}, {id: 'meth', n: '手段', w: 35},
                 {id: 'name', n: 'グループ名', w: 90}, {id: 'date', n: '案内日', w: 45}, {id: 'yomi', n: 'ヨミ', w: 30}, {id: 'adress', n: 'スマート<br>連絡', w: 25}, {id: 'edit', n: '✏️', w: 30}
@@ -288,10 +294,10 @@
         };
 
         let sortKey = 'id', sortOrder = 'reg', cur = 'cate01', eid = null, isSubmitting = false;
-        let tempAdress = """"; 
+        let tempAdress = ""; 
 
-        function esc(s) { if(!s) return """"; return String(s).replace(/&/g,""&amp;"").replace(/</g,""&lt;"").replace(/>/g,""&gt;"").replace(/""/g,""&quot;""); }
-        function fmtDate() { const d = new Date(); const w = [""日"",""月"",""火"",""水"",""木"",""金"",""土""][d.getDay()]; return `${d.getFullYear()}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getDate().toString().padStart(2,'0')}(${w})${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`; }
+        function esc(s) { if(!s) return ""; return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+        function fmtDate() { const d = new Date(); const w = ["日","月","火","水","木","金","土"][d.getDay()]; return `${d.getFullYear()}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getDate().toString().padStart(2,'0')}(${w})${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`; }
 
         function boot() { 
             fixConfStructure();
@@ -324,10 +330,10 @@
             document.getElementById('sf-t').value = conf.fs.t;
             document.getElementById('sf-b').value = conf.fs.b;
             const colArea = document.getElementById('list-cols-config');
-            colArea.innerHTML = '<div class=""set-label"">リスト各列の表示名と横幅(px)</div>';
+            colArea.innerHTML = '<div class="set-label">リスト各列の表示名と横幅(px)</div>';
             conf.listCols.forEach((c, i) => {
-                const row = document.createElement('div'); row.style = ""display:flex; gap:5px; align-items:center; margin-top:4px;"";
-                row.innerHTML = `<input type=""text"" id=""lc-n-${i}"" value=""${c.n}"" style=""flex:1; height:26px; font-size:10px; padding:0 5px; border:1px solid #DDD; border-radius:4px;""><input type=""number"" id=""lc-w-${i}"" value=""${c.w}"" style=""width:45px; height:26px; font-size:10px; border:1px solid #DDD; border-radius:4px;"">`;
+                const row = document.createElement('div'); row.style = "display:flex; gap:5px; align-items:center; margin-top:4px;";
+                row.innerHTML = `<input type="text" id="lc-n-${i}" value="${c.n}" style="flex:1; height:26px; font-size:10px; padding:0 5px; border:1px solid #DDD; border-radius:4px;"><input type="number" id="lc-w-${i}" value="${c.w}" style="width:45px; height:26px; font-size:10px; border:1px solid #DDD; border-radius:4px;">`;
                 colArea.appendChild(row);
             });
             updateMailerUI();
@@ -363,7 +369,7 @@
             const mode = (subId === 'sub02') ? 'list' : 'card';
             document.getElementById('card-grid').style.display = mode === 'card' ? 'grid' : 'none';
             document.getElementById('list-view').style.display = mode === 'list' ? 'block' : 'none';
-            document.getElementById('fab-main').innerHTML = ""＋"";
+            document.getElementById('fab-main').innerHTML = "＋";
             upd();
         }
 
@@ -382,7 +388,7 @@
             conf.listCols.forEach(c => {
                 const th = document.createElement('th'); th.style.width = c.w + 'px';
                 if(c.id === 'no' || c.id === 'edit' || c.id === 'adress') { th.innerHTML = `${c.n}`; }
-                else { let mark = sortKey === c.id ? (sortOrder === 'asc' ? ""△"" : (sortOrder === 'desc' ? ""▽"" : ""⇵"")) : ""⇵""; th.innerHTML = `${c.n}<span class=""sort-icon"">${mark}</span>`; th.onclick = () => setSort(c.id); }
+                else { let mark = sortKey === c.id ? (sortOrder === 'asc' ? "△" : (sortOrder === 'desc' ? "▽" : "⇵")) : "⇵"; th.innerHTML = `${c.n}<span class="sort-icon">${mark}</span>`; th.onclick = () => setSort(c.id); }
                 hr.appendChild(th);
             });
             thead.appendChild(hr);
@@ -391,7 +397,7 @@
             const isListView = conf.subStates[cur] === 'sub02';
             if(isListView && sortOrder !== 'reg') {
                 filtered.sort((a, b) => {
-                    let valA = a.list?.[sortKey] || """"; let valB = b.list?.[sortKey] || """";
+                    let valA = a.list?.[sortKey] || ""; let valB = b.list?.[sortKey] || "";
                     if (sortKey === 'name') { valA = a.list?.furigana || valA; valB = b.list?.furigana || valB; }
                     if (!valA && valB) return 1; if (valA && !valB) return -1;
                     return sortOrder === 'asc' ? valA.localeCompare(valB, 'ja') : valB.localeCompare(valA, 'ja');
@@ -411,16 +417,16 @@
                         const tr = document.createElement('tr');
                         const mkSel = (key, baseOpts, current) => {
                             let opts = [...baseOpts]; if(current && !opts.includes(String(current))) opts.push(String(current));
-                            let h = `<select class=""list-select"" onchange=""quickSaveL('${i.id}','${key}',this.value)""><option value="""">-</option>`;
-                            opts.forEach(o => h += `<option value=""${o}"" ${String(o)===String(current)?'selected':''}>${o}</option>`);
+                            let h = `<select class="list-select" onchange="quickSaveL('${i.id}','${key}',this.value)"><option value="">-</option>`;
+                            opts.forEach(o => h += `<option value="${o}" ${String(o)===String(current)?'selected':''}>${o}</option>`);
                             return h + `</select>`;
                         };
-                        tr.innerHTML = `<td>${idx+1}</td><td>${mkSel('flag',['🚩','🙆‍♀️','🙅‍♀️','済'],i.list?.flag)}</td><td>${mkSel('meth',['L','✉️','𝕏','🗒'],i.list?.meth)}</td><td style=""text-align:left; font-weight:bold; padding-left:4px;"">${esc(i.list?.name || '(未設定)')}</td><td>${mkSel('date',dateOptions,i.list?.date)}</td><td>${mkSel('yomi',[0,2,4,6,8,10,12,14],i.list?.yomi)}</td><td><span class=""list-edit-btn"" onclick=""openMailTmpl('${i.id}')"">📲</span></td><td><span class=""list-edit-btn"" onclick=""openEd('${i.id}')"">✏️</span></td>`;
+                        tr.innerHTML = `<td>${idx+1}</td><td>${mkSel('flag',['🚩','🙆‍♀️','🙅‍♀️','済'],i.list?.flag)}</td><td>${mkSel('meth',['L','✉️','𝕏','🗒'],i.list?.meth)}</td><td style="text-align:left; font-weight:bold; padding-left:4px;">${esc(i.list?.name || '(未設定)')}</td><td>${mkSel('date',dateOptions,i.list?.date)}</td><td>${mkSel('yomi',[0,2,4,6,8,10,12,14],i.list?.yomi)}</td><td><span class="list-edit-btn" onclick="openMailTmpl('${i.id}')">📲</span></td><td><span class="list-edit-btn" onclick="openEd('${i.id}')">✏️</span></td>`;
                         fragment.appendChild(tr);
                     } else {
                         if(!i.card || (!i.card.t && !i.card.b)) continue;
                         const d = document.createElement('div'); d.className = 'card';
-                        d.innerHTML = `<div class=""card-header""><span class=""header-title"">${esc(i.card?.t)}</span><button class=""card-cp-btn"" onclick=""event.stopPropagation(); copyByTxt('${i.id}')"">本文コピー</button></div><div class=""card-body""><div class=""card-date"">${i.date}</div>${esc(i.card?.b).replace(/\n/g,'<br>')}</div><div class=""card-footer""><span>ID:${i.id}</span><span class=""edit-icon"" onclick=""openEd('${i.id}')"">✏️</span></div>`;
+                        d.innerHTML = `<div class="card-header"><span class="header-title">${esc(i.card?.t)}</span><button class="card-cp-btn" onclick="event.stopPropagation(); copyByTxt('${i.id}')">本文コピー</button></div><div class="card-body"><div class="card-date">${i.date}</div>${esc(i.card?.b).replace(/\n/g,'<br>')}</div><div class="card-footer"><span>ID:${i.id}</span><span class="edit-icon" onclick="openEd('${i.id}')">✏️</span></div>`;
                         fragment.appendChild(d);
                     }
                 }
@@ -430,7 +436,7 @@
             renderChunk();
         }
 
-        function quickSaveL(id, key, val) { const item = db.find(x => x.id === id); if(item && item.list) { item.list[key] = val; localStorage.setItem(SK, JSON.stringify(db)); toast(""更新しました""); } }
+        function quickSaveL(id, key, val) { const item = db.find(x => x.id === id); if(item && item.list) { item.list[key] = val; localStorage.setItem(SK, JSON.stringify(db)); toast("更新しました"); } }
         function toggleFab() { const a = document.getElementById('fab-main').classList.toggle('active'); document.getElementById('fab-menu').classList.toggle('active', a); document.getElementById('fab-mask').style.display = a ? 'block' : 'none'; }
         function fabAction() { if(conf.subStates[cur] === 'sub02') openEd(null); else toggleFab(); }
         
@@ -449,47 +455,47 @@
         }
 
         function openMailTmpl(id) {
-            const i = db.find(x => x.id === id); tempAdress = i.list?.adress || """"; const tmplArea = document.getElementById('tmpl-scroll'); tmplArea.innerHTML = """";
+            const i = db.find(x => x.id === id); tempAdress = i.list?.adress || ""; const tmplArea = document.getElementById('tmpl-scroll'); tmplArea.innerHTML = "";
             const cards = db.filter(x => x.cat === cur && x.card && (x.card.t || x.card.b));
-            if(cards.length === 0) { tmplArea.innerHTML = ""<div style='padding:20px; text-align:center; font-size:10px; color:#999;'>テンプレートがありません</div>""; }
-            else { cards.forEach(c => { const btn = document.createElement('button'); btn.className = ""tmpl-list-btn""; btn.innerText = c.card.t || ""(タイトルなし)""; btn.onclick = () => sendMailFinal(c.id); tmplArea.appendChild(btn); }); }
+            if(cards.length === 0) { tmplArea.innerHTML = "<div style='padding:20px; text-align:center; font-size:10px; color:#999;'>テンプレートがありません</div>"; }
+            else { cards.forEach(c => { const btn = document.createElement('button'); btn.className = "tmpl-list-btn"; btn.innerText = c.card.t || "(タイトルなし)"; btn.onclick = () => sendMailFinal(c.id); tmplArea.appendChild(btn); }); }
             document.getElementById('ed-tmpl').style.display = 'flex';
         }
 
         function sendMailFinal(cardId) {
-            const card = db.find(x => x.id === cardId); const subject = card.card?.t || """"; const body = card.card?.b || """";
+            const card = db.find(x => x.id === cardId); const subject = card.card?.t || ""; const body = card.card?.b || "";
             navigator.clipboard.writeText(body).then(() => {
                 const encSub = encodeURIComponent(subject); const encBody = encodeURIComponent(body);
                 let url = (conf.mailerMode === 'gmail') ? `googlegmail:///co?to=${tempAdress}&subject=${encSub}&body=${encBody}` : `mailto:${tempAdress}?subject=${encSub}&body=${encBody}`;
-                cls(); toast(""本文をコピーしました""); window.location.href = url;
+                cls(); toast("本文をコピーしました"); window.location.href = url;
             });
         }
 
         function saveL() {
-            if(isSubmitting) return; const name = document.getElementById('ln-name').value.trim(); if(!name) { toast(""グループ名を入力""); return; }
+            if(isSubmitting) return; const name = document.getElementById('ln-name').value.trim(); if(!name) { toast("グループ名を入力"); return; }
             isSubmitting = true; const data = {}; L_KEYS.forEach(k => {
                 const el = document.getElementById('ln-'+k);
                 if(el) data[k] = el.value;
             });
             if(!eid) db.push({ id: Date.now().toString(), cat:cur, date:fmtDate(), card:{}, list:data });
             else db.find(x => x.id === eid).list = data;
-            saveAll(); setTimeout(() => { cls(); toast(""保存完了""); isSubmitting = false; }, 200);
+            saveAll(); setTimeout(() => { cls(); toast("保存完了"); isSubmitting = false; }, 200);
         }
 
         function saveC() {
-            if(isSubmitting) return; const title = document.getElementById('cn-title').value.trim(); const bodyTxt = document.getElementById('cn-body').value.trim(); if(!title && !bodyTxt) { toast(""未入力です""); return; }
+            if(isSubmitting) return; const title = document.getElementById('cn-title').value.trim(); const bodyTxt = document.getElementById('cn-body').value.trim(); if(!title && !bodyTxt) { toast("未入力です"); return; }
             isSubmitting = true; const cat = document.getElementById('cn-cat').value; const data = { t:title, b:bodyTxt, u:document.getElementById('cn-url').value, a:document.getElementById('cn-alt').value };
             if(!eid) db.push({ id: Date.now().toString(), cat, date:fmtDate(), card:data, list:{} });
             else { const i = db.find(x => x.id === eid); i.card = data; i.cat = cat; }
-            saveAll(); setTimeout(() => { cls(); toast(""保存完了""); isSubmitting = false; }, 200);
+            saveAll(); setTimeout(() => { cls(); toast("保存完了"); isSubmitting = false; }, 200);
         }
 
-        function execDel() { db = db.filter(x => x.id !== eid); saveAll(); cls(); toast(""削除しました""); }
+        function execDel() { db = db.filter(x => x.id !== eid); saveAll(); cls(); toast("削除しました"); }
         function saveAll() { localStorage.setItem(SK, JSON.stringify(db)); upd(); }
         function cls() { document.querySelectorAll('.overlay').forEach(o => o.style.display = 'none'); }
         function toast(m) { const t = document.getElementById('toast'); t.innerHTML = m; t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 1500); }
-        function copyByTxt(id) { const i = db.find(x => x.id === id); navigator.clipboard.writeText(i.card?.b).then(() => { toast(""コピー完了""); }); }
-        function copyByVal(id) { navigator.clipboard.writeText(document.getElementById(id).value).then(() => toast(""コピー完了"")); }
+        function copyByTxt(id) { const i = db.find(x => x.id === id); navigator.clipboard.writeText(i.card?.b).then(() => { toast("コピー完了"); }); }
+        function copyByVal(id) { navigator.clipboard.writeText(document.getElementById(id).value).then(() => toast("コピー完了")); }
         function switchSetTab(t) { document.querySelectorAll('.set-tab-btn').forEach(b => b.classList.toggle('active', b.id === `set-tab-${t}`)); document.getElementById('set-content-card').style.display = t === 'card' ? 'block' : 'none'; document.getElementById('set-content-list').style.display = t === 'list' ? 'block' : 'none'; }
         function openSet() { document.getElementById('ed-set').style.display = 'flex'; switchSetTab('card'); }
         
@@ -501,12 +507,12 @@
         }
 
         function createCard(v) { db.push({ id: Date.now().toString(), cat:'none', date:fmtDate(), card:{t:'メモ', b:v, u:'', a:''}, list:{} }); saveAll(); }
-        async function pasteNew() { try { const t = await navigator.clipboard.readText(); if(!t) return; toggleFab(); createCard(t); go('none'); toast(""クイック登録完了""); } catch(e){} }
-        function manualNew() { const v = document.getElementById('qa').value; if(!v) return; toggleFab(); createCard(v); document.getElementById('qa').value=''; go('none'); toast(""登録完了""); }
+        async function pasteNew() { try { const t = await navigator.clipboard.readText(); if(!t) return; toggleFab(); createCard(t); go('none'); toast("クイック登録完了"); } catch(e){} }
+        function manualNew() { const v = document.getElementById('qa').value; if(!v) return; toggleFab(); createCard(v); document.getElementById('qa').value=''; go('none'); toast("登録完了"); }
 
         function exportListData() {
             const header = L_KEYS.join('\t'); const rows = db.filter(i => i.list && i.list.name).map(i => L_KEYS.map(k => String(i.list[k] || '').replace(/\t|\n|\r/g, ' ')).join('\t'));
-            navigator.clipboard.writeText([header, ...rows].join('\n')).then(() => toast(""コピーしました""));
+            navigator.clipboard.writeText([header, ...rows].join('\n')).then(() => toast("コピーしました"));
         }
 
         function importListData() {
