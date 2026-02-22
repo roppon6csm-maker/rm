@@ -3,16 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RopMemo v1.77</title>
+    <title>RopMemo v1.78</title>
     <style>
         :root {
             --bg-cate01: #D9D2E9; --bg-cate02: #EAD1DC; --bg-cate03: #FFF2CC; --bg-cate04: #D1EAF0;
             --bg-none: #C2B4B4; --base-grey: #B7B7B7; --cur-bg: #D9D2E9;
             --f-title: 7px; --f-body: 8px; --f-url: 7px;
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background-color: #000; height: 100vh; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; overflow: hidden; }
+        * { 
+            box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; 
+            -webkit-tap-highlight-color: transparent; 
+            touch-action: manipulation; /* 連打によるズームを防止 */
+        }
+        body { background-color: #000; height: 100vh; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; overflow: hidden; position: relative; }
         
+        /* タップエフェクト用CSS */
+        .tap-ripple {
+            position: fixed;
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+            pointer-events: none;
+            transform: translate(-50%, -50%) scale(0);
+            z-index: 99999;
+            transition: transform 0.1s ease-out;
+        }
+        .tap-ripple.active { transform: translate(-50%, -50%) scale(1); }
+        .tap-ripple.fade-out { 
+            transform: translate(-50%, -50%) scale(1.5);
+            opacity: 0;
+            transition: transform 0.4s ease-out, opacity 0.4s ease-out;
+        }
+
         #header-outer { width: 92%; display: flex; flex-direction: column; align-items: flex-end; margin-bottom: 3px; color: #999; position: relative; }
         .logo-text { font-size: 26px; font-weight: 900; letter-spacing: -1.5px; cursor: pointer; display: flex; align-items: center; color: #FFF; opacity: 0.8; }
         .logo-text span { font-size: 18px; margin-left: 4px; }
@@ -73,6 +96,15 @@
         .copy-btn-inline { font-size: 9px; background: #EEE; border: 1px solid #DDD; padding: 3px 7px; border-radius: 4px; cursor: pointer; }
         .win-label { position: absolute; top: -12px; left: 20px; font-size: 8px; background: #555; color: #FFF; padding: 2px 8px; border-radius: 4px; font-weight: bold; z-index: 10; }
         
+        /* トグルスイッチ用デザイン */
+        .toggle-row { display: flex; justify-content: space-between; align-items: center; }
+        .switch { position: relative; display: inline-block; width: 40px; height: 22px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .3s; border-radius: 22px; }
+        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; }
+        input:checked + .slider { background-color: #007AFF; }
+        input:checked + .slider:before { transform: translateX(18px); }
+
         .flex-box { display: flex; flex-wrap: wrap; gap: 4px; width: 100%; }
         .w-16 { width: calc(16% - 4px); }
         .w-18 { width: calc(18% - 4px); }
@@ -117,7 +149,7 @@
 <body onload="boot()">
     <div id="header-outer">
         <div class="logo-text" onclick="openSet()">RopMemo<span>⚙</span></div>
-        <div class="ver-text">ver.1.77</div>
+        <div class="ver-text">ver.1.78</div>
     </div>
 
     <div id="main-window">
@@ -254,6 +286,10 @@
                         <div class="set-label">カードフォント (px)</div>
                         <div style="display:flex; align-items:center; gap:10px; font-size:11px;">タイトル：<input type="number" id="sf-t" style="width:50px;"> 本文：<input type="number" id="sf-b" style="width:50px;"></div>
                     </div>
+                    <div class="set-row toggle-row">
+                        <div class="set-label">タップエフェクト（白く光る）</div>
+                        <label class="switch"><input type="checkbox" id="st-tap"><span class="slider"></span></label>
+                    </div>
                 </div>
                 <div id="set-content-list" style="display:none;">
                     <div class="set-row">
@@ -290,7 +326,8 @@
                 {id: 'no', n: 'No', w: 25}, {id: 'flag', n: 'フラグ', w: 40}, {id: 'meth', n: '手段', w: 35},
                 {id: 'name', n: 'グループ名', w: 90}, {id: 'date', n: '案内日', w: 45}, {id: 'yomi', n: 'ヨミ', w: 30}, {id: 'adress', n: 'スマート<br>連絡', w: 25}, {id: 'edit', n: '✏️', w: 30}
             ],
-            mailerMode: 'standard'
+            mailerMode: 'standard',
+            tapEffect: false
         };
 
         let sortKey = 'id', sortOrder = 'reg', cur = 'cate01', eid = null, isSubmitting = false;
@@ -304,6 +341,36 @@
             applyConf(); 
             go('cate01');
             openWelcome();
+            initTapEffect();
+        }
+
+        // タップエフェクトのロジック
+        function initTapEffect() {
+            let activeRipple = null;
+            document.addEventListener('pointerdown', (e) => {
+                if (!conf.tapEffect) return;
+                const ripple = document.createElement('div');
+                ripple.className = 'tap-ripple';
+                ripple.style.left = e.clientX + 'px';
+                ripple.style.top = e.clientY + 'px';
+                document.body.appendChild(ripple);
+                
+                // 次のフレームでactiveにして拡大
+                requestAnimationFrame(() => ripple.classList.add('active'));
+                activeRipple = ripple;
+            });
+
+            const endRipple = () => {
+                if (activeRipple) {
+                    const r = activeRipple;
+                    r.classList.add('fade-out');
+                    setTimeout(() => r.remove(), 400);
+                    activeRipple = null;
+                }
+            };
+            document.addEventListener('pointerup', endRipple);
+            document.addEventListener('pointerleave', endRipple);
+            document.addEventListener('pointercancel', endRipple);
         }
 
         function openWelcome() { document.getElementById('welcome-overlay').style.display = 'flex'; }
@@ -315,6 +382,7 @@
             if (adIdx === -1) { cols.splice(edIdx === -1 ? cols.length : edIdx, 0, {id: 'adress', n: 'スマート<br>連絡', w: 25}); }
             else if (edIdx !== -1 && adIdx > edIdx) { let adCol = cols.splice(adIdx, 1)[0]; cols.splice(edIdx, 0, adCol); }
             if (cols.findIndex(c => c.id === 'edit') === -1) { cols.push({id: 'edit', n: '✏️', w: 30}); }
+            if (conf.tapEffect === undefined) conf.tapEffect = false;
             localStorage.setItem(CK, JSON.stringify(conf));
         }
 
@@ -329,6 +397,8 @@
             document.documentElement.style.setProperty('--f-body', conf.fs.b + 'px');
             document.getElementById('sf-t').value = conf.fs.t;
             document.getElementById('sf-b').value = conf.fs.b;
+            document.getElementById('st-tap').checked = conf.tapEffect;
+
             const colArea = document.getElementById('list-cols-config');
             colArea.innerHTML = '<div class="set-label">リスト各列の表示名と横幅(px)</div>';
             conf.listCols.forEach((c, i) => {
@@ -478,17 +548,7 @@
             const card = db.find(x => x.id === cardId); 
             const subject = card.card?.t || ""; 
             const originalBody = card.card?.b || "";
-            
-            // 宛名生成ロジック (v1.77修正)
-            let ateName = "";
-            if (tempDest.tanto) { 
-                // tantoあり: name(改行)tanto
-                ateName = `${tempDest.name}\n${tempDest.tanto}`; 
-            } else { 
-                // tantoなし: name様
-                ateName = `${tempDest.name}様`; 
-            }
-            
+            let ateName = tempDest.tanto ? `${tempDest.name}\n${tempDest.tanto}` : `${tempDest.name}様`; 
             const finalBody = `${ateName}\n\n${originalBody}`;
 
             navigator.clipboard.writeText(finalBody).then(() => {
@@ -529,6 +589,7 @@
         function saveSet() { 
             for(let i=1; i<=4; i++) conf.tabs[`cate0${i}`] = document.getElementById(`sn-${i}`).value; 
             conf.fs = { t: parseInt(document.getElementById('sf-t').value), b: parseInt(document.getElementById('sf-b').value) }; 
+            conf.tapEffect = document.getElementById('st-tap').checked;
             conf.listCols.forEach((c, i) => { c.n = document.getElementById(`lc-n-${i}`).value; c.w = parseInt(document.getElementById(`lc-w-${i}`).value); });
             localStorage.setItem(CK, JSON.stringify(conf)); location.reload(); 
         }
