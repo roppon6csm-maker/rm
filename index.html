@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RopMemo v1.71</title>
+    <title>RopMemo v1.72</title>
     <style>
         :root {
             --bg-cate01: #D9D2E9; --bg-cate02: #EAD1DC; --bg-cate03: #FFF2CC; --bg-cate04: #D1EAF0;
@@ -68,12 +68,21 @@
         .set-row { background: #FFF; border-radius: 8px; padding: 10px; display: flex; flex-direction: column; gap: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
         .btn-l { width: 100%; height: 36px; background: #444; color: #FFF; border: none; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer; }
         .set-label { font-size: 9px; color: #888; font-weight: bold; }
+        .id-label { color: #999; font-size: 7px; margin-left: 3px; font-weight: normal; }
         .input-mini { height: 28px; font-size: 11px; padding: 0 8px; border-radius: 5px; border: 1px solid #DDD; width: 100%; }
         .copy-btn-inline { font-size: 9px; background: #EEE; border: 1px solid #DDD; padding: 3px 7px; border-radius: 4px; cursor: pointer; }
         .win-label { position: absolute; top: -12px; left: 20px; font-size: 8px; background: #555; color: #FFF; padding: 2px 8px; border-radius: 4px; font-weight: bold; z-index: 10; }
         
         .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+
+        /* 新しい段組み用のスタイル */
+        .flex-box { display: flex; flex-wrap: wrap; gap: 4px; width: 100%; }
+        .box-1 { width: calc(10% - 4px); }
+        .box-2 { width: calc(20% - 4px); }
+        .box-6 { width: calc(60% - 4px); }
+        .box-9 { width: calc(90% - 4px); }
+        .box-10 { width: 100%; }
 
         .set-tabs { display: flex; gap: 5px; margin-bottom: 5px; }
         .set-tab-btn { flex:1; padding: 8px; font-size: 10px; border-radius: 8px; border: none; background: #CCC; color: #666; font-weight: bold; cursor: pointer; }
@@ -105,7 +114,7 @@
 <body onload="boot()">
     <div id="header-outer">
         <div class="logo-text" onclick="openSet()">RopMemo<span>⚙</span></div>
-        <div class="ver-text">ver.1.71</div>
+        <div class="ver-text">ver.1.72</div>
     </div>
 
     <div id="main-window">
@@ -190,27 +199,26 @@
         <div class="win" style="height: auto; max-height: 92%; margin-bottom: 2%;">
             <div class="win-label">[リストデータ詳細編集]</div>
             <div class="set-scroll">
-                <div class="grid-3">
-                    <div class="set-row"><div class="set-label" id="lbl-furigana">50音</div><input type="text" id="ln-furigana" class="input-mini"></div>
-                    <div class="set-row"><div class="set-label" id="lbl-name">グループ名</div><input type="text" id="ln-name" class="input-mini"></div>
-                    <div class="set-row"><div class="set-label" id="lbl-tanto">担当者</div><input type="text" id="ln-tanto" class="input-mini"></div>
+                <div class="flex-box">
+                    <div class="set-row box-1"><div class="set-label">50音<span class="id-label">furigana</span></div><input type="text" id="ln-furigana" class="input-mini"></div>
+                    <div class="set-row box-9"><div class="set-label">グループ名<span class="id-label">name</span></div><input type="text" id="ln-name" class="input-mini"></div>
+                    
+                    <div class="set-row box-10"><div class="set-label">担当者<span class="id-label">tanto</span></div><input type="text" id="ln-tanto" class="input-mini"></div>
+                    
+                    <div class="set-row box-10"><div class="set-label">連絡先<span class="id-label">adress</span></div><input type="text" id="ln-adress" class="input-mini"></div>
+                    
+                    <div class="set-row box-2"><div class="set-label">フラグ<span class="id-label">flag</span></div><select id="ln-flag" class="list-select"><option value="">なし</option><option value="🚩">🚩</option><option value="済">済</option><option value="🙆‍♀️">🙆‍♀️</option><option value="🙅‍♀️">🙅‍♀️</option></select></div>
+                    <div class="set-row box-2"><div class="set-label">手段<span class="id-label">meth</span></div><select id="ln-meth" class="list-select"><option value="">なし</option><option value="L">L</option><option value="✉️">✉️</option><option value="𝕏">𝕏</option><option value="🗒">🗒</option></select></div>
+                    <div class="set-row box-2"><div class="set-label">案内日<span class="id-label">date</span></div><input type="text" id="ln-date" class="input-mini"></div>
+                    <div class="set-row box-2"><div class="set-label">ヨミ<span class="id-label">yomi</span></div><input type="text" id="ln-yomi" class="input-mini"></div>
+                    <div class="set-row box-2"><div class="set-label">出演経験<span class="id-label">kako</span></div><select id="ln-kako" class="list-select"><option value="">なし</option><option value="有">有</option><option value="無">無</option></select></div>
+                    
+                    <div class="set-row box-2"><div class="set-label">写真<span class="id-label">satueP</span></div><select id="ln-satueP" class="list-select"><option value="">なし</option><option value="⭕️">⭕️</option><option value="❌">❌</option></select></div>
+                    <div class="set-row box-2"><div class="set-label">動画<span class="id-label">satueM</span></div><select id="ln-satueM" class="list-select"><option value="">なし</option><option value="⭕️">⭕️</option><option value="❌">❌</option></select></div>
+                    <div class="set-row box-6"><div class="set-label">要望<span class="id-label">note</span></div><textarea id="ln-note" style="height:28px; font-size:11px; border:1px solid #DDD; border-radius:4px; padding:5px; resize:none;"></textarea></div>
+                    
+                    <div class="set-row box-10"><div class="set-label">アー写<span class="id-label">photo</span></div><input type="text" id="ln-photo" class="input-mini"></div>
                 </div>
-                <div class="grid-3">
-                    <div class="set-row"><div class="set-label" id="lbl-flag">フラグ</div><select id="ln-flag" class="list-select"><option value="">なし</option><option value="🚩">🚩</option><option value="済">済</option><option value="🙆‍♀️">🙆‍♀️</option><option value="🙅‍♀️">🙅‍♀️</option></select></div>
-                    <div class="set-row"><div class="set-label" id="lbl-meth">手段</div><select id="ln-meth" class="list-select"><option value="">なし</option><option value="L">L</option><option value="✉️">✉️</option><option value="𝕏">𝕏</option><option value="🗒">🗒</option></select></div>
-                    <div class="set-row"><div class="set-label" id="lbl-date">案内日</div><input type="text" id="ln-date" class="input-mini"></div>
-                </div>
-                <div class="grid-2">
-                    <div class="set-row"><div class="set-label" id="lbl-yomi">ヨミ</div><input type="text" id="ln-yomi" class="input-mini"></div>
-                    <div class="set-row"><div class="set-label" id="lbl-adress">連絡先</div><input type="text" id="ln-adress" class="input-mini"></div>
-                </div>
-                <div class="set-row"><div class="set-label" id="lbl-note">要望</div><textarea id="ln-note" style="height:40px; font-size:11px; border:1px solid #DDD; border-radius:4px; padding:5px; resize:none;"></textarea></div>
-                <div class="grid-3">
-                    <div class="set-row"><div class="set-label" id="lbl-satueP">写真</div><input type="text" id="ln-satueP" class="input-mini"></div>
-                    <div class="set-row"><div class="set-label" id="lbl-satueM">動画</div><input type="text" id="ln-satueM" class="input-mini"></div>
-                    <div class="set-row"><div class="set-label" id="lbl-kako">出演経験</div><input type="text" id="ln-kako" class="input-mini"></div>
-                </div>
-                <div class="set-row"><div class="set-label" id="lbl-photo">アー写</div><input type="text" id="ln-photo" class="input-mini"></div>
             </div>
             <div style="display:flex; gap:8px; margin-top:5px;">
                 <button onclick="cls()" class="btn-l" style="background:#FFF; color:#333;">戻る</button>
@@ -436,7 +444,10 @@
         function openEd(id) {
             eid = id; const i = db.find(x => x.id === id) || { card:{}, list:{}, cat:cur };
             if(conf.subStates[cur] === 'sub02') {
-                L_KEYS.forEach(k => document.getElementById('ln-'+k).value = i.list?.[k] || '');
+                L_KEYS.forEach(k => {
+                    const el = document.getElementById('ln-'+k);
+                    if(el) el.value = i.list?.[k] || '';
+                });
                 document.getElementById('btn-del-trigger-l').style.display = id ? 'block' : 'none'; document.getElementById('ed-list').style.display = 'flex';
             } else {
                 document.getElementById('cn-title').value = i.card?.t || ''; document.getElementById('cn-body').value = i.card?.b || ''; document.getElementById('cn-url').value = i.card?.u || ''; document.getElementById('cn-alt').value = i.card?.a || ''; document.getElementById('cn-cat').value = i.cat || cur;
@@ -463,7 +474,10 @@
 
         function saveL() {
             if(isSubmitting) return; const name = document.getElementById('ln-name').value.trim(); if(!name) { toast("グループ名を入力"); return; }
-            isSubmitting = true; const data = {}; L_KEYS.forEach(k => data[k] = document.getElementById('ln-'+k).value);
+            isSubmitting = true; const data = {}; L_KEYS.forEach(k => {
+                const el = document.getElementById('ln-'+k);
+                if(el) data[k] = el.value;
+            });
             if(!eid) db.push({ id: Date.now().toString(), cat:cur, date:fmtDate(), card:{}, list:data });
             else db.find(x => x.id === eid).list = data;
             saveAll(); setTimeout(() => { cls(); toast("保存完了"); isSubmitting = false; }, 200);
