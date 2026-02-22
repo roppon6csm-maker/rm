@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RopMemo v1.81</title>
+    <title>RopMemo v1.82</title>
     <style>
         :root {
             --bg-cate01: #D9D2E9; --bg-cate02: #EAD1DC; --bg-cate03: #FFF2CC; --bg-cate04: #D1EAF0;
@@ -17,7 +17,7 @@
         }
         body { background-color: #000; height: 100vh; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; overflow: hidden; position: relative; }
         
-        /* タップエフェクト (ver.1.81 継承) */
+        /* タップエフェクト (ver.1.82 継承) */
         .tap-ripple {
             position: fixed;
             width: 30px;
@@ -89,7 +89,9 @@
         .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; z-index: 1000; justify-content: center; align-items: flex-end; backdrop-filter: blur(2px); }
         .win { width: 92%; height: 92%; background: #D6D6D6; border-radius: 25px; margin-bottom: 2%; padding: 15px; display: flex; flex-direction: column; gap: 8px; position: relative; }
         .set-scroll { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; scrollbar-width: none; padding-bottom: 20px; }
-        .set-row { background: #FFF; border-radius: 8px; padding: 10px; display: flex; flex-direction: column; gap: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .set-row { background: #FFF; border-radius: 8px; padding: 10px; display: flex; flex-direction: column; gap: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 15px; }
+        .set-row:last-child { margin-bottom: 0; }
+        .set-section-title { font-size: 12px; font-weight: bold; color: #333; margin: 5px 0 8px 4px; display: flex; align-items: center; gap: 5px; }
         .btn-l { width: 100%; height: 44px; background: #444; color: #FFF; border: none; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; flex-shrink: 0; }
         .set-label { font-size: 10px; color: #888; font-weight: bold; margin-bottom: 2px; }
         .id-label { color: #BBB; font-size: 7px; margin-top: 1px; align-self: flex-end; font-weight: normal; }
@@ -121,11 +123,11 @@
         #toast { position: fixed; bottom: 41.5%; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); color: #fff; padding: 10px 24px; border-radius: 20px; font-size: 11px; font-weight: bold; display: none; z-index: 9999; text-align: center; }
         .sort-icon { display: inline-block; width: 12px; text-align: center; font-size: 8px; margin-left: 1px; color: #007AFF; }
         
-        /* データ管理センターUI (ver.1.81) */
-        .data-center { margin-top: 15px; border-top: 1px dashed #AAA; padding-top: 15px; }
+        /* データ管理センターUI (ver.1.82) */
+        .data-center { margin-top: 5px; padding-top: 5px; }
         .data-count-badge { display: flex; gap: 10px; margin-bottom: 12px; }
         .count-item { background: #555; color: #FFF; padding: 4px 12px; border-radius: 15px; font-size: 9px; font-weight: bold; }
-        .io-panel { background: #E6E6E6; border-radius: 12px; padding: 15px; display: flex; flex-direction: column; gap: 10px; border: 1px solid rgba(0,0,0,0.05); }
+        .io-panel { background: #E6E6E6; border-radius: 12px; padding: 15px; display: flex; flex-direction: column; gap: 10px; border: 1px solid rgba(0,0,0,0.05); margin-bottom: 15px; }
         .io-btn { background: #FFF; color: #333; font-size: 11px; padding: 10px; border-radius: 8px; border: 1px solid #BBB; cursor: pointer; width: 100%; font-weight: bold; text-align: center; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
         .io-btn:active { background: #EEE; transform: translateY(1px); }
         .io-text { width: 100%; height: 140px; font-size: 10px; padding: 10px; border: 1px solid #BBB; border-radius: 8px; resize: none; background: #FFF; line-height: 1.5; font-family: monospace; }
@@ -140,11 +142,12 @@
         .tmpl-list-btn:active { background: #F0F0F0; }
 
         #welcome-overlay { display: none; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
-        .welcome-win { width: 85%; background: #FFF; border-radius: 25px; padding: 30px 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; display: flex; flex-direction: column; gap: 20px; animation: popUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .welcome-win { width: 85%; background: #FFF; border-radius: 25px; padding: 30px 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; display: flex; flex-direction: column; gap: 20px; animation: popUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; }
         @keyframes popUp { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         .welcome-msg { font-size: 13px; line-height: 1.8; color: #333; font-weight: bold; white-space: pre-wrap; }
         .welcome-logo { font-size: 24px; font-weight: 900; color: #000; margin-top: 10px; border-top: 1px solid #EEE; padding-top: 15px; }
         .welcome-btn { background: #007AFF; color: #FFF; border: none; padding: 12px 0; border-radius: 12px; font-weight: bold; font-size: 14px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,122,255,0.3); }
+        .welcome-ver { position: absolute; bottom: 12px; right: 20px; font-size: 8px; color: #CCC; }
 
         .dest-info { background: rgba(0,0,0,0.05); border-radius: 10px; padding: 10px; margin-bottom: 8px; font-size: 11px; border-left: 4px solid #555; }
         .dest-row { display: flex; margin-bottom: 2px; }
@@ -155,7 +158,7 @@
 <body onload="boot()">
     <div id="header-outer">
         <div class="logo-text" onclick="openSet()">RopMemo<span>⚙</span></div>
-        <div class="ver-text">ver.1.81</div>
+        <div class="ver-text">ver.1.82</div>
     </div>
 
     <div id="main-window">
@@ -198,6 +201,7 @@
 気になる動画や情報もクイック登録！</div>
             <div class="welcome-logo">『RopMemo』</div>
             <button class="welcome-btn" onclick="cls()">はじめる</button>
+            <div class="welcome-ver">ver.1.82</div>
         </div>
     </div>
 
@@ -239,7 +243,7 @@
 
     <div id="ed-list" class="overlay">
         <div class="win">
-            <div class="win-label">[リストデータ詳細編集]</div>
+            <div style="font-size:14px; font-weight:900; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center; color:#000;">⚙ リストデータ詳細編集 <span onclick="cls()" style="cursor:pointer; font-size:20px; color:#888;">✕</span></div>
             <div class="set-scroll">
                 <div class="flex-box">
                     <div class="set-row w-20"><div class="set-label">50音</div><input type="text" id="ln-furigana" class="input-mini"><span class="id-label">furigana</span></div>
@@ -281,8 +285,13 @@
             </div>
             <div class="set-scroll">
                 <div id="set-content-card">
+                    <div class="set-section-title">◾︎ 共通</div>
+                    <div class="set-row toggle-row">
+                        <div class="set-label">タップエフェクト（⭕️）</div>
+                        <label class="switch"><input type="checkbox" id="st-tap"><span class="slider"></span></label>
+                    </div>
                     <div class="set-row">
-                        <div class="set-label">カテゴリ表示名</div>
+                        <div class="set-label">カテゴリタブ設定（表示名）</div>
                         <div class="flex-box">
                             <input type="text" id="sn-1" class="input-mini w-100" placeholder="1: ブッキング" style="margin-bottom:2px;">
                             <input type="text" id="sn-2" class="input-mini w-100" placeholder="2: グルメ" style="margin-bottom:2px;">
@@ -290,6 +299,8 @@
                             <input type="text" id="sn-4" class="input-mini w-100" placeholder="4: 保存" style="margin-bottom:2px;">
                         </div>
                     </div>
+
+                    <div class="set-section-title">◾︎ カード表示画面</div>
                     <div class="set-row">
                         <div class="set-label">カードフォントサイズ (px)</div>
                         <div style="display:flex; align-items:center; gap:15px; font-size:12px; padding:5px 0;">
@@ -297,23 +308,21 @@
                             <div>本文：<input type="number" id="sf-b" style="width:60px; height:32px; text-align:center; border:1px solid #DDD; border-radius:6px;"></div>
                         </div>
                     </div>
-                    <div class="set-row toggle-row">
-                        <div class="set-label">タップエフェクト（⭕️）</div>
-                        <label class="switch"><input type="checkbox" id="st-tap"><span class="slider"></span></label>
-                    </div>
+
+                    <div class="set-section-title">◾︎ リスト表示画面</div>
                     <div class="set-row">
-                        <div class="set-label">リスト表示項目のカスタマイズ（名称 / 横幅）</div>
+                        <div class="set-label">リスト表示設定（名称 / 横幅）</div>
                         <div id="list-cols-config" style="display:flex; flex-direction:column; gap:6px; margin-top:5px;"></div>
                     </div>
-                </div>
-                <div id="set-content-list" style="display:none;">
                     <div class="set-row">
-                        <div class="set-label">メール下書き送信アプリの選択</div>
+                        <div class="set-label">スマート連絡📲設定（メーラー選択）</div>
                         <div class="mailer-toggle">
                             <button id="mb-standard" class="mailer-btn" onclick="setMailer('standard')">標準メーラー</button>
                             <button id="mb-gmail" class="mailer-btn" onclick="setMailer('gmail')">Gmailアプリ</button>
                         </div>
                     </div>
+                </div>
+                <div id="set-content-list" style="display:none;">
                     <div class="data-center">
                         <div class="data-count-badge">
                             <div class="count-item">カード登録: <span id="cnt-card">0</span>件</div>
@@ -328,7 +337,7 @@
                                 <button class="io-btn" style="background:#34C759; color:#FFF; border:none; flex:1; height:44px;" onclick="importExcelMode()">Excel読込</button>
                             </div>
                         </div>
-                        <div class="io-panel" style="margin-top:10px;">
+                        <div class="io-panel">
                             <div class="io-desc">【Excel・スプレッドシート連携】<br>現在表示中のカテゴリのリストをExcelに貼り付け可能な形式でコピーします。</div>
                             <button class="io-btn" onclick="exportExcelList()">表示中のリストをコピー</button>
                         </div>
@@ -592,7 +601,7 @@
         }
 
         function exportAllJSON() {
-            const data = { db: db, conf: conf, version: "1.81" };
+            const data = { db: db, conf: conf, version: "1.82" };
             const jsonStr = JSON.stringify(data);
             document.getElementById('io-input').value = jsonStr;
             document.getElementById('io-input').select();
