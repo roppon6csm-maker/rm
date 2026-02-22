@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RopMemo v1.77</title>
+    <title>RopMemo v1.78</title>
     <style>
         :root {
             --bg-cate01: #D9D2E9; --bg-cate02: #EAD1DC; --bg-cate03: #FFF2CC; --bg-cate04: #D1EAF0;
@@ -75,7 +75,15 @@
 
         #list-view { width: 100%; padding: 0 0 60px 0; display: none; }
         .list-table { width: 100%; border-collapse: collapse; font-size: 9px; table-layout: fixed; }
-        .list-table thead th { position: sticky; top: 0; background: var(--cur-bg); z-index: 20; padding: 4px 2px; color: #666; font-size: 8px; box-shadow: 0 1px 0 rgba(0,0,0,0.1); cursor: pointer; white-space: normal; line-height: 1.2; vertical-align: middle; }
+        /* [ガタつき・隙間対策] stickyヘッダーの背景クリップと不透過処理 */
+        .list-table thead th { 
+            position: sticky; top: 0; background: var(--cur-bg); z-index: 20; padding: 4px 2px; 
+            color: #666; font-size: 8px; cursor: pointer; white-space: normal; line-height: 1.2; 
+            vertical-align: middle; 
+            background-clip: padding-box;
+            outline: 0.5px solid var(--cur-bg); /* サブピクセルの隙間を埋める */
+            box-shadow: 0 1px 0 rgba(0,0,0,0.1); 
+        }
         .list-table td { padding: 8px 2px; text-align: center; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; vertical-align: middle; border-bottom: 1px solid rgba(0,0,0,0.05); position: relative; }
         .list-table tbody tr:nth-child(even) { background: #F2F2F2 !important; }
         .list-table tbody tr:nth-child(odd) { background: #FFFFFF !important; }
@@ -142,7 +150,7 @@
 <body onload="boot()">
     <div id="header-outer">
         <div class="logo-text tap-target" onclick="openSet()">RopMemo<span>⚙</span></div>
-        <div class="ver-text">ver.1.77</div>
+        <div class="ver-text">ver.1.78</div>
     </div>
 
     <div id="main-window">
@@ -317,7 +325,7 @@
 
         function boot() { 
             applyConf(); go('cate01');
-            // [UX改善] 座標ズレ解消・非干渉・スワイプガード付リップル
+            // [UX改善] 真・座標同期リップル
             document.addEventListener('touchstart', (e) => {
                 if(conf.tap === 'none') return;
                 startX = e.touches[0].clientX; startY = e.touches[0].clientY;
@@ -334,7 +342,8 @@
 
                 const ripple = document.createElement('div'); ripple.className = 'ripple';
                 const rect = target.getBoundingClientRect();
-                // [高精度計算] 画面上の位置(clientX)から要素の端(rect.left)を引く
+                // [座標絶対補正] ビューポート上の指の位置(endX/Y)からターゲットの画面上の位置(rect)を引く
+                // これによりスクロール量(scrollTop)に関わらず要素内の相対座標が確定する
                 const x = endX - rect.left; const y = endY - rect.top;
                 
                 ripple.style.left = `${x}px`; ripple.style.top = `${y}px`;
