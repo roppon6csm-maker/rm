@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RopMemo v1.79</title>
+    <title>RopMemo v1.80</title>
     <style>
         :root {
             --bg-cate01: #D9D2E9; --bg-cate02: #EAD1DC; --bg-cate03: #FFF2CC; --bg-cate04: #D1EAF0;
@@ -17,18 +17,18 @@
         }
         body { background-color: #000; height: 100vh; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; overflow: hidden; position: relative; }
         
-        /* タップエフェクト用CSS (ver.1.79 視認性強化版) */
+        /* タップエフェクト用CSS (ver.1.80 継承) */
         .tap-ripple {
             position: fixed;
-            width: 30px; /* サイズを⭕️相当に縮小 */
+            width: 30px;
             height: 30px;
-            background: rgba(255, 255, 255, 0.75); /* 不透明度を上げて濃く */
+            background: rgba(255, 255, 255, 0.75);
             border-radius: 50%;
             pointer-events: none;
             transform: translate(-50%, -50%) scale(0);
             z-index: 99999;
             transition: transform 0.1s ease-out;
-            box-shadow: 0 0 4px rgba(0, 0, 0, 0.3); /* グレー背景でも見えるように影を追加 */
+            box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
         }
         .tap-ripple.active { transform: translate(-50%, -50%) scale(1); }
         .tap-ripple.fade-out { 
@@ -97,7 +97,6 @@
         .copy-btn-inline { font-size: 9px; background: #EEE; border: 1px solid #DDD; padding: 3px 7px; border-radius: 4px; cursor: pointer; }
         .win-label { position: absolute; top: -12px; left: 20px; font-size: 8px; background: #555; color: #FFF; padding: 2px 8px; border-radius: 4px; font-weight: bold; z-index: 10; }
         
-        /* トグルスイッチ用デザイン */
         .toggle-row { display: flex; justify-content: space-between; align-items: center; }
         .switch { position: relative; display: inline-block; width: 40px; height: 22px; }
         .switch input { opacity: 0; width: 0; height: 0; }
@@ -122,9 +121,15 @@
         #toast { position: fixed; bottom: 41.5%; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); color: #fff; padding: 10px 24px; border-radius: 20px; font-size: 11px; font-weight: bold; display: none; z-index: 9999; text-align: center; }
         .sort-icon { display: inline-block; width: 12px; text-align: center; font-size: 8px; margin-left: 1px; color: #007AFF; }
         
-        .io-area { margin-top: 10px; border-top: 1px dashed #CCC; padding-top: 10px; }
-        .io-btn { background: #EEE; color: #333; font-size: 10px; padding: 6px; border-radius: 4px; border: 1px solid #DDD; cursor: pointer; width: 100%; margin-bottom: 5px; font-weight: bold; }
-        .io-text { width: 100%; height: 60px; font-size: 9px; padding: 5px; border: 1px solid #DDD; border-radius: 4px; resize: none; background: #FFF; }
+        /* ver.1.80 データ管理センターUI改善 */
+        .data-center { margin-top: 10px; border-top: 1px dashed #AAA; padding-top: 10px; }
+        .data-count-badge { display: flex; gap: 10px; margin-bottom: 8px; }
+        .count-item { background: #555; color: #FFF; padding: 2px 8px; border-radius: 12px; font-size: 8px; font-weight: bold; }
+        .io-panel { background: #E0E0E0; border-radius: 10px; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+        .io-btn { background: #FFF; color: #333; font-size: 10px; padding: 8px; border-radius: 6px; border: 1px solid #CCC; cursor: pointer; width: 100%; font-weight: bold; text-align: center; }
+        .io-btn:active { background: #EEE; }
+        .io-text { width: 100%; height: 100px; font-size: 10px; padding: 8px; border: 1px solid #BBB; border-radius: 6px; resize: none; background: #FFF; line-height: 1.4; }
+        .io-desc { font-size: 8px; color: #777; line-height: 1.3; margin-bottom: 4px; }
 
         .mailer-toggle { display: flex; gap: 0; background: #EEE; border-radius: 6px; overflow: hidden; margin-top: 5px; border: 1px solid #DDD; }
         .mailer-btn { flex: 1; border: none; padding: 8px; font-size: 10px; cursor: pointer; background: transparent; color: #666; font-weight: bold; }
@@ -150,7 +155,7 @@
 <body onload="boot()">
     <div id="header-outer">
         <div class="logo-text" onclick="openSet()">RopMemo<span>⚙</span></div>
-        <div class="ver-text">ver.1.79</div>
+        <div class="ver-text">ver.1.80</div>
     </div>
 
     <div id="main-window">
@@ -271,8 +276,8 @@
         <div class="win" style="background:#ECECEC; height: 50%;">
             <div style="font-size:12px; font-weight:bold; margin-bottom:8px; display:flex; justify-content:space-between; color:#333;">⚙ アプリ設定 <span onclick="cls()" style="cursor:pointer; font-size:16px;">✕</span></div>
             <div class="set-tabs">
-                <button id="set-tab-card" class="set-tab-btn active" onclick="switchSetTab('card')">カード表示設定</button>
-                <button id="set-tab-list" class="set-tab-btn" onclick="switchSetTab('list')">リスト表示設定</button>
+                <button id="set-tab-card" class="set-tab-btn active" onclick="switchSetTab('card')">基本設定</button>
+                <button id="set-tab-list" class="set-tab-btn" onclick="switchSetTab('list')">データ管理</button>
             </div>
             <div class="set-scroll">
                 <div id="set-content-card">
@@ -288,23 +293,40 @@
                         <div style="display:flex; align-items:center; gap:10px; font-size:11px;">タイトル：<input type="number" id="sf-t" style="width:50px;"> 本文：<input type="number" id="sf-b" style="width:50px;"></div>
                     </div>
                     <div class="set-row toggle-row">
-                        <div class="set-label">タップエフェクト（白く光る）</div>
+                        <div class="set-label">タップエフェクト</div>
                         <label class="switch"><input type="checkbox" id="st-tap"><span class="slider"></span></label>
+                    </div>
+                    <div class="set-row">
+                        <div class="set-label">リスト各列の表示名/幅</div>
+                        <div id="list-cols-config"></div>
                     </div>
                 </div>
                 <div id="set-content-list" style="display:none;">
                     <div class="set-row">
                         <div class="set-label">メール下書き連携</div>
                         <div class="mailer-toggle">
-                            <button id="mb-standard" class="mailer-btn" onclick="setMailer('standard')">端末の標準メーラー</button>
+                            <button id="mb-standard" class="mailer-btn" onclick="setMailer('standard')">標準メーラー</button>
                             <button id="mb-gmail" class="mailer-btn" onclick="setMailer('gmail')">Gmail</button>
                         </div>
                     </div>
-                    <div class="set-row" id="list-cols-config"></div>
-                    <div class="io-area">
-                        <button class="io-btn" onclick="exportListData()">全データをコピー (Excel用)</button>
-                        <textarea id="io-input" class="io-text" placeholder="Excelデータを貼り付け"></textarea>
-                        <button class="io-btn" style="background:#007AFF; color:#FFF; border:none;" onclick="importListData()">インポート</button>
+                    <div class="data-center">
+                        <div class="data-count-badge">
+                            <div class="count-item">カード: <span id="cnt-card">0</span>件</div>
+                            <div class="count-item">リスト: <span id="cnt-list">0</span>件</div>
+                        </div>
+                        <div class="io-panel">
+                            <div class="io-desc">【全データ一括バックアップ】<br>下の枠内の文字を全てコピーして保存してください。</div>
+                            <button class="io-btn" style="background:#EEE;" onclick="exportAllJSON()">全データを枠内に書き出し</button>
+                            <textarea id="io-input" class="io-text" placeholder="ここにバックアップデータを貼り付けて「一括復元」"></textarea>
+                            <div style="display:flex; gap:5px;">
+                                <button class="io-btn" style="background:#007AFF; color:#FFF; border:none; flex:1;" onclick="importAllJSON()">一括復元</button>
+                                <button class="io-btn" style="background:#34C759; color:#FFF; border:none; flex:1;" onclick="importExcelMode()">Excel形式読込</button>
+                            </div>
+                            <div class="io-desc" style="margin-top:5px; border-top:1px solid #CCC; padding-top:5px;">
+                                【Excel連携】<br>リスト(表示中のみ)をExcel用に出力します。
+                            </div>
+                            <button class="io-btn" onclick="exportExcelList()">表示中のリストをコピー</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -319,7 +341,6 @@
         let db = JSON.parse(localStorage.getItem(SK)) || [];
         const L_KEYS = ['furigana','name','tanto','flag','meth','date','yomi','adress','note','satueP','satueM','kako','photo'];
         
-        // ver.1.79: tapEffectのデフォルトをtrueに設定
         let conf = JSON.parse(localStorage.getItem(CK)) || {
             tabs: { cate01: "ブッキング", cate02: "グルメ", cate03: "AI", cate04: "保存" },
             fs: { t: 7, b: 8 },
@@ -358,15 +379,7 @@
                 requestAnimationFrame(() => ripple.classList.add('active'));
                 activeRipple = ripple;
             });
-
-            const endRipple = () => {
-                if (activeRipple) {
-                    const r = activeRipple;
-                    r.classList.add('fade-out');
-                    setTimeout(() => r.remove(), 400);
-                    activeRipple = null;
-                }
-            };
+            const endRipple = () => { if (activeRipple) { const r = activeRipple; r.classList.add('fade-out'); setTimeout(() => r.remove(), 400); activeRipple = null; } };
             document.addEventListener('pointerup', endRipple);
             document.addEventListener('pointerleave', endRipple);
             document.addEventListener('pointercancel', endRipple);
@@ -376,10 +389,7 @@
 
         function fixConfStructure() {
             let cols = conf.listCols;
-            let adIdx = cols.findIndex(c => c.id === 'adress');
-            let edIdx = cols.findIndex(c => c.id === 'edit');
-            if (adIdx === -1) { cols.splice(edIdx === -1 ? cols.length : edIdx, 0, {id: 'adress', n: 'スマート<br>連絡', w: 25}); }
-            else if (edIdx !== -1 && adIdx > edIdx) { let adCol = cols.splice(adIdx, 1)[0]; cols.splice(edIdx, 0, adCol); }
+            if (cols.findIndex(c => c.id === 'adress') === -1) { cols.push({id: 'adress', n: 'スマート<br>連絡', w: 25}); }
             if (cols.findIndex(c => c.id === 'edit') === -1) { cols.push({id: 'edit', n: '✏️', w: 30}); }
             if (conf.tapEffect === undefined) conf.tapEffect = true;
             localStorage.setItem(CK, JSON.stringify(conf));
@@ -399,13 +409,21 @@
             document.getElementById('st-tap').checked = conf.tapEffect;
 
             const colArea = document.getElementById('list-cols-config');
-            colArea.innerHTML = '<div class="set-label">リスト各列の表示名と横幅(px)</div>';
+            colArea.innerHTML = '';
             conf.listCols.forEach((c, i) => {
                 const row = document.createElement('div'); row.style = "display:flex; gap:5px; align-items:center; margin-top:4px;";
-                row.innerHTML = `<input type="text" id="lc-n-${i}" value="${c.n}" style="flex:1; height:26px; font-size:10px; padding:0 5px; border:1px solid #DDD; border-radius:4px;"><input type="number" id="lc-w-${i}" value="${c.w}" style="width:45px; height:26px; font-size:10px; border:1px solid #DDD; border-radius:4px;">`;
+                row.innerHTML = `<input type="text" id="lc-n-${i}" value="${c.n}" style="flex:1; height:24px; font-size:10px; border:1px solid #DDD; border-radius:4px;"><input type="number" id="lc-w-${i}" value="${c.w}" style="width:40px; height:24px; font-size:10px; border:1px solid #DDD; border-radius:4px;">`;
                 colArea.appendChild(row);
             });
             updateMailerUI();
+            updateDataCounters();
+        }
+
+        function updateDataCounters() {
+            const cardCount = db.filter(i => i.card && (i.card.t || i.card.b)).length;
+            const listCount = db.filter(i => i.list && i.list.name).length;
+            document.getElementById('cnt-card').innerText = cardCount;
+            document.getElementById('cnt-list').innerText = listCount;
         }
 
         function setMailer(m) { conf.mailerMode = m; updateMailerUI(); }
@@ -448,9 +466,7 @@
             else { sortKey = key; sortOrder = 'asc'; } upd();
         }
 
-        let renderTimer = null;
         function upd() {
-            if(renderTimer) cancelAnimationFrame(renderTimer);
             const grid = document.getElementById('card-grid'); const tbody = document.getElementById('list-body'); const thead = document.getElementById('list-head');
             grid.innerHTML = ''; tbody.innerHTML = ''; thead.innerHTML = '';
             const hr = document.createElement('tr');
@@ -476,35 +492,26 @@
             const dateOptions = []; const now = new Date();
             for(let j=0; j<4; j++){ const t = new Date(now); t.setDate(now.getDate() - j); dateOptions.push(`${t.getMonth()+1}/${t.getDate()}`); }
 
-            let idx = 0; const chunkSize = 50;
-            let displayCount = 0;
-            function renderChunk() {
-                const limit = Math.min(idx + chunkSize, filtered.length); const fragment = document.createDocumentFragment();
-                for (; idx < limit; idx++) {
-                    const i = filtered[idx];
-                    if(isListView) {
-                        if(!i.list || (!i.list.name && !i.list.flag)) continue;
-                        displayCount++;
-                        const tr = document.createElement('tr');
-                        const mkSel = (key, baseOpts, current) => {
-                            let opts = [...baseOpts]; if(current && !opts.includes(String(current))) opts.push(String(current));
-                            let h = `<select class="list-select" onchange="quickSaveL('${i.id}','${key}',this.value)"><option value="">-</option>`;
-                            opts.forEach(o => h += `<option value="${o}" ${String(o)===String(current)?'selected':''}>${o}</option>`);
-                            return h + `</select>`;
-                        };
-                        tr.innerHTML = `<td>${displayCount}</td><td>${mkSel('flag',['🚩','🙆‍♀️','🙅‍♀️','済'],i.list?.flag)}</td><td>${mkSel('meth',['L','✉️','𝕏','🗒'],i.list?.meth)}</td><td style="text-align:left; font-weight:bold; padding-left:4px;">${esc(i.list?.name || '(未設定)')}</td><td>${mkSel('date',dateOptions,i.list?.date)}</td><td>${mkSel('yomi',[0,2,4,6,8,10,12,14],i.list?.yomi)}</td><td><span class="list-edit-btn" onclick="openMailTmpl('${i.id}')">📲</span></td><td><span class="list-edit-btn" onclick="openEd('${i.id}')">✏️</span></td>`;
-                        fragment.appendChild(tr);
-                    } else {
-                        if(!i.card || (!i.card.t && !i.card.b)) continue;
-                        const d = document.createElement('div'); d.className = 'card';
-                        d.innerHTML = `<div class="card-header"><span class="header-title">${esc(i.card?.t)}</span><button class="card-cp-btn" onclick="event.stopPropagation(); copyByTxt('${i.id}')">本文コピー</button></div><div class="card-body"><div class="card-date">${i.date}</div>${esc(i.card?.b).replace(/\n/g,'<br>')}</div><div class="card-footer"><span>ID:${i.id}</span><span class="edit-icon" onclick="openEd('${i.id}')">✏️</span></div>`;
-                        fragment.appendChild(d);
-                    }
+            filtered.forEach((i, idx) => {
+                if(isListView) {
+                    if(!i.list || (!i.list.name && !i.list.flag)) return;
+                    const tr = document.createElement('tr');
+                    const mkSel = (key, baseOpts, current) => {
+                        let opts = [...baseOpts]; if(current && !opts.includes(String(current))) opts.push(String(current));
+                        let h = `<select class="list-select" onchange="quickSaveL('${i.id}','${key}',this.value)"><option value="">-</option>`;
+                        opts.forEach(o => h += `<option value="${o}" ${String(o)===String(current)?'selected':''}>${o}</option>`);
+                        return h + `</select>`;
+                    };
+                    tr.innerHTML = `<td>${idx+1}</td><td>${mkSel('flag',['🚩','🙆‍♀️','🙅‍♀️','済'],i.list?.flag)}</td><td>${mkSel('meth',['L','✉️','𝕏','🗒'],i.list?.meth)}</td><td style="text-align:left; font-weight:bold; padding-left:4px;">${esc(i.list?.name || '(未設定)')}</td><td>${mkSel('date',dateOptions,i.list?.date)}</td><td>${mkSel('yomi',[0,2,4,6,8,10,12,14],i.list?.yomi)}</td><td><span class="list-edit-btn" onclick="openMailTmpl('${i.id}')">📲</span></td><td><span class="list-edit-btn" onclick="openEd('${i.id}')">✏️</span></td>`;
+                    tbody.appendChild(tr);
+                } else {
+                    if(!i.card || (!i.card.t && !i.card.b)) return;
+                    const d = document.createElement('div'); d.className = 'card';
+                    d.innerHTML = `<div class="card-header"><span class="header-title">${esc(i.card?.t)}</span><button class="card-cp-btn" onclick="event.stopPropagation(); copyByTxt('${i.id}')">本文コピー</button></div><div class="card-body"><div class="card-date">${i.date}</div>${esc(i.card?.b).replace(/\n/g,'<br>')}</div><div class="card-footer"><span>ID:${i.id}</span><span class="edit-icon" onclick="openEd('${i.id}')">✏️</span></div>`;
+                    grid.appendChild(d);
                 }
-                if(isListView) tbody.appendChild(fragment); else grid.appendChild(fragment);
-                if (idx < filtered.length) renderTimer = requestAnimationFrame(renderChunk);
-            }
-            renderChunk();
+            });
+            updateDataCounters();
         }
 
         function quickSaveL(id, key, val) { const item = db.find(x => x.id === id); if(item && item.list) { item.list[key] = val; localStorage.setItem(SK, JSON.stringify(db)); toast("更新しました"); } }
@@ -514,10 +521,7 @@
         function openEd(id) {
             eid = id; const i = db.find(x => x.id === id) || { card:{}, list:{}, cat:cur };
             if(conf.subStates[cur] === 'sub02') {
-                L_KEYS.forEach(k => {
-                    const el = document.getElementById('ln-'+k);
-                    if(el) el.value = i.list?.[k] || '';
-                });
+                L_KEYS.forEach(k => { const el = document.getElementById('ln-'+k); if(el) el.value = i.list?.[k] || ''; });
                 document.getElementById('btn-del-trigger-l').style.display = id ? 'block' : 'none'; document.getElementById('ed-list').style.display = 'flex';
             } else {
                 document.getElementById('cn-title').value = i.card?.t || ''; document.getElementById('cn-body').value = i.card?.b || ''; document.getElementById('cn-url').value = i.card?.u || ''; document.getElementById('cn-alt').value = i.card?.a || ''; document.getElementById('cn-cat').value = i.cat || cur;
@@ -529,11 +533,7 @@
             const i = db.find(x => x.id === id); 
             tempDest = { name: i.list?.name || "", tanto: i.list?.tanto || "", adress: i.list?.adress || "" };
             const destBox = document.getElementById('dest-box');
-            destBox.innerHTML = `
-                <div class="dest-row"><div class="dest-label">グループ</div><div class="dest-val">${esc(tempDest.name)}</div></div>
-                <div class="dest-row"><div class="dest-label">担当者</div><div class="dest-val">${esc(tempDest.tanto || '---')}</div></div>
-                <div class="dest-row"><div class="dest-label">連絡先</div><div class="dest-val">${esc(tempDest.adress || '---')}</div></div>
-            `;
+            destBox.innerHTML = `<div class="dest-row"><div class="dest-label">グループ</div><div class="dest-val">${esc(tempDest.name)}</div></div><div class="dest-row"><div class="dest-label">担当者</div><div class="dest-val">${esc(tempDest.tanto || '---')}</div></div><div class="dest-row"><div class="dest-label">連絡先</div><div class="dest-val">${esc(tempDest.adress || '---')}</div></div>`;
             const tmplArea = document.getElementById('tmpl-scroll'); tmplArea.innerHTML = "";
             const cards = db.filter(x => x.cat === cur && x.card && (x.card.t || x.card.b));
             if(cards.length === 0) { tmplArea.innerHTML = "<div style='padding:20px; text-align:center; font-size:10px; color:#999;'>テンプレートがありません</div>"; }
@@ -543,8 +543,7 @@
 
         function sendMailFinal(cardId) {
             const card = db.find(x => x.id === cardId); 
-            const subject = card.card?.t || ""; 
-            const originalBody = card.card?.b || "";
+            const subject = card.card?.t || ""; const originalBody = card.card?.b || "";
             let ateName = tempDest.tanto ? `${tempDest.name}\n${tempDest.tanto}` : `${tempDest.name}様`; 
             const finalBody = `${ateName}\n\n${originalBody}`;
             navigator.clipboard.writeText(finalBody).then(() => {
@@ -556,10 +555,7 @@
 
         function saveL() {
             if(isSubmitting) return; const name = document.getElementById('ln-name').value.trim(); if(!name) { toast("グループ名を入力"); return; }
-            isSubmitting = true; const data = {}; L_KEYS.forEach(k => {
-                const el = document.getElementById('ln-'+k);
-                if(el) data[k] = el.value;
-            });
+            isSubmitting = true; const data = {}; L_KEYS.forEach(k => { const el = document.getElementById('ln-'+k); if(el) data[k] = el.value; });
             if(!eid) db.push({ id: Date.now().toString(), cat:cur, date:fmtDate(), card:{}, list:data });
             else db.find(x => x.id === eid).list = data;
             saveAll(); setTimeout(() => { cls(); toast("保存完了"); isSubmitting = false; }, 200);
@@ -580,7 +576,7 @@
         function copyByTxt(id) { const i = db.find(x => x.id === id); navigator.clipboard.writeText(i.card?.b).then(() => { toast("コピー完了"); }); }
         function copyByVal(id) { navigator.clipboard.writeText(document.getElementById(id).value).then(() => toast("コピー完了")); }
         function switchSetTab(t) { document.querySelectorAll('.set-tab-btn').forEach(b => b.classList.toggle('active', b.id === `set-tab-${t}`)); document.getElementById('set-content-card').style.display = t === 'card' ? 'block' : 'none'; document.getElementById('set-content-list').style.display = t === 'list' ? 'block' : 'none'; }
-        function openSet() { document.getElementById('ed-set').style.display = 'flex'; switchSetTab('card'); }
+        function openSet() { document.getElementById('ed-set').style.display = 'flex'; switchSetTab('card'); updateDataCounters(); }
         
         function saveSet() { 
             for(let i=1; i<=4; i++) conf.tabs[`cate0${i}`] = document.getElementById(`sn-${i}`).value; 
@@ -590,24 +586,54 @@
             localStorage.setItem(CK, JSON.stringify(conf)); location.reload(); 
         }
 
-        function createCard(v) { db.push({ id: Date.now().toString(), cat:'none', date:fmtDate(), card:{t:'メモ', b:v, u:'', a:''}, list:{} }); saveAll(); }
-        async function pasteNew() { try { const t = await navigator.clipboard.readText(); if(!t) return; toggleFab(); createCard(t); go('none'); toast("クイック登録完了"); } catch(e){} }
-        function manualNew() { const v = document.getElementById('qa').value; if(!v) return; toggleFab(); createCard(v); document.getElementById('qa').value=''; go('none'); toast("登録完了"); }
-
-        function exportListData() {
-            const header = L_KEYS.join('\t'); const rows = db.filter(i => i.list && i.list.name).map(i => L_KEYS.map(k => String(i.list[k] || '').replace(/\t|\n|\r/g, ' ')).join('\t'));
-            navigator.clipboard.writeText([header, ...rows].join('\n')).then(() => toast("コピーしました"));
+        // ver.1.80 全データバックアップ・復元
+        function exportAllJSON() {
+            const data = { db: db, conf: conf, version: "1.80" };
+            const jsonStr = JSON.stringify(data);
+            document.getElementById('io-input').value = jsonStr;
+            document.getElementById('io-input').select();
+            toast("データを書き出しました");
         }
 
-        function importListData() {
-            const input = document.getElementById('io-input').value.trim(); if(!input) return; const lines = input.split(/\r?\n/);
-            let count = 0; for(let i = 1; i < lines.length; i++) {
+        function importAllJSON() {
+            const input = document.getElementById('io-input').value.trim();
+            if(!input) return;
+            try {
+                const imported = JSON.parse(input);
+                if(imported.db && Array.isArray(imported.db)) {
+                    if(confirm("現在のデータは全て上書きされます。復元しますか？")) {
+                        db = imported.db;
+                        if(imported.conf) conf = imported.conf;
+                        saveAll();
+                        localStorage.setItem(CK, JSON.stringify(conf));
+                        location.reload();
+                    }
+                } else { alert("有効なバックアップデータではありません。"); }
+            } catch(e) { alert("データの形式が正しくありません。"); }
+        }
+
+        function exportExcelList() {
+            const header = L_KEYS.join('\t'); 
+            const filtered = db.filter(i => i.cat === cur && i.list && i.list.name);
+            const rows = filtered.map(i => L_KEYS.map(k => String(i.list[k] || '').replace(/\t|\n|\r/g, ' ')).join('\t'));
+            navigator.clipboard.writeText([header, ...rows].join('\n')).then(() => toast("リストをコピーしました"));
+        }
+
+        function importExcelMode() {
+            const input = document.getElementById('io-input').value.trim();
+            if(!input) { alert("Excelからコピーしたデータを貼り付けてください。"); return; }
+            const lines = input.split(/\r?\n/); let count = 0;
+            for(let i = 1; i < lines.length; i++) {
                 const cols = lines[i].split('\t'); if(cols.length < 2) continue;
                 const listData = {}; L_KEYS.forEach((k, idx) => listData[k] = cols[idx] || '');
                 db.push({ id: (Date.now() + i).toString(), cat: cur, date: fmtDate(), card: {}, list: listData }); count++;
             }
-            if(count > 0) { saveAll(); document.getElementById('io-input').value = ''; toast(`${count}件登録`); }
+            if(count > 0) { saveAll(); document.getElementById('io-input').value = ''; toast(`${count}件インポート完了`); }
         }
+
+        function createCard(v) { db.push({ id: Date.now().toString(), cat:'none', date:fmtDate(), card:{t:'メモ', b:v, u:'', a:''}, list:{} }); saveAll(); }
+        async function pasteNew() { try { const t = await navigator.clipboard.readText(); if(!t) return; toggleFab(); createCard(t); go('none'); toast("クイック登録完了"); } catch(e){} }
+        function manualNew() { const v = document.getElementById('qa').value; if(!v) return; toggleFab(); createCard(v); document.getElementById('qa').value=''; go('none'); toast("登録完了"); }
     </script>
 </body>
 </html>
