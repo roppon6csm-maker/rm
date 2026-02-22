@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RopMemo v1.72</title>
+    <title>RopMemo v1.73</title>
     <style>
         :root {
             --bg-cate01: #D9D2E9; --bg-cate02: #EAD1DC; --bg-cate03: #FFF2CC; --bg-cate04: #D1EAF0;
@@ -49,7 +49,7 @@
         .list-table tbody tr:nth-child(even) { background: #F2F2F2 !important; }
         .list-table tbody tr:nth-child(odd) { background: #FFFFFF !important; }
         .list-edit-btn { cursor: pointer; font-size: 11px; opacity: 0.8; }
-        .list-select { font-size: 9px; border: 1px solid #DDD; border-radius: 3px; padding: 1px; width: 92%; background: #FDFDFD; }
+        .list-select { font-size: 9px; border: 1px solid #DDD; border-radius: 3px; padding: 1px; width: 92%; background: #FDFDFD; height: 28px; }
 
         #fab-mask { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: none; z-index: 100; }
         #fab-container { position: fixed; bottom: 10px; right: 4%; z-index: 101; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
@@ -65,24 +65,23 @@
         .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; z-index: 1000; justify-content: center; align-items: flex-end; backdrop-filter: blur(2px); }
         .win { width: 92%; height: 44%; background: #D6D6D6; border-radius: 25px; margin-bottom: 5%; padding: 15px; display: flex; flex-direction: column; gap: 8px; position: relative; }
         .set-scroll { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; scrollbar-width: none; }
-        .set-row { background: #FFF; border-radius: 8px; padding: 10px; display: flex; flex-direction: column; gap: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .set-row { background: #FFF; border-radius: 8px; padding: 8px; display: flex; flex-direction: column; gap: 2px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
         .btn-l { width: 100%; height: 36px; background: #444; color: #FFF; border: none; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer; }
         .set-label { font-size: 9px; color: #888; font-weight: bold; }
-        .id-label { color: #999; font-size: 7px; margin-left: 3px; font-weight: normal; }
+        .id-label { color: #999; font-size: 7px; margin-top: 1px; align-self: flex-end; font-weight: normal; line-height: 1; }
         .input-mini { height: 28px; font-size: 11px; padding: 0 8px; border-radius: 5px; border: 1px solid #DDD; width: 100%; }
         .copy-btn-inline { font-size: 9px; background: #EEE; border: 1px solid #DDD; padding: 3px 7px; border-radius: 4px; cursor: pointer; }
         .win-label { position: absolute; top: -12px; left: 20px; font-size: 8px; background: #555; color: #FFF; padding: 2px 8px; border-radius: 4px; font-weight: bold; z-index: 10; }
         
-        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-
-        /* 新しい段組み用のスタイル */
+        /* 新しい比率用のスタイル */
         .flex-box { display: flex; flex-wrap: wrap; gap: 4px; width: 100%; }
-        .box-1 { width: calc(10% - 4px); }
-        .box-2 { width: calc(20% - 4px); }
-        .box-6 { width: calc(60% - 4px); }
-        .box-9 { width: calc(90% - 4px); }
-        .box-10 { width: 100%; }
+        .w-16 { width: calc(16% - 4px); }
+        .w-18 { width: calc(18% - 4px); }
+        .w-20 { width: calc(20% - 4px); }
+        .w-30 { width: calc(30% - 4px); }
+        .w-60 { width: calc(60% - 4px); }
+        .w-80 { width: calc(80% - 4px); }
+        .w-100 { width: 100%; }
 
         .set-tabs { display: flex; gap: 5px; margin-bottom: 5px; }
         .set-tab-btn { flex:1; padding: 8px; font-size: 10px; border-radius: 8px; border: none; background: #CCC; color: #666; font-weight: bold; cursor: pointer; }
@@ -114,7 +113,7 @@
 <body onload="boot()">
     <div id="header-outer">
         <div class="logo-text" onclick="openSet()">RopMemo<span>⚙</span></div>
-        <div class="ver-text">ver.1.72</div>
+        <div class="ver-text">ver.1.73</div>
     </div>
 
     <div id="main-window">
@@ -200,24 +199,24 @@
             <div class="win-label">[リストデータ詳細編集]</div>
             <div class="set-scroll">
                 <div class="flex-box">
-                    <div class="set-row box-1"><div class="set-label">50音<span class="id-label">furigana</span></div><input type="text" id="ln-furigana" class="input-mini"></div>
-                    <div class="set-row box-9"><div class="set-label">グループ名<span class="id-label">name</span></div><input type="text" id="ln-name" class="input-mini"></div>
+                    <div class="set-row w-20"><div class="set-label">50音</div><input type="text" id="ln-furigana" class="input-mini"><span class="id-label">furigana</span></div>
+                    <div class="set-row w-80"><div class="set-label">グループ名</div><input type="text" id="ln-name" class="input-mini"><span class="id-label">name</span></div>
                     
-                    <div class="set-row box-10"><div class="set-label">担当者<span class="id-label">tanto</span></div><input type="text" id="ln-tanto" class="input-mini"></div>
+                    <div class="set-row w-100"><div class="set-label">担当者</div><input type="text" id="ln-tanto" class="input-mini"><span class="id-label">tanto</span></div>
                     
-                    <div class="set-row box-10"><div class="set-label">連絡先<span class="id-label">adress</span></div><input type="text" id="ln-adress" class="input-mini"></div>
+                    <div class="set-row w-100"><div class="set-label">連絡先</div><input type="text" id="ln-adress" class="input-mini"><span class="id-label">adress</span></div>
                     
-                    <div class="set-row box-2"><div class="set-label">フラグ<span class="id-label">flag</span></div><select id="ln-flag" class="list-select"><option value="">なし</option><option value="🚩">🚩</option><option value="済">済</option><option value="🙆‍♀️">🙆‍♀️</option><option value="🙅‍♀️">🙅‍♀️</option></select></div>
-                    <div class="set-row box-2"><div class="set-label">手段<span class="id-label">meth</span></div><select id="ln-meth" class="list-select"><option value="">なし</option><option value="L">L</option><option value="✉️">✉️</option><option value="𝕏">𝕏</option><option value="🗒">🗒</option></select></div>
-                    <div class="set-row box-2"><div class="set-label">案内日<span class="id-label">date</span></div><input type="text" id="ln-date" class="input-mini"></div>
-                    <div class="set-row box-2"><div class="set-label">ヨミ<span class="id-label">yomi</span></div><input type="text" id="ln-yomi" class="input-mini"></div>
-                    <div class="set-row box-2"><div class="set-label">出演経験<span class="id-label">kako</span></div><select id="ln-kako" class="list-select"><option value="">なし</option><option value="有">有</option><option value="無">無</option></select></div>
+                    <div class="set-row w-18"><div class="set-label">フラグ</div><select id="ln-flag" class="list-select"><option value="">なし</option><option value="🚩">🚩</option><option value="済">済</option><option value="🙆‍♀️">🙆‍♀️</option><option value="🙅‍♀️">🙅‍♀️</option></select><span class="id-label">flag</span></div>
+                    <div class="set-row w-18"><div class="set-label">手段</div><select id="ln-meth" class="list-select"><option value="">なし</option><option value="L">L</option><option value="✉️">✉️</option><option value="𝕏">𝕏</option><option value="🗒">🗒</option></select><span class="id-label">meth</span></div>
+                    <div class="set-row w-30"><div class="set-label">案内日</div><input type="text" id="ln-date" class="input-mini"><span class="id-label">date</span></div>
+                    <div class="set-row w-16"><div class="set-label">ヨミ</div><input type="text" id="ln-yomi" class="input-mini"><span class="id-label">yomi</span></div>
+                    <div class="set-row w-18"><div class="set-label">出演経験</div><select id="ln-kako" class="list-select"><option value="">なし</option><option value="有">有</option><option value="無">無</option></select><span class="id-label">kako</span></div>
                     
-                    <div class="set-row box-2"><div class="set-label">写真<span class="id-label">satueP</span></div><select id="ln-satueP" class="list-select"><option value="">なし</option><option value="⭕️">⭕️</option><option value="❌">❌</option></select></div>
-                    <div class="set-row box-2"><div class="set-label">動画<span class="id-label">satueM</span></div><select id="ln-satueM" class="list-select"><option value="">なし</option><option value="⭕️">⭕️</option><option value="❌">❌</option></select></div>
-                    <div class="set-row box-6"><div class="set-label">要望<span class="id-label">note</span></div><textarea id="ln-note" style="height:28px; font-size:11px; border:1px solid #DDD; border-radius:4px; padding:5px; resize:none;"></textarea></div>
+                    <div class="set-row w-18"><div class="set-label">写真</div><select id="ln-satueP" class="list-select"><option value="">なし</option><option value="⭕️">⭕️</option><option value="❌">❌</option></select><span class="id-label">satueP</span></div>
+                    <div class="set-row w-18"><div class="set-label">動画</div><select id="ln-satueM" class="list-select"><option value="">なし</option><option value="⭕️">⭕️</option><option value="❌">❌</option></select><span class="id-label">satueM</span></div>
+                    <div class="set-row w-60"><div class="set-label">要望</div><textarea id="ln-note" style="height:28px; font-size:11px; border:1px solid #DDD; border-radius:4px; padding:5px; resize:none; width:100%;"></textarea><span class="id-label">note</span></div>
                     
-                    <div class="set-row box-10"><div class="set-label">アー写<span class="id-label">photo</span></div><input type="text" id="ln-photo" class="input-mini"></div>
+                    <div class="set-row w-100"><div class="set-label">アー写</div><input type="text" id="ln-photo" class="input-mini"><span class="id-label">photo</span></div>
                 </div>
             </div>
             <div style="display:flex; gap:8px; margin-top:5px;">
