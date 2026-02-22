@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RopMemo v1.78</title>
+    <title>RopMemo v1.79</title>
     <style>
         :root {
             --bg-cate01: #D9D2E9; --bg-cate02: #EAD1DC; --bg-cate03: #FFF2CC; --bg-cate04: #D1EAF0;
@@ -13,25 +13,26 @@
         * { 
             box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; 
             -webkit-tap-highlight-color: transparent; 
-            touch-action: manipulation; /* 連打によるズームを防止 */
+            touch-action: manipulation; 
         }
         body { background-color: #000; height: 100vh; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; overflow: hidden; position: relative; }
         
-        /* タップエフェクト用CSS */
+        /* タップエフェクト用CSS (ver.1.79 視認性強化版) */
         .tap-ripple {
             position: fixed;
-            width: 60px;
-            height: 60px;
-            background: rgba(255, 255, 255, 0.4);
+            width: 30px; /* サイズを⭕️相当に縮小 */
+            height: 30px;
+            background: rgba(255, 255, 255, 0.75); /* 不透明度を上げて濃く */
             border-radius: 50%;
             pointer-events: none;
             transform: translate(-50%, -50%) scale(0);
             z-index: 99999;
             transition: transform 0.1s ease-out;
+            box-shadow: 0 0 4px rgba(0, 0, 0, 0.3); /* グレー背景でも見えるように影を追加 */
         }
         .tap-ripple.active { transform: translate(-50%, -50%) scale(1); }
         .tap-ripple.fade-out { 
-            transform: translate(-50%, -50%) scale(1.5);
+            transform: translate(-50%, -50%) scale(1.4);
             opacity: 0;
             transition: transform 0.4s ease-out, opacity 0.4s ease-out;
         }
@@ -149,7 +150,7 @@
 <body onload="boot()">
     <div id="header-outer">
         <div class="logo-text" onclick="openSet()">RopMemo<span>⚙</span></div>
-        <div class="ver-text">ver.1.78</div>
+        <div class="ver-text">ver.1.79</div>
     </div>
 
     <div id="main-window">
@@ -318,6 +319,7 @@
         let db = JSON.parse(localStorage.getItem(SK)) || [];
         const L_KEYS = ['furigana','name','tanto','flag','meth','date','yomi','adress','note','satueP','satueM','kako','photo'];
         
+        // ver.1.79: tapEffectのデフォルトをtrueに設定
         let conf = JSON.parse(localStorage.getItem(CK)) || {
             tabs: { cate01: "ブッキング", cate02: "グルメ", cate03: "AI", cate04: "保存" },
             fs: { t: 7, b: 8 },
@@ -327,7 +329,7 @@
                 {id: 'name', n: 'グループ名', w: 90}, {id: 'date', n: '案内日', w: 45}, {id: 'yomi', n: 'ヨミ', w: 30}, {id: 'adress', n: 'スマート<br>連絡', w: 25}, {id: 'edit', n: '✏️', w: 30}
             ],
             mailerMode: 'standard',
-            tapEffect: false
+            tapEffect: true
         };
 
         let sortKey = 'id', sortOrder = 'reg', cur = 'cate01', eid = null, isSubmitting = false;
@@ -344,7 +346,6 @@
             initTapEffect();
         }
 
-        // タップエフェクトのロジック
         function initTapEffect() {
             let activeRipple = null;
             document.addEventListener('pointerdown', (e) => {
@@ -354,8 +355,6 @@
                 ripple.style.left = e.clientX + 'px';
                 ripple.style.top = e.clientY + 'px';
                 document.body.appendChild(ripple);
-                
-                // 次のフレームでactiveにして拡大
                 requestAnimationFrame(() => ripple.classList.add('active'));
                 activeRipple = ripple;
             });
@@ -382,7 +381,7 @@
             if (adIdx === -1) { cols.splice(edIdx === -1 ? cols.length : edIdx, 0, {id: 'adress', n: 'スマート<br>連絡', w: 25}); }
             else if (edIdx !== -1 && adIdx > edIdx) { let adCol = cols.splice(adIdx, 1)[0]; cols.splice(edIdx, 0, adCol); }
             if (cols.findIndex(c => c.id === 'edit') === -1) { cols.push({id: 'edit', n: '✏️', w: 30}); }
-            if (conf.tapEffect === undefined) conf.tapEffect = false;
+            if (conf.tapEffect === undefined) conf.tapEffect = true;
             localStorage.setItem(CK, JSON.stringify(conf));
         }
 
@@ -529,14 +528,12 @@
         function openMailTmpl(id) {
             const i = db.find(x => x.id === id); 
             tempDest = { name: i.list?.name || "", tanto: i.list?.tanto || "", adress: i.list?.adress || "" };
-            
             const destBox = document.getElementById('dest-box');
             destBox.innerHTML = `
                 <div class="dest-row"><div class="dest-label">グループ</div><div class="dest-val">${esc(tempDest.name)}</div></div>
                 <div class="dest-row"><div class="dest-label">担当者</div><div class="dest-val">${esc(tempDest.tanto || '---')}</div></div>
                 <div class="dest-row"><div class="dest-label">連絡先</div><div class="dest-val">${esc(tempDest.adress || '---')}</div></div>
             `;
-
             const tmplArea = document.getElementById('tmpl-scroll'); tmplArea.innerHTML = "";
             const cards = db.filter(x => x.cat === cur && x.card && (x.card.t || x.card.b));
             if(cards.length === 0) { tmplArea.innerHTML = "<div style='padding:20px; text-align:center; font-size:10px; color:#999;'>テンプレートがありません</div>"; }
@@ -550,7 +547,6 @@
             const originalBody = card.card?.b || "";
             let ateName = tempDest.tanto ? `${tempDest.name}\n${tempDest.tanto}` : `${tempDest.name}様`; 
             const finalBody = `${ateName}\n\n${originalBody}`;
-
             navigator.clipboard.writeText(finalBody).then(() => {
                 const encSub = encodeURIComponent(subject); const encBody = encodeURIComponent(finalBody);
                 let url = (conf.mailerMode === 'gmail') ? `googlegmail:///co?to=${tempDest.adress}&subject=${encSub}&body=${encBody}` : `mailto:${tempDest.adress}?subject=${encSub}&body=${encBody}`;
