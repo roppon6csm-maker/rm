@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RopMemo v1.80</title>
+    <title>RopMemo v1.81</title>
     <style>
         :root {
             --bg-cate01: #D9D2E9; --bg-cate02: #EAD1DC; --bg-cate03: #FFF2CC; --bg-cate04: #D1EAF0;
@@ -17,7 +17,7 @@
         }
         body { background-color: #000; height: 100vh; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; overflow: hidden; position: relative; }
         
-        /* タップエフェクト用CSS (ver.1.80 継承) */
+        /* タップエフェクト (ver.1.81 継承) */
         .tap-ripple {
             position: fixed;
             width: 30px;
@@ -87,55 +87,55 @@
         #btn-reg-quick { align-self: flex-end; background: #333; color: #FFF; border: none; padding: 4px 14px; margin: 0 12px 10px 0; border-radius: 12px; font-size: 10px; font-weight: bold; cursor: pointer; }
 
         .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; z-index: 1000; justify-content: center; align-items: flex-end; backdrop-filter: blur(2px); }
-        .win { width: 92%; height: 44%; background: #D6D6D6; border-radius: 25px; margin-bottom: 5%; padding: 15px; display: flex; flex-direction: column; gap: 8px; position: relative; }
-        .set-scroll { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; scrollbar-width: none; }
-        .set-row { background: #FFF; border-radius: 8px; padding: 8px; display: flex; flex-direction: column; gap: 2px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-        .btn-l { width: 100%; height: 36px; background: #444; color: #FFF; border: none; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer; }
-        .set-label { font-size: 9px; color: #888; font-weight: bold; }
-        .id-label { color: #999; font-size: 7px; margin-top: 1px; align-self: flex-end; font-weight: normal; line-height: 1; }
-        .input-mini { height: 28px; font-size: 11px; padding: 0 8px; border-radius: 5px; border: 1px solid #DDD; width: 100%; }
-        .copy-btn-inline { font-size: 9px; background: #EEE; border: 1px solid #DDD; padding: 3px 7px; border-radius: 4px; cursor: pointer; }
+        .win { width: 92%; height: 92%; background: #D6D6D6; border-radius: 25px; margin-bottom: 2%; padding: 15px; display: flex; flex-direction: column; gap: 8px; position: relative; }
+        .set-scroll { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; scrollbar-width: none; padding-bottom: 20px; }
+        .set-row { background: #FFF; border-radius: 8px; padding: 10px; display: flex; flex-direction: column; gap: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .btn-l { width: 100%; height: 44px; background: #444; color: #FFF; border: none; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; flex-shrink: 0; }
+        .set-label { font-size: 10px; color: #888; font-weight: bold; margin-bottom: 2px; }
+        .id-label { color: #BBB; font-size: 7px; margin-top: 1px; align-self: flex-end; font-weight: normal; }
+        .input-mini { height: 32px; font-size: 12px; padding: 0 10px; border-radius: 6px; border: 1px solid #DDD; width: 100%; }
+        .copy-btn-inline { font-size: 9px; background: #EEE; border: 1px solid #DDD; padding: 4px 8px; border-radius: 4px; cursor: pointer; }
         .win-label { position: absolute; top: -12px; left: 20px; font-size: 8px; background: #555; color: #FFF; padding: 2px 8px; border-radius: 4px; font-weight: bold; z-index: 10; }
         
-        .toggle-row { display: flex; justify-content: space-between; align-items: center; }
-        .switch { position: relative; display: inline-block; width: 40px; height: 22px; }
+        .toggle-row { flex-direction: row; justify-content: space-between; align-items: center; }
+        .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
         .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .3s; border-radius: 22px; }
-        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .3s; border-radius: 24px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; }
         input:checked + .slider { background-color: #007AFF; }
-        input:checked + .slider:before { transform: translateX(18px); }
+        input:checked + .slider:before { transform: translateX(20px); }
 
-        .flex-box { display: flex; flex-wrap: wrap; gap: 4px; width: 100%; }
-        .w-16 { width: calc(16% - 4px); }
-        .w-18 { width: calc(18% - 4px); }
-        .w-20 { width: calc(20% - 4px); }
-        .w-30 { width: calc(30% - 4px); }
-        .w-60 { width: calc(60% - 4px); }
-        .w-80 { width: calc(80% - 4px); }
+        .flex-box { display: flex; flex-wrap: wrap; gap: 6px; width: 100%; }
+        .w-16 { width: calc(16% - 6px); }
+        .w-18 { width: calc(18% - 6px); }
+        .w-20 { width: calc(20% - 6px); }
+        .w-30 { width: calc(30% - 6px); }
+        .w-60 { width: calc(60% - 6px); }
+        .w-80 { width: calc(80% - 6px); }
         .w-100 { width: 100%; }
 
-        .set-tabs { display: flex; gap: 5px; margin-bottom: 5px; }
-        .set-tab-btn { flex:1; padding: 8px; font-size: 10px; border-radius: 8px; border: none; background: #CCC; color: #666; font-weight: bold; cursor: pointer; }
-        .set-tab-btn.active { background: #007AFF; color: #FFF; }
+        .set-tabs { display: flex; gap: 8px; margin-bottom: 10px; flex-shrink: 0; }
+        .set-tab-btn { flex:1; padding: 12px; font-size: 11px; border-radius: 10px; border: none; background: #CCC; color: #666; font-weight: bold; cursor: pointer; }
+        .set-tab-btn.active { background: #007AFF; color: #FFF; box-shadow: 0 2px 6px rgba(0,122,255,0.3); }
 
         #toast { position: fixed; bottom: 41.5%; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); color: #fff; padding: 10px 24px; border-radius: 20px; font-size: 11px; font-weight: bold; display: none; z-index: 9999; text-align: center; }
         .sort-icon { display: inline-block; width: 12px; text-align: center; font-size: 8px; margin-left: 1px; color: #007AFF; }
         
-        /* ver.1.80 データ管理センターUI改善 */
-        .data-center { margin-top: 10px; border-top: 1px dashed #AAA; padding-top: 10px; }
-        .data-count-badge { display: flex; gap: 10px; margin-bottom: 8px; }
-        .count-item { background: #555; color: #FFF; padding: 2px 8px; border-radius: 12px; font-size: 8px; font-weight: bold; }
-        .io-panel { background: #E0E0E0; border-radius: 10px; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
-        .io-btn { background: #FFF; color: #333; font-size: 10px; padding: 8px; border-radius: 6px; border: 1px solid #CCC; cursor: pointer; width: 100%; font-weight: bold; text-align: center; }
-        .io-btn:active { background: #EEE; }
-        .io-text { width: 100%; height: 100px; font-size: 10px; padding: 8px; border: 1px solid #BBB; border-radius: 6px; resize: none; background: #FFF; line-height: 1.4; }
-        .io-desc { font-size: 8px; color: #777; line-height: 1.3; margin-bottom: 4px; }
+        /* データ管理センターUI (ver.1.81) */
+        .data-center { margin-top: 15px; border-top: 1px dashed #AAA; padding-top: 15px; }
+        .data-count-badge { display: flex; gap: 10px; margin-bottom: 12px; }
+        .count-item { background: #555; color: #FFF; padding: 4px 12px; border-radius: 15px; font-size: 9px; font-weight: bold; }
+        .io-panel { background: #E6E6E6; border-radius: 12px; padding: 15px; display: flex; flex-direction: column; gap: 10px; border: 1px solid rgba(0,0,0,0.05); }
+        .io-btn { background: #FFF; color: #333; font-size: 11px; padding: 10px; border-radius: 8px; border: 1px solid #BBB; cursor: pointer; width: 100%; font-weight: bold; text-align: center; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .io-btn:active { background: #EEE; transform: translateY(1px); }
+        .io-text { width: 100%; height: 140px; font-size: 10px; padding: 10px; border: 1px solid #BBB; border-radius: 8px; resize: none; background: #FFF; line-height: 1.5; font-family: monospace; }
+        .io-desc { font-size: 9px; color: #666; line-height: 1.5; margin-bottom: 4px; }
 
-        .mailer-toggle { display: flex; gap: 0; background: #EEE; border-radius: 6px; overflow: hidden; margin-top: 5px; border: 1px solid #DDD; }
-        .mailer-btn { flex: 1; border: none; padding: 8px; font-size: 10px; cursor: pointer; background: transparent; color: #666; font-weight: bold; }
+        .mailer-toggle { display: flex; gap: 0; background: #EEE; border-radius: 8px; overflow: hidden; margin-top: 5px; border: 1px solid #DDD; }
+        .mailer-btn { flex: 1; border: none; padding: 10px; font-size: 11px; cursor: pointer; background: transparent; color: #666; font-weight: bold; }
         .mailer-btn.active { background: #007AFF; color: #FFF; }
 
-        .tmpl-list-btn { width: 100%; text-align: left; padding: 12px; background: #FFF; border: none; border-bottom: 1px solid #EEE; font-size: 11px; font-weight: bold; color: #333; }
+        .tmpl-list-btn { width: 100%; text-align: left; padding: 14px; background: #FFF; border: none; border-bottom: 1px solid #EEE; font-size: 12px; font-weight: bold; color: #333; }
         .tmpl-list-btn:last-child { border-bottom: none; }
         .tmpl-list-btn:active { background: #F0F0F0; }
 
@@ -155,7 +155,7 @@
 <body onload="boot()">
     <div id="header-outer">
         <div class="logo-text" onclick="openSet()">RopMemo<span>⚙</span></div>
-        <div class="ver-text">ver.1.80</div>
+        <div class="ver-text">ver.1.81</div>
     </div>
 
     <div id="main-window">
@@ -219,7 +219,7 @@
             <div class="set-scroll">
                 <input type="text" id="cn-url" placeholder="URL" class="input-mini" style="margin-bottom:5px;">
                 <input type="text" id="cn-alt" placeholder="代替テキスト" class="input-mini" style="margin-bottom:5px;">
-                <select id="cn-cat" style="height:28px; font-size:11px; border-radius:5px; border:1px solid #DDD; width:100%; margin-bottom:5px;">
+                <select id="cn-cat" style="height:32px; font-size:12px; border-radius:6px; border:1px solid #DDD; width:100%; margin-bottom:5px;">
                     <option value="cate01" id="opt-c1">ブッキング</option><option value="cate02" id="opt-c2">グルメ</option><option value="cate03" id="opt-c3">AI</option><option value="cate04" id="opt-c4">保存</option><option value="none">[未分類]</option>
                 </select>
                 <div style="flex:1; background:#FFF; border-radius:8px; padding:10px; display:flex; flex-direction:column; min-height:100px;">
@@ -238,7 +238,7 @@
     </div>
 
     <div id="ed-list" class="overlay">
-        <div class="win" style="height: auto; max-height: 92%; margin-bottom: 2%;">
+        <div class="win">
             <div class="win-label">[リストデータ詳細編集]</div>
             <div class="set-scroll">
                 <div class="flex-box">
@@ -253,14 +253,14 @@
                     <div class="set-row w-18"><div class="set-label">出演経験</div><select id="ln-kako" class="list-select"><option value="">なし</option><option value="有">有</option><option value="無">無</option></select><span class="id-label">kako</span></div>
                     <div class="set-row w-18"><div class="set-label">写真</div><select id="ln-satueP" class="list-select"><option value="">なし</option><option value="⭕️">⭕️</option><option value="❌">❌</option></select><span class="id-label">satueP</span></div>
                     <div class="set-row w-18"><div class="set-label">動画</div><select id="ln-satueM" class="list-select"><option value="">なし</option><option value="⭕️">⭕️</option><option value="❌">❌</option></select><span class="id-label">satueM</span></div>
-                    <div class="set-row w-60"><div class="set-label">要望</div><textarea id="ln-note" style="height:28px; font-size:11px; border:1px solid #DDD; border-radius:4px; padding:5px; resize:none; width:100%;"></textarea><span class="id-label">note</span></div>
+                    <div class="set-row w-60"><div class="set-label">要望</div><textarea id="ln-note" style="height:32px; font-size:11px; border:1px solid #DDD; border-radius:4px; padding:5px; resize:none; width:100%;"></textarea><span class="id-label">note</span></div>
                     <div class="set-row w-100"><div class="set-label">アー写</div><input type="text" id="ln-photo" class="input-mini"><span class="id-label">photo</span></div>
                 </div>
             </div>
             <div style="display:flex; gap:8px; margin-top:5px;">
-                <button onclick="cls()" class="btn-l" style="background:#FFF; color:#333;">戻る</button>
-                <button id="btn-del-trigger-l" onclick="document.getElementById('delete-overlay').style.display='flex'" style="background:#FFF; color:#FF3B30; display:none;" class="btn-l">削除</button>
-                <button onclick="saveL()" class="btn-l">保存</button>
+                <button onclick="cls()" class="btn-l" style="background:#FFF; color:#333; flex:1;">戻る</button>
+                <button id="btn-del-trigger-l" onclick="document.getElementById('delete-overlay').style.display='flex'" style="background:#FFF; color:#FF3B30; display:none; flex:1;" class="btn-l">削除</button>
+                <button onclick="saveL()" class="btn-l" style="flex:1; background:#007AFF;">保存</button>
             </div>
         </div>
     </div>
@@ -273,8 +273,8 @@
     </div>
 
     <div id="ed-set" class="overlay">
-        <div class="win" style="background:#ECECEC; height: 50%;">
-            <div style="font-size:12px; font-weight:bold; margin-bottom:8px; display:flex; justify-content:space-between; color:#333;">⚙ アプリ設定 <span onclick="cls()" style="cursor:pointer; font-size:16px;">✕</span></div>
+        <div class="win" style="background:#ECECEC;">
+            <div style="font-size:14px; font-weight:900; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center; color:#000;">⚙ アプリ設定 <span onclick="cls()" style="cursor:pointer; font-size:20px; color:#888;">✕</span></div>
             <div class="set-tabs">
                 <button id="set-tab-card" class="set-tab-btn active" onclick="switchSetTab('card')">基本設定</button>
                 <button id="set-tab-list" class="set-tab-btn" onclick="switchSetTab('list')">データ管理</button>
@@ -282,55 +282,60 @@
             <div class="set-scroll">
                 <div id="set-content-card">
                     <div class="set-row">
-                        <div class="set-label">カテゴリ名</div>
-                        <input type="text" id="sn-1" class="input-mini" style="margin-bottom:2px;">
-                        <input type="text" id="sn-2" class="input-mini" style="margin-bottom:2px;">
-                        <input type="text" id="sn-3" class="input-mini" style="margin-bottom:2px;">
-                        <input type="text" id="sn-4" class="input-mini" style="margin-bottom:2px;">
+                        <div class="set-label">カテゴリ表示名</div>
+                        <div class="flex-box">
+                            <input type="text" id="sn-1" class="input-mini w-100" placeholder="1: ブッキング" style="margin-bottom:2px;">
+                            <input type="text" id="sn-2" class="input-mini w-100" placeholder="2: グルメ" style="margin-bottom:2px;">
+                            <input type="text" id="sn-3" class="input-mini w-100" placeholder="3: AI" style="margin-bottom:2px;">
+                            <input type="text" id="sn-4" class="input-mini w-100" placeholder="4: 保存" style="margin-bottom:2px;">
+                        </div>
                     </div>
                     <div class="set-row">
-                        <div class="set-label">カードフォント (px)</div>
-                        <div style="display:flex; align-items:center; gap:10px; font-size:11px;">タイトル：<input type="number" id="sf-t" style="width:50px;"> 本文：<input type="number" id="sf-b" style="width:50px;"></div>
+                        <div class="set-label">カードフォントサイズ (px)</div>
+                        <div style="display:flex; align-items:center; gap:15px; font-size:12px; padding:5px 0;">
+                            <div>タイトル：<input type="number" id="sf-t" style="width:60px; height:32px; text-align:center; border:1px solid #DDD; border-radius:6px;"></div>
+                            <div>本文：<input type="number" id="sf-b" style="width:60px; height:32px; text-align:center; border:1px solid #DDD; border-radius:6px;"></div>
+                        </div>
                     </div>
                     <div class="set-row toggle-row">
-                        <div class="set-label">タップエフェクト</div>
+                        <div class="set-label">タップエフェクト（⭕️）</div>
                         <label class="switch"><input type="checkbox" id="st-tap"><span class="slider"></span></label>
                     </div>
                     <div class="set-row">
-                        <div class="set-label">リスト各列の表示名/幅</div>
-                        <div id="list-cols-config"></div>
+                        <div class="set-label">リスト表示項目のカスタマイズ（名称 / 横幅）</div>
+                        <div id="list-cols-config" style="display:flex; flex-direction:column; gap:6px; margin-top:5px;"></div>
                     </div>
                 </div>
                 <div id="set-content-list" style="display:none;">
                     <div class="set-row">
-                        <div class="set-label">メール下書き連携</div>
+                        <div class="set-label">メール下書き送信アプリの選択</div>
                         <div class="mailer-toggle">
                             <button id="mb-standard" class="mailer-btn" onclick="setMailer('standard')">標準メーラー</button>
-                            <button id="mb-gmail" class="mailer-btn" onclick="setMailer('gmail')">Gmail</button>
+                            <button id="mb-gmail" class="mailer-btn" onclick="setMailer('gmail')">Gmailアプリ</button>
                         </div>
                     </div>
                     <div class="data-center">
                         <div class="data-count-badge">
-                            <div class="count-item">カード: <span id="cnt-card">0</span>件</div>
-                            <div class="count-item">リスト: <span id="cnt-list">0</span>件</div>
+                            <div class="count-item">カード登録: <span id="cnt-card">0</span>件</div>
+                            <div class="count-item">リスト登録: <span id="cnt-list">0</span>件</div>
                         </div>
                         <div class="io-panel">
-                            <div class="io-desc">【全データ一括バックアップ】<br>下の枠内の文字を全てコピーして保存してください。</div>
-                            <button class="io-btn" style="background:#EEE;" onclick="exportAllJSON()">全データを枠内に書き出し</button>
-                            <textarea id="io-input" class="io-text" placeholder="ここにバックアップデータを貼り付けて「一括復元」"></textarea>
-                            <div style="display:flex; gap:5px;">
-                                <button class="io-btn" style="background:#007AFF; color:#FFF; border:none; flex:1;" onclick="importAllJSON()">一括復元</button>
-                                <button class="io-btn" style="background:#34C759; color:#FFF; border:none; flex:1;" onclick="importExcelMode()">Excel形式読込</button>
+                            <div class="io-desc">【全データ一括バックアップ】<br>下のボタンで現在の全データをテキスト化します。機種変更時やバックアップの際は、表示された全文字をコピーしてメモ帳等に保存してください。</div>
+                            <button class="io-btn" style="background:#555; color:#FFF; border:none;" onclick="exportAllJSON()">全データを書き出し</button>
+                            <textarea id="io-input" class="io-text" placeholder="復元する場合は、ここにバックアップテキストを貼り付けて下の「一括復元」を押してください"></textarea>
+                            <div style="display:flex; gap:8px;">
+                                <button class="io-btn" style="background:#007AFF; color:#FFF; border:none; flex:1; height:44px;" onclick="importAllJSON()">一括復元</button>
+                                <button class="io-btn" style="background:#34C759; color:#FFF; border:none; flex:1; height:44px;" onclick="importExcelMode()">Excel読込</button>
                             </div>
-                            <div class="io-desc" style="margin-top:5px; border-top:1px solid #CCC; padding-top:5px;">
-                                【Excel連携】<br>リスト(表示中のみ)をExcel用に出力します。
-                            </div>
+                        </div>
+                        <div class="io-panel" style="margin-top:10px;">
+                            <div class="io-desc">【Excel・スプレッドシート連携】<br>現在表示中のカテゴリのリストをExcelに貼り付け可能な形式でコピーします。</div>
                             <button class="io-btn" onclick="exportExcelList()">表示中のリストをコピー</button>
                         </div>
                     </div>
                 </div>
             </div>
-            <button class="btn-l" style="background:#007AFF; height:40px; margin-top:5px;" onclick="saveSet()">設定を保存</button>
+            <button class="btn-l" style="background:#007AFF; box-shadow: 0 4px 10px rgba(0,122,255,0.3);" onclick="saveSet()">設定を保存して閉じる</button>
         </div>
     </div>
 
@@ -411,8 +416,8 @@
             const colArea = document.getElementById('list-cols-config');
             colArea.innerHTML = '';
             conf.listCols.forEach((c, i) => {
-                const row = document.createElement('div'); row.style = "display:flex; gap:5px; align-items:center; margin-top:4px;";
-                row.innerHTML = `<input type="text" id="lc-n-${i}" value="${c.n}" style="flex:1; height:24px; font-size:10px; border:1px solid #DDD; border-radius:4px;"><input type="number" id="lc-w-${i}" value="${c.w}" style="width:40px; height:24px; font-size:10px; border:1px solid #DDD; border-radius:4px;">`;
+                const row = document.createElement('div'); row.style = "display:flex; gap:8px; align-items:center;";
+                row.innerHTML = `<input type="text" id="lc-n-${i}" value="${c.n}" style="flex:1; height:32px; font-size:11px; border:1px solid #DDD; border-radius:6px; padding:0 8px;"><input type="number" id="lc-w-${i}" value="${c.w}" style="width:50px; height:32px; font-size:11px; border:1px solid #DDD; border-radius:6px; text-align:center;">`;
                 colArea.appendChild(row);
             });
             updateMailerUI();
@@ -586,9 +591,8 @@
             localStorage.setItem(CK, JSON.stringify(conf)); location.reload(); 
         }
 
-        // ver.1.80 全データバックアップ・復元
         function exportAllJSON() {
-            const data = { db: db, conf: conf, version: "1.80" };
+            const data = { db: db, conf: conf, version: "1.81" };
             const jsonStr = JSON.stringify(data);
             document.getElementById('io-input').value = jsonStr;
             document.getElementById('io-input').select();
