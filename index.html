@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RopMemo v1.88</title>
+    <title>RopMemo v1.89</title>
     <style>
         :root {
             --bg-cate01: #D9D2E9; --bg-cate02: #EAD1DC; --bg-cate03: #FFF2CC; --bg-cate04: #D1EAF0;
@@ -113,17 +113,18 @@
         .set-tab-btn { flex:1; padding: 12px; font-size: 11px; border-radius: 10px; border: none; background: #CCC; color: #666; font-weight: bold; cursor: pointer; }
         .set-tab-btn.active { background: #007AFF; color: #FFF; box-shadow: 0 2px 6px rgba(0,122,255,0.3); }
 
-        .data-card { background: #FFF; border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .data-card-title { font-size: 11px; font-weight: bold; color: #333; margin-bottom: 8px; }
-        .data-stats-row { display: flex; gap: 10px; margin-bottom: 5px; }
-        .data-stat-box { flex: 1; background: #F8F8F8; padding: 10px; border-radius: 8px; text-align: center; border: 1px solid #EEE; }
-        .stat-val { font-size: 16px; font-weight: bold; color: #007AFF; display: block; }
-        .stat-lab { font-size: 8px; color: #888; }
-        .data-help-box { border: 1.5px solid #EEE; border-radius: 10px; padding: 12px; margin-top: 8px; background: #FCFCFC; }
-        .data-help-step { font-size: 10px; color: #444; margin-bottom: 10px; line-height: 1.5; }
-        .data-help-step b { color: #000; display: block; margin-bottom: 2px; }
+        .data-card { background: #FFF; border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); position: relative; }
+        .data-card-title { font-size: 13px; font-weight: bold; color: #000; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+        .data-stats-row { display: flex; gap: 10px; margin-bottom: 12px; background: #F0F0F0; padding: 12px; border-radius: 10px; }
+        .data-stat-box { flex: 1; text-align: center; }
+        .stat-val { font-size: 18px; font-weight: 900; color: #007AFF; display: block; line-height: 1.2; }
+        .stat-lab { font-size: 9px; color: #666; font-weight: bold; }
+        .data-help-box { border: 1.5px solid #EEE; border-radius: 10px; padding: 12px; margin: 8px 0; background: #FCFCFC; }
+        .data-help-step { font-size: 11px; color: #444; margin-bottom: 12px; line-height: 1.6; }
+        .data-help-step b { color: #000; display: block; margin-bottom: 4px; font-size: 11px; }
         .data-help-step:last-child { margin-bottom: 0; }
-        .data-sub-text { font-size: 9px; color: #888; margin-top: 3px; }
+        .data-alert { color: #004085; font-size: 10px; font-weight: bold; background: #E7F3FF; padding: 8px; border-radius: 6px; margin-top: 8px; border-left: 3px solid #007AFF; }
+        .data-sub-text { font-size: 10px; color: #666; margin-bottom: 10px; line-height: 1.4; }
         .btn-data-main { width: 100%; padding: 14px; border: none; border-radius: 12px; font-size: 13px; font-weight: bold; cursor: pointer; transition: 0.2s; }
         .btn-data-main:active { opacity: 0.7; transform: scale(0.98); }
         .btn-backup { background: #007AFF; color: #FFF; box-shadow: 0 4px 10px rgba(0,122,255,0.25); }
@@ -157,7 +158,7 @@
 <body onload="boot()">
     <div id="header-outer">
         <div class="logo-text" onclick="openSet()">RopMemo<span>⚙</span></div>
-        <div class="ver-text">ver.1.88</div>
+        <div class="ver-text">ver.1.89</div>
     </div>
 
     <div id="main-window">
@@ -200,7 +201,7 @@
 気になる動画や情報もクイック登録！</div>
             <div class="welcome-logo">『RopMemo』</div>
             <button class="welcome-btn" onclick="cls()">はじめる</button>
-            <div class="welcome-ver">ver.1.88</div>
+            <div class="welcome-ver">ver.1.89</div>
         </div>
     </div>
 
@@ -319,25 +320,56 @@
                 </div>
                 <div id="set-content-list" style="display:none;">
                     <div class="data-card">
-                        <div class="data-card-title">◾︎ 現在の登録データ</div>
+                        <div class="data-card-title">◾︎ 現在の登録データ状況</div>
                         <div class="data-stats-row">
-                            <div class="data-stat-box"><span id="cnt-card" class="stat-val">0</span><span class="stat-lab">[カード登録：x件]</span></div>
-                            <div class="data-stat-box"><span id="cnt-list" class="stat-val">0</span><span class="stat-lab">[リスト登録：x件]</span></div>
+                            <div class="data-stat-box">
+                                <span class="stat-lab">カード登録</span>
+                                <span id="cnt-card" class="stat-val">0</span>
+                                <span class="stat-lab">件</span>
+                            </div>
+                            <div class="data-stat-box">
+                                <span class="stat-lab">リスト登録</span>
+                                <span id="cnt-list" class="stat-val">0</span>
+                                <span class="stat-lab">件</span>
+                            </div>
                         </div>
+                        <div class="data-sub-text">アプリ内に保存されている現在のデータ総数です。</div>
                     </div>
+
                     <div class="data-card">
                         <div class="data-card-title">◾︎ データのバックアップ</div>
-                        <div class="data-sub-text">アプリ内のデータを万が一に備えて保管する</div>
+                        <div class="data-sub-text">スマホ故障や機種変更に備え、外部に保管します。</div>
                         <div class="data-help-box">
-                            <div class="data-card-title" style="font-size:9px; margin-bottom:5px;">◾︎ バックアップ手順</div>
-                            <div class="data-help-step"><b>・データコピー</b>バックアップボタンを押すとアプリ内の全カードデータと全リストデータがテキストデータとしてコピーされます。</div>
-                            <div class="data-help-step"><b>・保管</b>コピーされたデータをExcelやGoogleスプレッドシートに貼り付けて保管してください。</div>
+                            <div class="data-help-step">
+                                <b>1. データコピー</b>
+                                下記ボタンを押すと、全データが「タブ区切りテキスト」としてクリップボードにコピーされます。
+                            </div>
+                            <div class="data-help-step">
+                                <b>2. 外部への貼り付け</b>
+                                Excel、スプレッドシート、またはメモ帳を開き、「貼り付け」を行って保存してください。
+                            </div>
                         </div>
-                        <button class="btn-data-main btn-backup" onclick="exportExcelAll()" style="margin-top:10px;">データをバックアップ</button>
+                        <button class="btn-data-main btn-backup" onclick="exportExcelAll()">全データをバックアップ（コピー）</button>
                     </div>
+
                     <div class="data-card">
                         <div class="data-card-title">◾︎ データのインポート</div>
-                        <button class="btn-data-main btn-import" onclick="confirmImport1()" style="margin-top:10px;">データをインポート</button>
+                        <div class="data-sub-text">保存してある外部データをアプリ内に読み込みます。</div>
+                        <div class="data-help-box">
+                            <div class="data-help-step">
+                                <b>1. インポートの準備</b>
+                                保存先のExcel等から、ヘッダー（1行目）を含めた全範囲をコピーしてください。
+                            </div>
+                            <div class="data-help-step">
+                                <b>2. データの読み込み</b>
+                                下記ボタンを押し、確認ダイアログで「はい」を選択すると復元が開始されます。
+                            </div>
+                        </div>
+                        <div class="data-alert">
+                            ※ 既存IDがある行は最新情報で「上書き」されます。<br>
+                            ※ IDがない新規行は、自動で新IDが発番され登録されます。
+                        </div>
+                        <button class="btn-data-main btn-import" onclick="confirmImport1()" style="margin-top:15px;">全データをインポート</button>
                     </div>
                 </div>
             </div>
@@ -587,7 +619,7 @@
         function toast(m, ms = 2000) { const t = document.getElementById('toast'); t.innerHTML = m.replace(/\n/g,'<br>'); t.style.display = 'block'; setTimeout(() => t.style.display = 'none', ms); }
         function copyByTxt(id) { const i = db.find(x => x.id === id); navigator.clipboard.writeText(i.card?.b).then(() => { toast("コピー完了"); }); }
         function copyByVal(id) { navigator.clipboard.writeText(document.getElementById(id).value).then(() => toast("コピー完了")); }
-        function switchSetTab(t) { document.querySelectorAll('.set-tab-btn').forEach(b => b.classList.toggle('active', b.id === `set-tab-${t}`)); document.getElementById('set-content-card').style.display = t === 'card' ? 'block' : 'none'; document.getElementById('set-content-list').style.display = t === 'list' ? 'block' : 'none'; }
+        function switchSetTab(t) { document.querySelectorAll('.set-tab-btn').forEach(b => b.classList.toggle('active', b.id === `set-tab-${t}`)); document.getElementById('set-content-card').style.display = t === 'card' ? 'block' : 'none'; document.getElementById('set-content-list').style.display = t === 'list' ? 'block' : 'none'; if(t==='list') updateDataCounters(); }
         function openSet() { document.getElementById('ed-set').style.display = 'flex'; switchSetTab('card'); updateDataCounters(); }
         
         function saveSet() { 
@@ -603,7 +635,7 @@
             db.forEach(i => { if(i.card?.t || i.card?.b) output += [i.id, i.cat, i.date, i.card.t, i.card.b, i.card.u, i.card.a].map(v => String(v||'').replace(/\t|\n|\r/g, ' ')).join('\t') + "\n"; });
             output += "\n[LISTS]\nid\tcat\tdate\t" + L_KEYS.join('\t') + "\n";
             db.forEach(i => { if(i.list?.name) output += [i.id, i.cat, i.date, ...L_KEYS.map(k => i.list[k])].map(v => String(v||'').replace(/\t|\n|\r/g, ' ')).join('\t') + "\n"; });
-            navigator.clipboard.writeText(output).then(() => { toast("コピー完了"); });
+            navigator.clipboard.writeText(output).then(() => { toast("クリップボードにコピーしました"); });
         }
 
         function confirmImport1() { showCustomConfirm("データをインポートしますか？", "はい", "キャンセル", () => importExcelAll()); }
@@ -622,7 +654,7 @@
 
         async function importExcelAll() {
             try {
-                const text = await navigator.clipboard.readText(); if(!text) return;
+                const text = await navigator.clipboard.readText(); if(!text) { alert("コピーされたデータが見つかりません"); return; }
                 const sections = text.split(/\n\s*\n/);
                 sections.forEach(sec => {
                     const lines = sec.trim().split(/\r?\n/); if(lines.length < 2) return;
@@ -642,7 +674,7 @@
                     }
                 });
                 saveAll(); toast("インポート完了");
-            } catch(e) { alert("失敗しました"); }
+            } catch(e) { alert("失敗しました。正しい形式でコピーされているか確認してください。"); }
         }
         function createCard(v) { db.push({ id: Date.now().toString(), cat:'none', date:fmtDate(), card:{t:'メモ', b:v, u:'', a:''}, list:{} }); saveAll(); }
         async function pasteNew() { try { const t = await navigator.clipboard.readText(); if(!t) return; toggleFab(); createCard(t); go('none'); toast("完了"); } catch(e){} }
