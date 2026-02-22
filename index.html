@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RopMemo v1.69</title>
+    <title>RopMemo v1.70</title>
     <style>
         :root {
             --bg-cate01: #D9D2E9; --bg-cate02: #EAD1DC; --bg-cate03: #FFF2CC; --bg-cate04: #D1EAF0;
@@ -26,7 +26,7 @@
 
         #content-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: var(--cur-bg); position: relative; }
         #sub-tab-bar { flex-shrink: 0; display: flex; padding: 8px 12px 4px 12px; gap: 8px; z-index: 10; background: inherit; }
-        .sub-tab-btn { padding: 4px 12px; font-size: 9px; border-radius: 8px; background: rgba(0,0,0,0.1); color: rgba(0,0,0,0.6); border: none; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .sub-tab-btn { padding: 4px 12px; font-size: 9px; border-radius: 8px; background: rgba(0,0,0,0.1); color: rgba(0,0,0,0.6); border: none; font-weight: bold; cursor: pointer; }
         .sub-tab-btn.active { background: #FFF; color: #000; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
         
         #scroll-pane { flex: 1; width: 100%; overflow-y: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
@@ -52,14 +52,14 @@
         .list-select { font-size: 9px; border: 1px solid #DDD; border-radius: 3px; padding: 1px; width: 92%; background: #FDFDFD; }
 
         #fab-mask { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: none; z-index: 100; }
-        #fab-container { position: fixed; bottom: 20px; right: 4%; z-index: 101; display: flex; flex-direction: column; align-items: flex-end; gap: 12px; }
-        #fab-main { width: 68px; height: 68px; background: #E8E8E8; border: 2.5px solid #222; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 42px; color: #222; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.4); text-align: center; line-height: 1.1; }
-        #fab-main.list-mode { font-size: 10px; font-weight: bold; }
+        #fab-container { position: fixed; bottom: 10px; right: 4%; z-index: 101; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+        #fab-main { width: 36px; height: 36px; background: #E8E8E8; border: 2px solid #222; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; color: #222; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.4); text-align: center; line-height: 1; }
+        #fab-main.list-mode { font-size: 8px; font-weight: bold; line-height: 1.1; }
         #fab-main.active { transform: rotate(135deg); background: #333; color: #EEE; border-color: #EEE; }
-        .fab-menu { position: absolute; bottom: 45px; right: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 15px; pointer-events: none; opacity: 0; transform: translateY(20px); transition: 0.3s; }
+        .fab-menu { position: absolute; bottom: 30px; right: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 12px; pointer-events: none; opacity: 0; transform: translateY(20px); transition: 0.3s; }
         .fab-menu.active { pointer-events: auto; opacity: 1; transform: translateY(0); }
-        #btn-paste-quick { background: #E8E8E8; padding: 12px 20px; border-radius: 30px; border: 1.5px solid #222; font-size: 13px; font-weight: bold; color: #222; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.3); transform: translateX(-30px); }
-        #input-box-quick { width: 220px; height: 95px; background: #E8E8E8; border: 2.5px solid #222; border-radius: 25px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.3); transform: translateX(-80px); }
+        #btn-paste-quick { background: #E8E8E8; padding: 10px 18px; border-radius: 30px; border: 1.5px solid #222; font-size: 11px; font-weight: bold; color: #222; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.3); transform: translateX(-10px); }
+        #input-box-quick { width: 220px; height: 95px; background: #E8E8E8; border: 2.5px solid #222; border-radius: 25px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.3); transform: translateX(-40px); }
         #qa { flex: 1; width: 100%; background: transparent; border: none; outline: none; padding: 12px 15px; font-size: 13px; resize: none; text-align: center; }
         #btn-reg-quick { align-self: flex-end; background: #333; color: #FFF; border: none; padding: 4px 14px; margin: 0 12px 10px 0; border-radius: 12px; font-size: 10px; font-weight: bold; cursor: pointer; }
 
@@ -95,7 +95,6 @@
         .tmpl-list-btn:last-child { border-bottom: none; }
         .tmpl-list-btn:active { background: #F0F0F0; }
 
-        /* ウェルカムモーダル用スタイル */
         #welcome-overlay { display: none; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
         .welcome-win { width: 85%; background: #FFF; border-radius: 25px; padding: 30px 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; display: flex; flex-direction: column; gap: 20px; animation: popUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         @keyframes popUp { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
@@ -107,7 +106,7 @@
 <body onload="boot()">
     <div id="header-outer">
         <div class="logo-text" onclick="openSet()">RopMemo<span>⚙</span></div>
-        <div class="ver-text">ver.1.69</div>
+        <div class="ver-text">ver.1.70</div>
     </div>
 
     <div id="main-window">
@@ -135,7 +134,7 @@
     <div id="fab-mask" onclick="toggleFab()"></div>
     <div id="fab-container">
         <div id="fab-menu" class="fab-menu">
-            <button id="btn-paste-quick" onclick="pasteNew()">コピーデータ貼り付け<br><span style="font-size:9px;opacity:0.6;">クイックカード作成</span></button>
+            <button id="btn-paste-quick" onclick="pasteNew()">コピーデータ貼り付け<br><span style="font-size:8px;opacity:0.6;">クイックカード作成</span></button>
             <div id="input-box-quick"><textarea id="qa" placeholder="メモを入力"></textarea><button id="btn-reg-quick" onclick="manualNew()">登録</button></div>
         </div>
         <div id="fab-main" onclick="fabAction()">＋</div>
@@ -298,7 +297,7 @@
             fixConfStructure();
             applyConf(); 
             go('cate01');
-            openWelcome(); // 起動時に表示
+            openWelcome();
         }
 
         function openWelcome() { document.getElementById('welcome-overlay').style.display = 'flex'; }
