@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RopMemo v1.70</title>
+    <title>RopMemo v1.71</title>
     <style>
         :root {
             --bg-cate01: #D9D2E9; --bg-cate02: #EAD1DC; --bg-cate03: #FFF2CC; --bg-cate04: #D1EAF0;
@@ -54,7 +54,6 @@
         #fab-mask { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: none; z-index: 100; }
         #fab-container { position: fixed; bottom: 10px; right: 4%; z-index: 101; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
         #fab-main { width: 36px; height: 36px; background: #E8E8E8; border: 2px solid #222; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; color: #222; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.4); text-align: center; line-height: 1; }
-        #fab-main.list-mode { font-size: 8px; font-weight: bold; line-height: 1.1; }
         #fab-main.active { transform: rotate(135deg); background: #333; color: #EEE; border-color: #EEE; }
         .fab-menu { position: absolute; bottom: 30px; right: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 12px; pointer-events: none; opacity: 0; transform: translateY(20px); transition: 0.3s; }
         .fab-menu.active { pointer-events: auto; opacity: 1; transform: translateY(0); }
@@ -106,7 +105,7 @@
 <body onload="boot()">
     <div id="header-outer">
         <div class="logo-text" onclick="openSet()">RopMemo<span>⚙</span></div>
-        <div class="ver-text">ver.1.70</div>
+        <div class="ver-text">ver.1.71</div>
     </div>
 
     <div id="main-window">
@@ -363,9 +362,7 @@
             const mode = (subId === 'sub02') ? 'list' : 'card';
             document.getElementById('card-grid').style.display = mode === 'card' ? 'grid' : 'none';
             document.getElementById('list-view').style.display = mode === 'list' ? 'block' : 'none';
-            const fb = document.getElementById('fab-main');
-            if(mode==='list') { fb.innerHTML = "新規リスト<br>登録"; fb.classList.add('list-mode'); }
-            else { fb.innerHTML = "＋"; fb.classList.remove('list-mode'); }
+            document.getElementById('fab-main').innerHTML = "＋";
             upd();
         }
 
