@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RopMemo v1.75</title>
+    <title>RopMemo v1.76</title>
     <style>
         :root {
             --bg-cate01: #D9D2E9; --bg-cate02: #EAD1DC; --bg-cate03: #FFF2CC; --bg-cate04: #D1EAF0;
@@ -73,7 +73,6 @@
         .copy-btn-inline { font-size: 9px; background: #EEE; border: 1px solid #DDD; padding: 3px 7px; border-radius: 4px; cursor: pointer; }
         .win-label { position: absolute; top: -12px; left: 20px; font-size: 8px; background: #555; color: #FFF; padding: 2px 8px; border-radius: 4px; font-weight: bold; z-index: 10; }
         
-        /* 新しい比率用のスタイル */
         .flex-box { display: flex; flex-wrap: wrap; gap: 4px; width: 100%; }
         .w-16 { width: calc(16% - 4px); }
         .w-18 { width: calc(18% - 4px); }
@@ -108,12 +107,17 @@
         .welcome-msg { font-size: 13px; line-height: 1.8; color: #333; font-weight: bold; white-space: pre-wrap; }
         .welcome-logo { font-size: 24px; font-weight: 900; color: #000; margin-top: 10px; border-top: 1px solid #EEE; padding-top: 15px; }
         .welcome-btn { background: #007AFF; color: #FFF; border: none; padding: 12px 0; border-radius: 12px; font-weight: bold; font-size: 14px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,122,255,0.3); }
+
+        .dest-info { background: rgba(0,0,0,0.05); border-radius: 10px; padding: 10px; margin-bottom: 8px; font-size: 11px; border-left: 4px solid #555; }
+        .dest-row { display: flex; margin-bottom: 2px; }
+        .dest-label { width: 55px; color: #888; font-weight: bold; font-size: 9px; }
+        .dest-val { flex: 1; color: #333; font-weight: bold; }
     </style>
 </head>
 <body onload="boot()">
     <div id="header-outer">
         <div class="logo-text" onclick="openSet()">RopMemo<span>⚙</span></div>
-        <div class="ver-text">ver.1.75</div>
+        <div class="ver-text">ver.1.76</div>
     </div>
 
     <div id="main-window">
@@ -162,6 +166,7 @@
     <div id="ed-tmpl" class="overlay">
         <div class="win" style="height: auto; max-height: 80%;">
             <div class="win-label">[テンプレート選択]</div>
+            <div id="dest-box" class="dest-info"></div>
             <div id="tmpl-scroll" class="set-scroll" style="background:#FFF; border-radius:8px; overflow-y:auto;"></div>
             <button onclick="cls()" class="btn-l" style="background:#FFF; color:#333; margin-top:8px;">キャンセル</button>
         </div>
@@ -201,21 +206,16 @@
                 <div class="flex-box">
                     <div class="set-row w-20"><div class="set-label">50音</div><input type="text" id="ln-furigana" class="input-mini"><span class="id-label">furigana</span></div>
                     <div class="set-row w-80"><div class="set-label">グループ名</div><input type="text" id="ln-name" class="input-mini"><span class="id-label">name</span></div>
-                    
                     <div class="set-row w-100"><div class="set-label">担当者</div><input type="text" id="ln-tanto" class="input-mini"><span class="id-label">tanto</span></div>
-                    
                     <div class="set-row w-100"><div class="set-label">連絡先</div><input type="text" id="ln-adress" class="input-mini"><span class="id-label">adress</span></div>
-                    
                     <div class="set-row w-18"><div class="set-label">フラグ</div><select id="ln-flag" class="list-select"><option value="">なし</option><option value="🚩">🚩</option><option value="済">済</option><option value="🙆‍♀️">🙆‍♀️</option><option value="🙅‍♀️">🙅‍♀️</option></select><span class="id-label">flag</span></div>
                     <div class="set-row w-18"><div class="set-label">手段</div><select id="ln-meth" class="list-select"><option value="">なし</option><option value="L">L</option><option value="✉️">✉️</option><option value="𝕏">𝕏</option><option value="🗒">🗒</option></select><span class="id-label">meth</span></div>
                     <div class="set-row w-30"><div class="set-label">案内日</div><input type="text" id="ln-date" class="input-mini"><span class="id-label">date</span></div>
                     <div class="set-row w-16"><div class="set-label">ヨミ</div><input type="text" id="ln-yomi" class="input-mini"><span class="id-label">yomi</span></div>
                     <div class="set-row w-18"><div class="set-label">出演経験</div><select id="ln-kako" class="list-select"><option value="">なし</option><option value="有">有</option><option value="無">無</option></select><span class="id-label">kako</span></div>
-                    
                     <div class="set-row w-18"><div class="set-label">写真</div><select id="ln-satueP" class="list-select"><option value="">なし</option><option value="⭕️">⭕️</option><option value="❌">❌</option></select><span class="id-label">satueP</span></div>
                     <div class="set-row w-18"><div class="set-label">動画</div><select id="ln-satueM" class="list-select"><option value="">なし</option><option value="⭕️">⭕️</option><option value="❌">❌</option></select><span class="id-label">satueM</span></div>
                     <div class="set-row w-60"><div class="set-label">要望</div><textarea id="ln-note" style="height:28px; font-size:11px; border:1px solid #DDD; border-radius:4px; padding:5px; resize:none; width:100%;"></textarea><span class="id-label">note</span></div>
-                    
                     <div class="set-row w-100"><div class="set-label">アー写</div><input type="text" id="ln-photo" class="input-mini"><span class="id-label">photo</span></div>
                 </div>
             </div>
@@ -294,7 +294,7 @@
         };
 
         let sortKey = 'id', sortOrder = 'reg', cur = 'cate01', eid = null, isSubmitting = false;
-        let tempAdress = ""; 
+        let tempDest = { name: "", tanto: "", adress: "" }; 
 
         function esc(s) { if(!s) return ""; return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
         function fmtDate() { const d = new Date(); const w = ["日","月","火","水","木","金","土"][d.getDay()]; return `${d.getFullYear()}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getDate().toString().padStart(2,'0')}(${w})${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`; }
@@ -408,7 +408,7 @@
             for(let j=0; j<4; j++){ const t = new Date(now); t.setDate(now.getDate() - j); dateOptions.push(`${t.getMonth()+1}/${t.getDate()}`); }
 
             let idx = 0; const chunkSize = 50;
-            let displayCount = 0; // 表示用の通し番号カウンタ
+            let displayCount = 0;
             function renderChunk() {
                 const limit = Math.min(idx + chunkSize, filtered.length); const fragment = document.createDocumentFragment();
                 for (; idx < limit; idx++) {
@@ -457,7 +457,17 @@
         }
 
         function openMailTmpl(id) {
-            const i = db.find(x => x.id === id); tempAdress = i.list?.adress || ""; const tmplArea = document.getElementById('tmpl-scroll'); tmplArea.innerHTML = "";
+            const i = db.find(x => x.id === id); 
+            tempDest = { name: i.list?.name || "", tanto: i.list?.tanto || "", adress: i.list?.adress || "" };
+            
+            const destBox = document.getElementById('dest-box');
+            destBox.innerHTML = `
+                <div class="dest-row"><div class="dest-label">グループ</div><div class="dest-val">${esc(tempDest.name)}</div></div>
+                <div class="dest-row"><div class="dest-label">担当者</div><div class="dest-val">${esc(tempDest.tanto || '---')}</div></div>
+                <div class="dest-row"><div class="dest-label">連絡先</div><div class="dest-val">${esc(tempDest.adress || '---')}</div></div>
+            `;
+
+            const tmplArea = document.getElementById('tmpl-scroll'); tmplArea.innerHTML = "";
             const cards = db.filter(x => x.cat === cur && x.card && (x.card.t || x.card.b));
             if(cards.length === 0) { tmplArea.innerHTML = "<div style='padding:20px; text-align:center; font-size:10px; color:#999;'>テンプレートがありません</div>"; }
             else { cards.forEach(c => { const btn = document.createElement('button'); btn.className = "tmpl-list-btn"; btn.innerText = c.card.t || "(タイトルなし)"; btn.onclick = () => sendMailFinal(c.id); tmplArea.appendChild(btn); }); }
@@ -465,10 +475,20 @@
         }
 
         function sendMailFinal(cardId) {
-            const card = db.find(x => x.id === cardId); const subject = card.card?.t || ""; const body = card.card?.b || "";
-            navigator.clipboard.writeText(body).then(() => {
-                const encSub = encodeURIComponent(subject); const encBody = encodeURIComponent(body);
-                let url = (conf.mailerMode === 'gmail') ? `googlegmail:///co?to=${tempAdress}&subject=${encSub}&body=${encBody}` : `mailto:${tempAdress}?subject=${encSub}&body=${encBody}`;
+            const card = db.find(x => x.id === cardId); 
+            const subject = card.card?.t || ""; 
+            const originalBody = card.card?.b || "";
+            
+            // 宛名生成ロジック
+            let ateName = "";
+            if (tempDest.tanto) { ateName = `${tempDest.name} ${tempDest.tanto} 様`; } 
+            else { ateName = `${tempDest.name} 様`; }
+            
+            const finalBody = `${ateName}\n\n${originalBody}`;
+
+            navigator.clipboard.writeText(finalBody).then(() => {
+                const encSub = encodeURIComponent(subject); const encBody = encodeURIComponent(finalBody);
+                let url = (conf.mailerMode === 'gmail') ? `googlegmail:///co?to=${tempDest.adress}&subject=${encSub}&body=${encBody}` : `mailto:${tempDest.adress}?subject=${encSub}&body=${encBody}`;
                 cls(); toast("本文をコピーしました"); window.location.href = url;
             });
         }
