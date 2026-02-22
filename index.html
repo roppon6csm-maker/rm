@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RopMemo v1.89</title>
+    <title>RopMemo v1.90</title>
     <style>
         :root {
             --bg-cate01: #D9D2E9; --bg-cate02: #EAD1DC; --bg-cate03: #FFF2CC; --bg-cate04: #D1EAF0;
@@ -64,7 +64,14 @@
         .list-edit-btn { cursor: pointer; font-size: 11px; opacity: 0.8; }
         .list-select { font-size: 9px; border: 1px solid #DDD; border-radius: 3px; padding: 1px; width: 92%; background: #FDFDFD; height: 28px; }
 
-        #fab-mask { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: none; z-index: 100; }
+        /* オーバーレイ共通アニメーション設計 */
+        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; z-index: 1000; justify-content: center; align-items: flex-end; backdrop-filter: blur(2px); opacity: 0; transition: opacity 0.3s ease; }
+        .overlay.active { display: flex; opacity: 1; }
+        .win { width: 92%; height: 92%; background: #D6D6D6; border-radius: 25px; margin-bottom: 2%; padding: 15px; display: flex; flex-direction: column; gap: 8px; position: relative; transform: translateY(100%); transition: transform 0.35s cubic-bezier(0.25, 1, 0.5, 1); }
+        .overlay.active .win { transform: translateY(0); }
+
+        #fab-mask { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: none; z-index: 100; opacity: 0; transition: opacity 0.3s; }
+        #fab-mask.active { display: block; opacity: 1; }
         #fab-container { position: fixed; bottom: 10px; right: 4%; z-index: 101; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
         #fab-main { width: 36px; height: 36px; background: #E8E8E8; border: 2px solid #222; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; color: #222; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.4); text-align: center; line-height: 1; }
         #fab-main.active { transform: rotate(135deg); background: #333; color: #EEE; border-color: #EEE; }
@@ -75,10 +82,7 @@
         #qa { flex: 1; width: 100%; background: transparent; border: none; outline: none; padding: 12px 15px; font-size: 13px; resize: none; text-align: center; }
         #btn-reg-quick { align-self: flex-end; background: #333; color: #FFF; border: none; padding: 4px 14px; margin: 0 12px 10px 0; border-radius: 12px; font-size: 10px; font-weight: bold; cursor: pointer; }
 
-        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; z-index: 1000; justify-content: center; align-items: flex-end; backdrop-filter: blur(2px); }
-        .win { width: 92%; height: 92%; background: #D6D6D6; border-radius: 25px; margin-bottom: 2%; padding: 15px; display: flex; flex-direction: column; gap: 8px; position: relative; }
         .set-scroll { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; scrollbar-width: none; padding-bottom: 20px; }
-        
         .set-row { background: #FFF; border-radius: 8px; padding: 10px; display: flex; flex-direction: column; gap: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 10px; }
         .set-section-title { font-size: 12px; font-weight: bold; color: #333; margin: 5px 0 8px 4px; display: flex; align-items: center; gap: 5px; }
         .btn-l { width: 100%; height: 44px; background: #444; color: #FFF; border: none; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; flex-shrink: 0; }
@@ -136,9 +140,10 @@
 
         #toast { position: fixed; bottom: 41.5%; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); color: #fff; padding: 10px 24px; border-radius: 20px; font-size: 11px; font-weight: bold; display: none; z-index: 9999; text-align: center; line-height: 1.4; }
         
-        #welcome-overlay { display: none; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
-        .welcome-win { width: 85%; background: #FFF; border-radius: 25px; padding: 30px 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; display: flex; flex-direction: column; gap: 20px; animation: popUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; color: #333; }
-        @keyframes popUp { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        #welcome-overlay { display: none; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(8px); opacity: 0; transition: opacity 0.4s; }
+        #welcome-overlay.active { display: flex; opacity: 1; }
+        .welcome-win { width: 85%; background: #FFF; border-radius: 25px; padding: 30px 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; display: flex; flex-direction: column; gap: 20px; transform: scale(0.8); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; color: #333; }
+        #welcome-overlay.active .welcome-win { transform: scale(1); }
         .welcome-msg { font-size: 13px; line-height: 1.8; color: #444; font-weight: bold; white-space: pre-wrap; }
         .welcome-logo { font-size: 24px; font-weight: 900; color: #000; margin-top: 10px; border-top: 1px solid #EEE; padding-top: 15px; }
         .welcome-btn { background: #007AFF; color: #FFF; border: none; padding: 12px 0; border-radius: 12px; font-weight: bold; font-size: 14px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,122,255,0.3); }
@@ -158,7 +163,7 @@
 <body onload="boot()">
     <div id="header-outer">
         <div class="logo-text" onclick="openSet()">RopMemo<span>⚙</span></div>
-        <div class="ver-text">ver.1.89</div>
+        <div class="ver-text">ver.1.90</div>
     </div>
 
     <div id="main-window">
@@ -201,7 +206,7 @@
 気になる動画や情報もクイック登録！</div>
             <div class="welcome-logo">『RopMemo』</div>
             <button class="welcome-btn" onclick="cls()">はじめる</button>
-            <div class="welcome-ver">ver.1.89</div>
+            <div class="welcome-ver">ver.1.90</div>
         </div>
     </div>
 
@@ -234,7 +239,7 @@
             <div style="display:flex; justify-content:space-between; margin-top:5px;">
                 <button onclick="cls()" style="font-size:11px; padding:8px 16px; border:none; background:#FFF; border-radius:6px;">戻る</button>
                 <div style="display:flex; gap:6px;">
-                    <button id="btn-del-trigger" onclick="document.getElementById('delete-overlay').style.display='flex'" style="font-size:11px; padding:8px 16px; border:none; background:#FFF; color:#FF3B30; border-radius:6px; display:none;">削除</button>
+                    <button id="btn-del-trigger" onclick="openDelConfirm()" style="font-size:11px; padding:8px 16px; border:none; background:#FFF; color:#FF3B30; border-radius:6px; display:none;">削除</button>
                     <button onclick="saveC()" style="font-size:11px; padding:8px 16px; border:none; background:#FFF; font-weight:bold; color:#007AFF; border-radius:6px;">保存</button>
                 </div>
             </div>
@@ -264,7 +269,7 @@
             </div>
             <div style="display:flex; gap:8px; margin-top:5px;">
                 <button onclick="cls()" class="btn-l" style="background:#FFF; color:#333; flex:1;">戻る</button>
-                <button id="btn-del-trigger-l" onclick="document.getElementById('delete-overlay').style.display='flex'" style="background:#FFF; color:#FF3B30; display:none; flex:1;" class="btn-l">削除</button>
+                <button id="btn-del-trigger-l" onclick="openDelConfirm()" style="background:#FFF; color:#FF3B30; display:none; flex:1;" class="btn-l">削除</button>
                 <button onclick="saveL()" class="btn-l" style="flex:1; background:#007AFF;">保存</button>
             </div>
         </div>
@@ -322,53 +327,28 @@
                     <div class="data-card">
                         <div class="data-card-title">◾︎ 現在の登録データ状況</div>
                         <div class="data-stats-row">
-                            <div class="data-stat-box">
-                                <span class="stat-lab">カード登録</span>
-                                <span id="cnt-card" class="stat-val">0</span>
-                                <span class="stat-lab">件</span>
-                            </div>
-                            <div class="data-stat-box">
-                                <span class="stat-lab">リスト登録</span>
-                                <span id="cnt-list" class="stat-val">0</span>
-                                <span class="stat-lab">件</span>
-                            </div>
+                            <div class="data-stat-box"><span class="stat-lab">カード登録</span><span id="cnt-card" class="stat-val">0</span><span class="stat-lab">件</span></div>
+                            <div class="data-stat-box"><span class="stat-lab">リスト登録</span><span id="cnt-list" class="stat-val">0</span><span class="stat-lab">件</span></div>
                         </div>
                         <div class="data-sub-text">アプリ内に保存されている現在のデータ総数です。</div>
                     </div>
-
                     <div class="data-card">
                         <div class="data-card-title">◾︎ データのバックアップ</div>
                         <div class="data-sub-text">スマホ故障や機種変更に備え、外部に保管します。</div>
                         <div class="data-help-box">
-                            <div class="data-help-step">
-                                <b>1. データコピー</b>
-                                下記ボタンを押すと、全データが「タブ区切りテキスト」としてクリップボードにコピーされます。
-                            </div>
-                            <div class="data-help-step">
-                                <b>2. 外部への貼り付け</b>
-                                Excel、スプレッドシート、またはメモ帳を開き、「貼り付け」を行って保存してください。
-                            </div>
+                            <div class="data-help-step"><b>1. データコピー</b>下記ボタンを押すと、全データが「タブ区切りテキスト」としてクリップボードにコピーされます。</div>
+                            <div class="data-help-step"><b>2. 外部への貼り付け</b>Excel、スプレッドシート、またはメモ帳を開き、「貼り付け」を行って保存してください。</div>
                         </div>
                         <button class="btn-data-main btn-backup" onclick="exportExcelAll()">全データをバックアップ（コピー）</button>
                     </div>
-
                     <div class="data-card">
                         <div class="data-card-title">◾︎ データのインポート</div>
                         <div class="data-sub-text">保存してある外部データをアプリ内に読み込みます。</div>
                         <div class="data-help-box">
-                            <div class="data-help-step">
-                                <b>1. インポートの準備</b>
-                                保存先のExcel等から、ヘッダー（1行目）を含めた全範囲をコピーしてください。
-                            </div>
-                            <div class="data-help-step">
-                                <b>2. データの読み込み</b>
-                                下記ボタンを押し、確認ダイアログで「はい」を選択すると復元が開始されます。
-                            </div>
+                            <div class="data-help-step"><b>1. インポートの準備</b>保存先のExcel等から、ヘッダーを含めた全範囲をコピーしてください。</div>
+                            <div class="data-help-step"><b>2. データの読み込み</b>下記ボタンを押し、確認ダイアログで「はい」を選択すると復元開始。</div>
                         </div>
-                        <div class="data-alert">
-                            ※ 既存IDがある行は最新情報で「上書き」されます。<br>
-                            ※ IDがない新規行は、自動で新IDが発番され登録されます。
-                        </div>
+                        <div class="data-alert">※ 既存IDがある行は最新情報で「上書き」されます。<br>※ IDがない新規行は、自動で新IDが発番されます。</div>
                         <button class="btn-data-main btn-import" onclick="confirmImport1()" style="margin-top:15px;">全データをインポート</button>
                     </div>
                 </div>
@@ -404,7 +384,7 @@
 
         function boot() { 
             applyConf(); go('cate01');
-            if(!sessionStorage.getItem('rop_welcome')) { document.getElementById('welcome-overlay').style.display = 'flex'; }
+            if(!sessionStorage.getItem('rop_welcome')) { openWin('welcome-overlay'); }
             initTapEffect();
         }
 
@@ -538,18 +518,40 @@
         }
 
         function quickSaveL(id, key, val) { const item = db.find(x => x.id === id); if(item && item.list) { item.list[key] = val; localStorage.setItem(SK, JSON.stringify(db)); toast("更新しました"); } }
-        function toggleFab() { const a = document.getElementById('fab-main').classList.toggle('active'); document.getElementById('fab-menu').classList.toggle('active', a); document.getElementById('fab-mask').style.display = a ? 'block' : 'none'; }
+        
+        function toggleFab() { 
+            const a = document.getElementById('fab-main').classList.toggle('active'); 
+            document.getElementById('fab-menu').classList.toggle('active', a); 
+            const mask = document.getElementById('fab-mask');
+            if(a) { mask.style.display = 'block'; setTimeout(() => mask.classList.add('active'), 10); }
+            else { mask.classList.remove('active'); setTimeout(() => mask.style.display = 'none', 300); }
+        }
         function fabAction() { if(conf.subStates[cur] === 'sub02') openEd(null); else toggleFab(); }
         
+        /* 共通アニメーション制御関数 */
+        function openWin(id) { 
+            const el = document.getElementById(id); el.style.display = 'flex'; 
+            setTimeout(() => el.classList.add('active'), 10); 
+        }
+        function cls() { 
+            document.querySelectorAll('.overlay.active').forEach(el => {
+                el.classList.remove('active');
+                setTimeout(() => el.style.display = 'none', 350);
+            });
+            if(document.getElementById('welcome-overlay').style.display==='none') sessionStorage.setItem('rop_welcome','1');
+        }
+
         function openEd(id) {
             eid = id; const i = db.find(x => x.id === id) || { card:{}, list:{}, cat:cur };
             if(conf.subStates[cur] === 'sub02') {
                 L_KEYS.forEach(k => { const el = document.getElementById('ln-'+k); if(el) el.value = i.list?.[k] || ''; });
                 updateXLinkDisplay(i.list?.twitterID || '');
-                document.getElementById('btn-del-trigger-l').style.display = id ? 'block' : 'none'; document.getElementById('ed-list').style.display = 'flex';
+                document.getElementById('btn-del-trigger-l').style.display = id ? 'block' : 'none'; 
+                openWin('ed-list');
             } else {
                 document.getElementById('cn-title').value = i.card?.t || ''; document.getElementById('cn-body').value = i.card?.b || ''; document.getElementById('cn-url').value = i.card?.u || ''; document.getElementById('cn-alt').value = i.card?.a || ''; document.getElementById('cn-cat').value = i.cat || cur;
-                document.getElementById('btn-del-trigger').style.display = id ? 'block' : 'none'; document.getElementById('ed-card').style.display = 'flex';
+                document.getElementById('btn-del-trigger').style.display = id ? 'block' : 'none'; 
+                openWin('ed-card');
             }
         }
 
@@ -562,33 +564,24 @@
         function openMailTmpl(id) {
             const i = db.find(x => x.id === id); 
             tempDest = { name: i.list?.name || "", tanto: i.list?.tanto || "", adress: i.list?.adress || "", meth: i.list?.meth || "", twitterID: i.list?.twitterID || "" };
-            
             let adressLabel = "連絡先";
-            if(tempDest.meth === 'L') adressLabel = "LINEで連絡";
-            else if(tempDest.meth === '𝕏') adressLabel = "𝕏でDM 連絡";
-
+            if(tempDest.meth === 'L') adressLabel = "LINEで連絡"; else if(tempDest.meth === '𝕏') adressLabel = "𝕏でDM 連絡";
             document.getElementById('dest-box').innerHTML = `<div class="dest-row"><div class="dest-label">グループ</div><div class="dest-val">${esc(tempDest.name)}</div></div><div class="dest-row"><div class="dest-label">担当者</div><div class="dest-val">${esc(tempDest.tanto || '---')}</div></div><div class="dest-row"><div class="dest-label">${adressLabel}</div><div class="dest-val">${esc(tempDest.adress || (tempDest.meth === '𝕏' ? '設定あり' : '---'))}</div></div>`;
             const tmplArea = document.getElementById('tmpl-scroll'); tmplArea.innerHTML = "";
             const cards = db.filter(x => x.cat === cur && x.card && (x.card.t || x.card.b));
             if(cards.length === 0) tmplArea.innerHTML = "<div style='padding:20px; text-align:center; font-size:10px; color:#999;'>テンプレートがありません</div>";
             else cards.forEach(c => { const btn = document.createElement('button'); btn.className = "tmpl-list-btn"; btn.innerText = c.card.t || "(タイトルなし)"; btn.onclick = () => sendMailFinal(c.id); tmplArea.appendChild(btn); });
-            document.getElementById('ed-tmpl').style.display = 'flex';
+            openWin('ed-tmpl');
         }
 
         function sendMailFinal(cardId) {
             const card = db.find(x => x.id === cardId); const subject = card.card?.t || ""; const originalBody = card.card?.b || "";
             let ateName = tempDest.tanto ? `${tempDest.name}\n${tempDest.tanto}` : `${tempDest.name}様`; 
             const finalBody = `${ateName}\n\n${originalBody}`;
-
             if(tempDest.meth === 'L') {
-                navigator.clipboard.writeText(finalBody).then(() => {
-                    cls(); toast("宛名を差し込んだテンプレート本文を\nコピーしました。\nLINEを起動して個別連絡してください", 3000);
-                });
+                navigator.clipboard.writeText(finalBody).then(() => { cls(); toast("宛名を差し込んだ本文をコピーしました。\nLINEで個別連絡してください", 3000); });
             } else if(tempDest.meth === '𝕏') {
-                navigator.clipboard.writeText(finalBody).then(() => {
-                    cls(); toast("宛名を差し込んだテンプレート本文を\nコピーしました。\n𝕏のプロフ画面に遷移します", 3000);
-                    setTimeout(() => { if(tempDest.twitterID) window.location.href = tempDest.twitterID; }, 3000);
-                });
+                navigator.clipboard.writeText(finalBody).then(() => { cls(); toast("本文をコピーしました。\n𝕏プロフ画面へ遷移します", 3000); setTimeout(() => { if(tempDest.twitterID) window.location.href = tempDest.twitterID; }, 3000); });
             } else {
                 navigator.clipboard.writeText(finalBody).then(() => {
                     let url = (conf.mailerMode === 'gmail') ? `googlegmail:///co?to=${tempDest.adress}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(finalBody)}` : `mailto:${tempDest.adress}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(finalBody)}`;
@@ -613,14 +606,14 @@
             saveAll(); setTimeout(() => { cls(); toast("保存完了"); isSubmitting = false; }, 200);
         }
 
+        function openDelConfirm() { openWin('delete-overlay'); }
         function execDel() { db = db.filter(x => x.id !== eid); saveAll(); cls(); toast("削除しました"); }
         function saveAll() { localStorage.setItem(SK, JSON.stringify(db)); upd(); }
-        function cls() { document.querySelectorAll('.overlay').forEach(o => o.style.display = 'none'); if(document.getElementById('welcome-overlay').style.display==='none') sessionStorage.setItem('rop_welcome','1'); }
         function toast(m, ms = 2000) { const t = document.getElementById('toast'); t.innerHTML = m.replace(/\n/g,'<br>'); t.style.display = 'block'; setTimeout(() => t.style.display = 'none', ms); }
         function copyByTxt(id) { const i = db.find(x => x.id === id); navigator.clipboard.writeText(i.card?.b).then(() => { toast("コピー完了"); }); }
         function copyByVal(id) { navigator.clipboard.writeText(document.getElementById(id).value).then(() => toast("コピー完了")); }
         function switchSetTab(t) { document.querySelectorAll('.set-tab-btn').forEach(b => b.classList.toggle('active', b.id === `set-tab-${t}`)); document.getElementById('set-content-card').style.display = t === 'card' ? 'block' : 'none'; document.getElementById('set-content-list').style.display = t === 'list' ? 'block' : 'none'; if(t==='list') updateDataCounters(); }
-        function openSet() { document.getElementById('ed-set').style.display = 'flex'; switchSetTab('card'); updateDataCounters(); }
+        function openSet() { openWin('ed-set'); switchSetTab('card'); updateDataCounters(); }
         
         function saveSet() { 
             for(let i=1; i<=4; i++) conf.tabs[`cate0${i}`] = document.getElementById(`sn-${i}`).value; 
@@ -643,9 +636,9 @@
             const over = document.getElementById('delete-overlay'); document.getElementById('del-msg').innerText = msg;
             const okBtn = document.getElementById('del-exec'); okBtn.innerText = okTxt; okBtn.style.background = "#007AFF"; 
             const cancelBtn = document.getElementById('del-cancel'); cancelBtn.innerText = cancelTxt;
-            okBtn.onclick = () => { over.style.display = 'none'; onOk(); resetDelModal(); };
-            cancelBtn.onclick = () => { over.style.display = 'none'; resetDelModal(); };
-            over.style.display = 'flex';
+            okBtn.onclick = () => { cls(); onOk(); resetDelModal(); };
+            cancelBtn.onclick = () => { cls(); resetDelModal(); };
+            openWin('delete-overlay');
         }
         function resetDelModal() {
             const okBtn = document.getElementById('del-exec'); okBtn.style.background = "#FF3B30"; okBtn.innerText = "削除"; okBtn.onclick = execDel;
@@ -674,7 +667,7 @@
                     }
                 });
                 saveAll(); toast("インポート完了");
-            } catch(e) { alert("失敗しました。正しい形式でコピーされているか確認してください。"); }
+            } catch(e) { alert("失敗しました。形式を確認してください。"); }
         }
         function createCard(v) { db.push({ id: Date.now().toString(), cat:'none', date:fmtDate(), card:{t:'メモ', b:v, u:'', a:''}, list:{} }); saveAll(); }
         async function pasteNew() { try { const t = await navigator.clipboard.readText(); if(!t) return; toggleFab(); createCard(t); go('none'); toast("完了"); } catch(e){} }
