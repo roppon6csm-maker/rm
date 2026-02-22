@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RopMemo v1.83</title>
+    <title>RopMemo v1.84</title>
     <style>
         :root {
             --bg-cate01: #D9D2E9; --bg-cate02: #EAD1DC; --bg-cate03: #FFF2CC; --bg-cate04: #D1EAF0;
@@ -96,9 +96,13 @@
         input:checked + .slider:before { transform: translateX(20px); }
 
         .flex-box { display: flex; flex-wrap: wrap; gap: 6px; width: 100%; }
+        /* リスト詳細四段目比率 (ver.1.84) */
+        .shrink-font { font-size: 10px !important; white-space: nowrap; overflow: hidden; }
         .w-16 { width: calc(16% - 6px); }
-        .w-18 { width: calc(18% - 6px); }
         .w-20 { width: calc(20% - 6px); }
+        .w-23 { width: calc(23% - 6px); }
+        .w-25 { width: calc(25% - 6px); }
+        .w-18 { width: calc(18% - 6px); }
         .w-30 { width: calc(30% - 6px); }
         .w-60 { width: calc(60% - 6px); }
         .w-80 { width: calc(80% - 6px); }
@@ -108,7 +112,7 @@
         .set-tab-btn { flex:1; padding: 12px; font-size: 11px; border-radius: 10px; border: none; background: #CCC; color: #666; font-weight: bold; cursor: pointer; }
         .set-tab-btn.active { background: #007AFF; color: #FFF; box-shadow: 0 2px 6px rgba(0,122,255,0.3); }
 
-        /* データ管理UI刷新 (ver.1.83) */
+        /* データ管理UI刷新 (ver.1.84 見出し構成変更) */
         .data-card { background: #FFF; border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
         .data-card-title { font-size: 11px; font-weight: bold; color: #333; margin-bottom: 8px; }
         .data-stats-row { display: flex; gap: 10px; margin-bottom: 5px; }
@@ -152,7 +156,7 @@
 <body onload="boot()">
     <div id="header-outer">
         <div class="logo-text" onclick="openSet()">RopMemo<span>⚙</span></div>
-        <div class="ver-text">ver.1.83</div>
+        <div class="ver-text">ver.1.84</div>
     </div>
 
     <div id="main-window">
@@ -195,7 +199,7 @@
 気になる動画や情報もクイック登録！</div>
             <div class="welcome-logo">『RopMemo』</div>
             <button class="welcome-btn" onclick="cls()">はじめる</button>
-            <div class="welcome-ver">ver.1.83</div>
+            <div class="welcome-ver">ver.1.84</div>
         </div>
     </div>
 
@@ -244,11 +248,12 @@
                     <div class="set-row w-80"><div class="set-label">グループ名</div><input type="text" id="ln-name" class="input-mini"><span class="id-label">name</span></div>
                     <div class="set-row w-100"><div class="set-label">担当者</div><input type="text" id="ln-tanto" class="input-mini"><span class="id-label">tanto</span></div>
                     <div class="set-row w-100"><div class="set-label">連絡先</div><input type="text" id="ln-adress" class="input-mini"><span class="id-label">adress</span></div>
-                    <div class="set-row w-18"><div class="set-label">フラグ</div><select id="ln-flag" class="list-select"><option value="">なし</option><option value="🚩">🚩</option><option value="済">済</option><option value="🙆‍♀️">🙆‍♀️</option><option value="🙅‍♀️">🙅‍♀️</option></select><span class="id-label">flag</span></div>
-                    <div class="set-row w-18"><div class="set-label">手段</div><select id="ln-meth" class="list-select"><option value="">なし</option><option value="L">L</option><option value="✉️">✉️</option><option value="𝕏">𝕏</option><option value="🗒">🗒</option></select><span class="id-label">meth</span></div>
-                    <div class="set-row w-30"><div class="set-label">案内日</div><input type="text" id="ln-date" class="input-mini"><span class="id-label">date</span></div>
-                    <div class="set-row w-16"><div class="set-label">ヨミ</div><input type="text" id="ln-yomi" class="input-mini"><span class="id-label">yomi</span></div>
-                    <div class="set-row w-18"><div class="set-label">出演経験</div><select id="ln-kako" class="list-select"><option value="">なし</option><option value="有">有</option><option value="無">無</option></select><span class="id-label">kako</span></div>
+                    <div class="set-row w-16"><div class="set-label shrink-font">フラグ</div><select id="ln-flag" class="list-select"><option value="">なし</option><option value="🚩">🚩</option><option value="済">済</option><option value="🙆‍♀️">🙆‍♀️</option><option value="🙅‍♀️">🙅‍♀️</option></select><span class="id-label">flag</span></div>
+                    <div class="set-row w-16"><div class="set-label shrink-font">手段</div><select id="ln-meth" class="list-select"><option value="">なし</option><option value="L">L</option><option value="✉️">✉️</option><option value="𝕏">𝕏</option><option value="🗒">🗒</option></select><span class="id-label">meth</span></div>
+                    <div class="set-row w-25"><div class="set-label shrink-font">案内日</div><input type="text" id="ln-date" class="input-mini"><span class="id-label">date</span></div>
+                    <div class="set-row w-20"><div class="set-label shrink-font">ヨミ</div><input type="text" id="ln-yomi" class="input-mini"><span class="id-label">yomi</span></div>
+                    <div class="set-row w-23"><div class="set-label shrink-font">出演経験</div><select id="ln-kako" class="list-select"><option value="">なし</option><option value="有">有</option><option value="無">無</option></select><span class="id-label">kako</span></div>
+                    
                     <div class="set-row w-18"><div class="set-label">写真</div><select id="ln-satueP" class="list-select"><option value="">なし</option><option value="⭕️">⭕️</option><option value="❌">❌</option></select><span class="id-label">satueP</span></div>
                     <div class="set-row w-18"><div class="set-label">動画</div><select id="ln-satueM" class="list-select"><option value="">なし</option><option value="⭕️">⭕️</option><option value="❌">❌</option></select><span class="id-label">satueM</span></div>
                     <div class="set-row w-60"><div class="set-label">要望</div><textarea id="ln-note" style="height:32px; font-size:11px; border:1px solid #DDD; border-radius:4px; padding:5px; resize:none; width:100%;"></textarea><span class="id-label">note</span></div>
@@ -265,8 +270,8 @@
 
     <div id="delete-overlay" class="overlay">
         <div class="win" style="background:#D6D6D6; height:auto; width:70%;">
-            <div style="text-align:center; font-weight:bold; font-size:13px; margin:10px 0 20px 0; color:#333;">削除しますか？</div>
-            <div style="display:flex; gap:8px;"><button onclick="cls()" style="flex:1; height:34px; border:none; border-radius:8px; background:#FFF;">戻る</button><button onclick="execDel()" style="flex:1; height:34px; border:none; border-radius:8px; background:#FF3B30; color:#FFF;">削除</button></div>
+            <div id="del-msg" style="text-align:center; font-weight:bold; font-size:13px; margin:10px 0 20px 0; color:#333; white-space:pre-wrap;">削除しますか？</div>
+            <div style="display:flex; gap:8px;"><button id="del-cancel" onclick="cls()" style="flex:1; height:34px; border:none; border-radius:8px; background:#FFF;">戻る</button><button id="del-exec" onclick="execDel()" style="flex:1; height:34px; border:none; border-radius:8px; background:#FF3B30; color:#FFF;">削除</button></div>
         </div>
     </div>
 
@@ -324,29 +329,26 @@
                     </div>
 
                     <div class="data-card">
-                        <div class="data-card-title">◾︎ データのバックアップとインポート</div>
-                        <div class="data-section-sub">
-                            <div class="data-card-title" style="font-size:10px; margin-top:10px;">◾︎ データのバックアップ</div>
-                            <div class="data-sub-text">アプリ内のデータを万が一に備えて保管する</div>
-                            <div class="data-help-box">
-                                <div class="data-card-title" style="font-size:9px; margin-bottom:5px;">◾︎ バックアップ手順</div>
-                                <div class="data-help-step"><b>・データコピー</b>バックアップボタンを押すとアプリ内の全カードデータと全リストデータがテキストデータとしてコピーされます。</div>
-                                <div class="data-help-step"><b>・保管</b>コピーされたデータをExcelやGoogleスプレッドシートにそのまま貼り付ける事で表組みされた状態で貼り付けられます。このファイルをバックアップデータとして保管してください。</div>
-                            </div>
-                            <button class="btn-data-main btn-backup" onclick="exportExcelAll()" style="margin-top:10px;">データをバックアップ</button>
-                            <div class="data-sub-text" style="text-align:center;">アプリ内データがクリップボードにコピーされます</div>
+                        <div class="data-card-title">◾︎ データのバックアップ</div>
+                        <div class="data-sub-text">アプリ内のデータを万が一に備えて保管する</div>
+                        <div class="data-help-box">
+                            <div class="data-card-title" style="font-size:9px; margin-bottom:5px;">◾︎ バックアップ手順</div>
+                            <div class="data-help-step"><b>・データコピー</b>バックアップボタンを押すとアプリ内の全カードデータと全リストデータがテキストデータとしてコピーされます。</div>
+                            <div class="data-help-step"><b>・保管</b>コピーされたデータをExcelやGoogleスプレッドシートにそのまま貼り付ける事で表組みされた状態で貼り付けられます。このファイルをバックアップデータとして保管してください。</div>
                         </div>
+                        <button class="btn-data-main btn-backup" onclick="exportExcelAll()" style="margin-top:10px;">データをバックアップ</button>
+                        <div class="data-sub-text" style="text-align:center;">アプリ内データがクリップボードにコピーされます</div>
+                    </div>
 
-                        <div class="data-section-sub" style="margin-top:20px; border-top:1px solid #EEE; padding-top:15px;">
-                            <div class="data-card-title" style="font-size:10px;">◾︎ データのインポート</div>
-                            <div class="data-sub-text">アプリにデータを流し込んで(インポート)、データを一括追加したり復元したりできます。</div>
-                            <div class="data-help-box">
-                                <div class="data-card-title" style="font-size:9px; margin-bottom:5px;">◾︎ インポート手順</div>
-                                <div class="data-help-step"><b>・データ準備</b>バックアップファイル(ExcelやGoogleスプレッドシート)を開いてインポートするデータを項目名の行も含めて全て選択してコピーします。</div>
-                                <div class="data-help-step"><b>・インポート</b>コピーした状態でインポートボタンを押す事でデータがアプリに流し込まれます。</div>
-                            </div>
-                            <button class="btn-data-main btn-import" onclick="importExcelAll()" style="margin-top:10px;">データをインポート</button>
+                    <div class="data-card">
+                        <div class="data-card-title">◾︎ データのインポート</div>
+                        <div class="data-sub-text">アプリにデータを流し込んで(インポート)、データを一括追加したり復元したりできます。</div>
+                        <div class="data-help-box">
+                            <div class="data-card-title" style="font-size:9px; margin-bottom:5px;">◾︎ インポート手順</div>
+                            <div class="data-help-step"><b>・データ準備</b>バックアップファイル(ExcelやGoogleスプレッドシート)を開いてインポートするデータを項目名の行も含めて全て選択してコピーします。</div>
+                            <div class="data-help-step"><b>・インポート</b>コピーした状態でインポートボタンを押す事でデータがアプリに流し込まれます。</div>
                         </div>
+                        <button class="btn-data-main btn-import" onclick="confirmImport1()" style="margin-top:10px;">データをインポート</button>
                     </div>
                 </div>
             </div>
@@ -611,11 +613,46 @@
             navigator.clipboard.writeText(output).then(() => { toast("コピー完了。<br>ExcelやGoogleスプレッドシートに<br>貼り付けてください"); });
         }
 
+        /* インポート 独自モーダル2段階フロー (ver.1.84) */
+        function confirmImport1() {
+            const msg = "データをインポートしますか？";
+            showCustomConfirm(msg, "はい", "キャンセル", () => confirmImport2());
+        }
+
+        function confirmImport2() {
+            const msg = "既に発番済の行を修正や上書きしたデータは上書き登録されます。\nデータをインポートしますか？";
+            showCustomConfirm(msg, "インポートする", "キャンセル", () => importExcelAll());
+        }
+
+        function showCustomConfirm(msg, okTxt, cancelTxt, onOk) {
+            const over = document.getElementById('delete-overlay');
+            const msgEl = document.getElementById('del-msg');
+            const okBtn = document.getElementById('del-exec');
+            const cancelBtn = document.getElementById('del-cancel');
+            
+            msgEl.innerText = msg;
+            okBtn.innerText = okTxt;
+            okBtn.style.background = "#007AFF"; // インポート系は青
+            cancelBtn.innerText = cancelTxt;
+            
+            okBtn.onclick = () => { over.style.display = 'none'; onOk(); resetDelModal(); };
+            cancelBtn.onclick = () => { over.style.display = 'none'; resetDelModal(); };
+            over.style.display = 'flex';
+        }
+
+        function resetDelModal() {
+            const okBtn = document.getElementById('del-exec');
+            okBtn.style.background = "#FF3B30";
+            okBtn.innerText = "削除";
+            okBtn.onclick = execDel;
+            document.getElementById('del-msg').innerText = "削除しますか？";
+            document.getElementById('del-cancel').innerText = "戻る";
+        }
+
         async function importExcelAll() {
             try {
                 const text = await navigator.clipboard.readText();
                 if(!text || (!text.includes('[CARDS]') && !text.includes('[LISTS]'))) { alert("有効なバックアップデータをコピーした状態で実行してください。"); return; }
-                if(!confirm("現在のデータにインポートデータを追加しますか？")) return;
                 const sections = text.split(/\n\s*\n/);
                 sections.forEach(sec => {
                     const lines = sec.trim().split(/\r?\n/); if(lines.length < 2) return;
@@ -623,11 +660,24 @@
                     for(let i=2; i<lines.length; i++) {
                         const row = lines[i].split('\t'); if(row.length < 2) continue;
                         const data = {}; header.forEach((h, idx) => data[h] = row[idx] || '');
+                        
+                        // IDによる上書きロジック追加
+                        let target = db.find(x => x.id === data.id);
                         if(type === '[CARDS]') {
-                            db.push({ id: Date.now().toString() + i, cat: data.cat||'none', date: data.date||fmtDate(), card: {t:data.t, b:data.b, u:data.u, a:data.a}, list: {} });
+                            if(target) {
+                                target.cat = data.cat || target.cat;
+                                target.card = {t:data.t, b:data.b, u:data.u, a:data.a};
+                            } else {
+                                db.push({ id: data.id || Date.now().toString() + i, cat: data.cat||'none', date: data.date||fmtDate(), card: {t:data.t, b:data.b, u:data.u, a:data.a}, list: {} });
+                            }
                         } else if(type === '[LISTS]') {
                             const lObj = {}; L_KEYS.forEach(k => lObj[k] = data[k] || '');
-                            db.push({ id: Date.now().toString() + i, cat: data.cat||'none', date: data.date||fmtDate(), card: {}, list: lObj });
+                            if(target) {
+                                target.cat = data.cat || target.cat;
+                                target.list = lObj;
+                            } else {
+                                db.push({ id: data.id || Date.now().toString() + i, cat: data.cat||'none', date: data.date||fmtDate(), card: {}, list: lObj });
+                            }
                         }
                     }
                 });
