@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RopMemo v1.80</title>
+    <title>RopMemo v1.84</title>
     <style>
         :root {
             --bg-cate01: #D9D2E9; --bg-cate02: #EAD1DC; --bg-cate03: #FFF2CC; --bg-cate04: #D1EAF0;
@@ -17,25 +17,14 @@
         }
         body { background-color: #000; height: 100vh; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; overflow: hidden; position: relative; }
         
-        /* タップエフェクト用CSS (ver.1.79 視認性強化版) */
+        /* タップエフェクト (ver.1.82継承) */
         .tap-ripple {
-            position: fixed;
-            width: 30px;
-            height: 30px;
-            background: rgba(255, 255, 255, 0.75);
-            border-radius: 50%;
-            pointer-events: none;
-            transform: translate(-50%, -50%) scale(0);
-            z-index: 99999;
-            transition: transform 0.1s ease-out;
-            box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
+            position: fixed; width: 30px; height: 30px; background: rgba(255, 255, 255, 0.75);
+            border-radius: 50%; pointer-events: none; transform: translate(-50%, -50%) scale(0);
+            z-index: 99999; transition: transform 0.1s ease-out; box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
         }
         .tap-ripple.active { transform: translate(-50%, -50%) scale(1); }
-        .tap-ripple.fade-out { 
-            transform: translate(-50%, -50%) scale(1.4);
-            opacity: 0;
-            transition: transform 0.4s ease-out, opacity 0.4s ease-out;
-        }
+        .tap-ripple.fade-out { transform: translate(-50%, -50%) scale(1.4); opacity: 0; transition: transform 0.4s ease-out, opacity 0.4s ease-out; }
 
         #header-outer { width: 92%; display: flex; flex-direction: column; align-items: flex-end; margin-bottom: 3px; color: #999; position: relative; }
         .logo-text { font-size: 26px; font-weight: 900; letter-spacing: -1.5px; cursor: pointer; display: flex; align-items: center; color: #FFF; opacity: 0.8; }
@@ -87,74 +76,87 @@
         #btn-reg-quick { align-self: flex-end; background: #333; color: #FFF; border: none; padding: 4px 14px; margin: 0 12px 10px 0; border-radius: 12px; font-size: 10px; font-weight: bold; cursor: pointer; }
 
         .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; z-index: 1000; justify-content: center; align-items: flex-end; backdrop-filter: blur(2px); }
-        .win { width: 92%; height: 44%; background: #D6D6D6; border-radius: 25px; margin-bottom: 5%; padding: 15px; display: flex; flex-direction: column; gap: 8px; position: relative; }
-        .set-scroll { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; scrollbar-width: none; }
-        .set-row { background: #FFF; border-radius: 8px; padding: 8px; display: flex; flex-direction: column; gap: 2px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-        .btn-l { width: 100%; height: 36px; background: #444; color: #FFF; border: none; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer; }
-        .set-label { font-size: 9px; color: #888; font-weight: bold; }
-        .id-label { color: #999; font-size: 7px; margin-top: 1px; align-self: flex-end; font-weight: normal; line-height: 1; }
-        .input-mini { height: 28px; font-size: 11px; padding: 0 8px; border-radius: 5px; border: 1px solid #DDD; width: 100%; }
-        .copy-btn-inline { font-size: 9px; background: #EEE; border: 1px solid #DDD; padding: 3px 7px; border-radius: 4px; cursor: pointer; }
+        .win { width: 92%; height: 92%; background: #D6D6D6; border-radius: 25px; margin-bottom: 2%; padding: 15px; display: flex; flex-direction: column; gap: 8px; position: relative; }
+        .set-scroll { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; scrollbar-width: none; padding-bottom: 20px; }
+        .set-row { background: #FFF; border-radius: 8px; padding: 10px; display: flex; flex-direction: column; gap: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 15px; }
+        .set-section-title { font-size: 12px; font-weight: bold; color: #333; margin: 5px 0 8px 4px; display: flex; align-items: center; gap: 5px; }
+        .btn-l { width: 100%; height: 44px; background: #444; color: #FFF; border: none; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; flex-shrink: 0; }
+        .set-label { font-size: 10px; color: #888; font-weight: bold; margin-bottom: 2px; }
+        .id-label { color: #BBB; font-size: 7px; margin-top: 1px; align-self: flex-end; font-weight: normal; }
+        .input-mini { height: 32px; font-size: 12px; padding: 0 10px; border-radius: 6px; border: 1px solid #DDD; width: 100%; }
+        .copy-btn-inline { font-size: 9px; background: #EEE; border: 1px solid #DDD; padding: 4px 8px; border-radius: 4px; cursor: pointer; }
         .win-label { position: absolute; top: -12px; left: 20px; font-size: 8px; background: #555; color: #FFF; padding: 2px 8px; border-radius: 4px; font-weight: bold; z-index: 10; }
         
-        /* トグルスイッチ用デザイン */
-        .toggle-row { display: flex; justify-content: space-between; align-items: center; }
-        .switch { position: relative; display: inline-block; width: 40px; height: 22px; }
+        .toggle-row { flex-direction: row; justify-content: space-between; align-items: center; }
+        .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
         .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .3s; border-radius: 22px; }
-        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .3s; border-radius: 24px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; }
         input:checked + .slider { background-color: #007AFF; }
-        input:checked + .slider:before { transform: translateX(18px); }
+        input:checked + .slider:before { transform: translateX(20px); }
 
-        /* リスト詳細用比率設定 (ver.1.80) */
-        .flex-box { display: flex; flex-wrap: wrap; gap: 4px; width: 100%; }
-        .w-16 { width: calc(16% - 4px); }
-        .w-20 { width: calc(20% - 4px); }
-        .w-23 { width: calc(23% - 4px); }
-        .w-25 { width: calc(25% - 4px); }
-        .w-30 { width: calc(30% - 4px); }
-        .w-60 { width: calc(60% - 4px); }
-        .w-80 { width: calc(80% - 4px); }
+        .flex-box { display: flex; flex-wrap: wrap; gap: 6px; width: 100%; }
+        /* リスト詳細四段目比率 (ver.1.84) */
+        .shrink-font { font-size: 10px !important; white-space: nowrap; overflow: hidden; }
+        .w-16 { width: calc(16% - 6px); }
+        .w-20 { width: calc(20% - 6px); }
+        .w-23 { width: calc(23% - 6px); }
+        .w-25 { width: calc(25% - 6px); }
+        .w-18 { width: calc(18% - 6px); }
+        .w-30 { width: calc(30% - 6px); }
+        .w-60 { width: calc(60% - 6px); }
+        .w-80 { width: calc(80% - 6px); }
         .w-100 { width: 100%; }
-        .shrink-font { overflow: hidden; white-space: nowrap; }
 
-        .set-tabs { display: flex; gap: 5px; margin-bottom: 5px; }
-        .set-tab-btn { flex:1; padding: 8px; font-size: 10px; border-radius: 8px; border: none; background: #CCC; color: #666; font-weight: bold; cursor: pointer; }
-        .set-tab-btn.active { background: #007AFF; color: #FFF; }
+        .set-tabs { display: flex; gap: 8px; margin-bottom: 10px; flex-shrink: 0; }
+        .set-tab-btn { flex:1; padding: 12px; font-size: 11px; border-radius: 10px; border: none; background: #CCC; color: #666; font-weight: bold; cursor: pointer; }
+        .set-tab-btn.active { background: #007AFF; color: #FFF; box-shadow: 0 2px 6px rgba(0,122,255,0.3); }
 
-        #toast { position: fixed; bottom: 41.5%; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); color: #fff; padding: 10px 24px; border-radius: 20px; font-size: 11px; font-weight: bold; display: none; z-index: 9999; text-align: center; }
-        .sort-icon { display: inline-block; width: 12px; text-align: center; font-size: 8px; margin-left: 1px; color: #007AFF; }
-        
-        .io-area { margin-top: 10px; border-top: 1px dashed #CCC; padding-top: 10px; }
-        .data-card-title { font-size: 11px; font-weight: bold; color: #333; margin: 8px 0 4px 4px; display: flex; align-items: center; }
-        .io-btn { background: #EEE; color: #333; font-size: 10px; padding: 6px; border-radius: 4px; border: 1px solid #DDD; cursor: pointer; width: 100%; margin-bottom: 5px; font-weight: bold; }
-        .io-text { width: 100%; height: 60px; font-size: 9px; padding: 5px; border: 1px solid #DDD; border-radius: 4px; resize: none; background: #FFF; }
+        /* データ管理UI刷新 (ver.1.84 見出し構成変更) */
+        .data-card { background: #FFF; border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .data-card-title { font-size: 11px; font-weight: bold; color: #333; margin-bottom: 8px; }
+        .data-stats-row { display: flex; gap: 10px; margin-bottom: 5px; }
+        .data-stat-box { flex: 1; background: #F8F8F8; padding: 10px; border-radius: 8px; text-align: center; border: 1px solid #EEE; }
+        .stat-val { font-size: 16px; font-weight: bold; color: #007AFF; display: block; }
+        .stat-lab { font-size: 8px; color: #888; }
+        .data-help-box { border: 1.5px solid #EEE; border-radius: 10px; padding: 12px; margin-top: 8px; background: #FCFCFC; }
+        .data-help-step { font-size: 10px; color: #444; margin-bottom: 10px; line-height: 1.5; }
+        .data-help-step b { color: #000; display: block; margin-bottom: 2px; }
+        .data-help-step:last-child { margin-bottom: 0; }
+        .data-sub-text { font-size: 9px; color: #888; margin-top: 3px; }
+        .btn-data-main { width: 100%; padding: 14px; border: none; border-radius: 12px; font-size: 13px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .btn-data-main:active { opacity: 0.7; transform: scale(0.98); }
+        .btn-backup { background: #007AFF; color: #FFF; box-shadow: 0 4px 10px rgba(0,122,255,0.25); }
+        .btn-import { background: #34C759; color: #FFF; box-shadow: 0 4px 10px rgba(52,199,89,0.25); }
 
-        .mailer-toggle { display: flex; gap: 0; background: #EEE; border-radius: 6px; overflow: hidden; margin-top: 5px; border: 1px solid #DDD; }
-        .mailer-btn { flex: 1; border: none; padding: 8px; font-size: 10px; cursor: pointer; background: transparent; color: #666; font-weight: bold; }
+        .mailer-toggle { display: flex; gap: 0; background: #EEE; border-radius: 8px; overflow: hidden; margin-top: 5px; border: 1px solid #DDD; }
+        .mailer-btn { flex: 1; border: none; padding: 10px; font-size: 11px; cursor: pointer; background: transparent; color: #666; font-weight: bold; }
         .mailer-btn.active { background: #007AFF; color: #FFF; }
 
-        .tmpl-list-btn { width: 100%; text-align: left; padding: 12px; background: #FFF; border: none; border-bottom: 1px solid #EEE; font-size: 11px; font-weight: bold; color: #333; }
-        .tmpl-list-btn:last-child { border-bottom: none; }
-        .tmpl-list-btn:active { background: #F0F0F0; }
-
+        #toast { position: fixed; bottom: 41.5%; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); color: #fff; padding: 10px 24px; border-radius: 20px; font-size: 11px; font-weight: bold; display: none; z-index: 9999; text-align: center; line-height: 1.4; }
+        
+        /* 起動モーダル配色戻し (ver.1.83) */
         #welcome-overlay { display: none; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
-        .welcome-win { width: 85%; background: #FFF; border-radius: 25px; padding: 30px 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; display: flex; flex-direction: column; gap: 20px; animation: popUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .welcome-win { width: 85%; background: #FFF; border-radius: 25px; padding: 30px 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; display: flex; flex-direction: column; gap: 20px; animation: popUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; color: #333; }
         @keyframes popUp { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        .welcome-msg { font-size: 13px; line-height: 1.8; color: #333; font-weight: bold; white-space: pre-wrap; }
+        .welcome-msg { font-size: 13px; line-height: 1.8; color: #444; font-weight: bold; white-space: pre-wrap; }
         .welcome-logo { font-size: 24px; font-weight: 900; color: #000; margin-top: 10px; border-top: 1px solid #EEE; padding-top: 15px; }
         .welcome-btn { background: #007AFF; color: #FFF; border: none; padding: 12px 0; border-radius: 12px; font-weight: bold; font-size: 14px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,122,255,0.3); }
+        .welcome-ver { position: absolute; bottom: 12px; right: 20px; font-size: 8px; color: #CCC; }
 
         .dest-info { background: rgba(0,0,0,0.05); border-radius: 10px; padding: 10px; margin-bottom: 8px; font-size: 11px; border-left: 4px solid #555; }
         .dest-row { display: flex; margin-bottom: 2px; }
         .dest-label { width: 55px; color: #888; font-weight: bold; font-size: 9px; }
         .dest-val { flex: 1; color: #333; font-weight: bold; }
+        .tmpl-list-btn { width: 100%; text-align: left; padding: 14px; background: #FFF; border: none; border-bottom: 1px solid #EEE; font-size: 12px; font-weight: bold; color: #333; }
+        .tmpl-list-btn:last-child { border-bottom: none; }
+        .tmpl-list-btn:active { background: #F0F0F0; }
     </style>
 </head>
 <body onload="boot()">
     <div id="header-outer">
         <div class="logo-text" onclick="openSet()">RopMemo<span>⚙</span></div>
-        <div class="ver-text">ver.1.80</div>
+        <div class="ver-text">ver.1.84</div>
     </div>
 
     <div id="main-window">
@@ -197,6 +199,7 @@
 気になる動画や情報もクイック登録！</div>
             <div class="welcome-logo">『RopMemo』</div>
             <button class="welcome-btn" onclick="cls()">はじめる</button>
+            <div class="welcome-ver">ver.1.84</div>
         </div>
     </div>
 
@@ -218,7 +221,7 @@
             <div class="set-scroll">
                 <input type="text" id="cn-url" placeholder="URL" class="input-mini" style="margin-bottom:5px;">
                 <input type="text" id="cn-alt" placeholder="代替テキスト" class="input-mini" style="margin-bottom:5px;">
-                <select id="cn-cat" style="height:28px; font-size:11px; border-radius:5px; border:1px solid #DDD; width:100%; margin-bottom:5px;">
+                <select id="cn-cat" style="height:32px; font-size:12px; border-radius:6px; border:1px solid #DDD; width:100%; margin-bottom:5px;">
                     <option value="cate01" id="opt-c1">ブッキング</option><option value="cate02" id="opt-c2">グルメ</option><option value="cate03" id="opt-c3">AI</option><option value="cate04" id="opt-c4">保存</option><option value="none">[未分類]</option>
                 </select>
                 <div style="flex:1; background:#FFF; border-radius:8px; padding:10px; display:flex; flex-direction:column; min-height:100px;">
@@ -237,91 +240,119 @@
     </div>
 
     <div id="ed-list" class="overlay">
-        <div class="win" style="height: auto; max-height: 92%; margin-bottom: 2%;">
-            <div class="win-label">[リストデータ詳細編集]</div>
+        <div class="win">
+            <div style="font-size:14px; font-weight:900; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center; color:#000;">⚙ リストデータ詳細編集 <span onclick="cls()" style="cursor:pointer; font-size:20px; color:#888;">✕</span></div>
             <div class="set-scroll">
                 <div class="flex-box">
                     <div class="set-row w-20"><div class="set-label">50音</div><input type="text" id="ln-furigana" class="input-mini"><span class="id-label">furigana</span></div>
                     <div class="set-row w-80"><div class="set-label">グループ名</div><input type="text" id="ln-name" class="input-mini"><span class="id-label">name</span></div>
                     <div class="set-row w-100"><div class="set-label">担当者</div><input type="text" id="ln-tanto" class="input-mini"><span class="id-label">tanto</span></div>
                     <div class="set-row w-100"><div class="set-label">連絡先</div><input type="text" id="ln-adress" class="input-mini"><span class="id-label">adress</span></div>
+                    <div class="set-row w-16"><div class="set-label shrink-font">フラグ</div><select id="ln-flag" class="list-select"><option value="">なし</option><option value="🚩">🚩</option><option value="済">済</option><option value="🙆‍♀️">🙆‍♀️</option><option value="🙅‍♀️">🙅‍♀️</option></select><span class="id-label">flag</span></div>
+                    <div class="set-row w-16"><div class="set-label shrink-font">手段</div><select id="ln-meth" class="list-select"><option value="">なし</option><option value="L">L</option><option value="✉️">✉️</option><option value="𝕏">𝕏</option><option value="🗒">🗒</option></select><span class="id-label">meth</span></div>
+                    <div class="set-row w-25"><div class="set-label shrink-font">案内日</div><input type="text" id="ln-date" class="input-mini"><span class="id-label">date</span></div>
+                    <div class="set-row w-20"><div class="set-label shrink-font">ヨミ</div><input type="text" id="ln-yomi" class="input-mini"><span class="id-label">yomi</span></div>
+                    <div class="set-row w-23"><div class="set-label shrink-font">出演経験</div><select id="ln-kako" class="list-select"><option value="">なし</option><option value="有">有</option><option value="無">無</option></select><span class="id-label">kako</span></div>
                     
-                    <div class="set-row w-16 shrink-font"><div class="set-label">ヨミ</div><input type="text" id="ln-yomi" class="input-mini"><span class="id-label">yomi</span></div>
-                    <div class="set-row w-16 shrink-font"><div class="set-label">出演経験</div><select id="ln-kako" class="list-select"><option value="">なし</option><option value="有">有</option><option value="無">無</option></select><span class="id-label">kako</span></div>
-                    <div class="set-row w-25 shrink-font"><div class="set-label">写真</div><select id="ln-satueP" class="list-select"><option value="">なし</option><option value="⭕️">⭕️</option><option value="❌">❌</option></select><span class="id-label">satueP</span></div>
-                    <div class="set-row w-20 shrink-font"><div class="set-label">動画</div><select id="ln-satueM" class="list-select"><option value="">なし</option><option value="⭕️">⭕️</option><option value="❌">❌</option></select><span class="id-label">satueM</span></div>
-                    <div class="set-row w-23 shrink-font"><div class="set-label">フラグ</div><select id="ln-flag" class="list-select"><option value="">なし</option><option value="🚩">🚩</option><option value="済">済</option><option value="🙆‍♀️">🙆‍♀️</option><option value="🙅‍♀️">🙅‍♀️</option></select><span class="id-label">flag</span></div>
-
-                    <div class="set-row w-30"><div class="set-label">手段</div><select id="ln-meth" class="list-select"><option value="">なし</option><option value="L">L</option><option value="✉️">✉️</option><option value="𝕏">𝕏</option><option value="🗒">🗒</option></select><span class="id-label">meth</span></div>
-                    <div class="set-row w-30"><div class="set-label">案内日</div><input type="text" id="ln-date" class="input-mini"><span class="id-label">date</span></div>
-                    <div class="set-row w-60"><div class="set-label">要望</div><textarea id="ln-note" style="height:28px; font-size:11px; border:1px solid #DDD; border-radius:4px; padding:5px; resize:none; width:100%;"></textarea><span class="id-label">note</span></div>
+                    <div class="set-row w-18"><div class="set-label">写真</div><select id="ln-satueP" class="list-select"><option value="">なし</option><option value="⭕️">⭕️</option><option value="❌">❌</option></select><span class="id-label">satueP</span></div>
+                    <div class="set-row w-18"><div class="set-label">動画</div><select id="ln-satueM" class="list-select"><option value="">なし</option><option value="⭕️">⭕️</option><option value="❌">❌</option></select><span class="id-label">satueM</span></div>
+                    <div class="set-row w-60"><div class="set-label">要望</div><textarea id="ln-note" style="height:32px; font-size:11px; border:1px solid #DDD; border-radius:4px; padding:5px; resize:none; width:100%;"></textarea><span class="id-label">note</span></div>
                     <div class="set-row w-100"><div class="set-label">アー写</div><input type="text" id="ln-photo" class="input-mini"><span class="id-label">photo</span></div>
                 </div>
             </div>
             <div style="display:flex; gap:8px; margin-top:5px;">
-                <button onclick="cls()" class="btn-l" style="background:#FFF; color:#333;">戻る</button>
-                <button id="btn-del-trigger-l" onclick="document.getElementById('delete-overlay').style.display='flex'" style="background:#FFF; color:#FF3B30; display:none;" class="btn-l">削除</button>
-                <button onclick="saveL()" class="btn-l">保存</button>
+                <button onclick="cls()" class="btn-l" style="background:#FFF; color:#333; flex:1;">戻る</button>
+                <button id="btn-del-trigger-l" onclick="document.getElementById('delete-overlay').style.display='flex'" style="background:#FFF; color:#FF3B30; display:none; flex:1;" class="btn-l">削除</button>
+                <button onclick="saveL()" class="btn-l" style="flex:1; background:#007AFF;">保存</button>
             </div>
         </div>
     </div>
 
     <div id="delete-overlay" class="overlay">
         <div class="win" style="background:#D6D6D6; height:auto; width:70%;">
-            <div id="del-msg" style="text-align:center; font-weight:bold; font-size:13px; margin:10px 0 20px 0; color:#333;">削除しますか？</div>
+            <div id="del-msg" style="text-align:center; font-weight:bold; font-size:13px; margin:10px 0 20px 0; color:#333; white-space:pre-wrap;">削除しますか？</div>
             <div style="display:flex; gap:8px;"><button id="del-cancel" onclick="cls()" style="flex:1; height:34px; border:none; border-radius:8px; background:#FFF;">戻る</button><button id="del-exec" onclick="execDel()" style="flex:1; height:34px; border:none; border-radius:8px; background:#FF3B30; color:#FFF;">削除</button></div>
         </div>
     </div>
 
     <div id="ed-set" class="overlay">
-        <div class="win" style="background:#ECECEC; height: 50%;">
-            <div style="font-size:12px; font-weight:bold; margin-bottom:8px; display:flex; justify-content:space-between; color:#333;">⚙ アプリ設定 <span onclick="cls()" style="cursor:pointer; font-size:16px;">✕</span></div>
+        <div class="win" style="background:#ECECEC;">
+            <div style="font-size:14px; font-weight:900; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center; color:#000;">⚙ アプリ設定 <span onclick="cls()" style="cursor:pointer; font-size:20px; color:#888;">✕</span></div>
             <div class="set-tabs">
-                <button id="set-tab-card" class="set-tab-btn active" onclick="switchSetTab('card')">カード表示設定</button>
-                <button id="set-tab-list" class="set-tab-btn" onclick="switchSetTab('list')">リスト表示設定</button>
+                <button id="set-tab-card" class="set-tab-btn active" onclick="switchSetTab('card')">基本設定</button>
+                <button id="set-tab-list" class="set-tab-btn" onclick="switchSetTab('list')">データ管理</button>
             </div>
             <div class="set-scroll">
                 <div id="set-content-card">
-                    <div class="set-row">
-                        <div class="set-label">カテゴリ名</div>
-                        <input type="text" id="sn-1" class="input-mini" style="margin-bottom:2px;">
-                        <input type="text" id="sn-2" class="input-mini" style="margin-bottom:2px;">
-                        <input type="text" id="sn-3" class="input-mini" style="margin-bottom:2px;">
-                        <input type="text" id="sn-4" class="input-mini" style="margin-bottom:2px;">
-                    </div>
-                    <div class="set-row">
-                        <div class="set-label">カードフォント (px)</div>
-                        <div style="display:flex; align-items:center; gap:10px; font-size:11px;">タイトル：<input type="number" id="sf-t" style="width:50px;"> 本文：<input type="number" id="sf-b" style="width:50px;"></div>
-                    </div>
+                    <div class="set-section-title">◾︎ 共通</div>
                     <div class="set-row toggle-row">
-                        <div class="set-label">タップエフェクト（白く光る）</div>
+                        <div class="set-label">タップエフェクト（⭕️）</div>
                         <label class="switch"><input type="checkbox" id="st-tap"><span class="slider"></span></label>
+                    </div>
+                    <div class="set-row">
+                        <div class="set-label">カテゴリタブ設定（表示名）</div>
+                        <div class="flex-box">
+                            <input type="text" id="sn-1" class="input-mini w-100" placeholder="1: ブッキング" style="margin-bottom:2px;">
+                            <input type="text" id="sn-2" class="input-mini w-100" placeholder="2: グルメ" style="margin-bottom:2px;">
+                            <input type="text" id="sn-3" class="input-mini w-100" placeholder="3: AI" style="margin-bottom:2px;">
+                            <input type="text" id="sn-4" class="input-mini w-100" placeholder="4: 保存" style="margin-bottom:2px;">
+                        </div>
+                    </div>
+                    <div class="set-section-title">◾︎ カード表示画面</div>
+                    <div class="set-row">
+                        <div class="set-label">カードフォントサイズ (px)</div>
+                        <div style="display:flex; align-items:center; gap:15px; font-size:12px; padding:5px 0;">
+                            <div>タイトル：<input type="number" id="sf-t" style="width:60px; height:32px; text-align:center; border:1px solid #DDD; border-radius:6px;"></div>
+                            <div>本文：<input type="number" id="sf-b" style="width:60px; height:32px; text-align:center; border:1px solid #DDD; border-radius:6px;"></div>
+                        </div>
+                    </div>
+                    <div class="set-section-title">◾︎ リスト表示画面</div>
+                    <div class="set-row">
+                        <div class="set-label">リスト表示設定（名称 / 横幅）</div>
+                        <div id="list-cols-config" style="display:flex; flex-direction:column; gap:6px; margin-top:5px;"></div>
+                    </div>
+                    <div class="set-row">
+                        <div class="set-label">スマート連絡📲設定（メーラー選択）</div>
+                        <div class="mailer-toggle">
+                            <button id="mb-standard" class="mailer-btn" onclick="setMailer('standard')">標準メーラー</button>
+                            <button id="mb-gmail" class="mailer-btn" onclick="setMailer('gmail')">Gmailアプリ</button>
+                        </div>
                     </div>
                 </div>
                 <div id="set-content-list" style="display:none;">
-                    <div class="set-row">
-                        <div class="set-label">メール下書き連携</div>
-                        <div class="mailer-toggle">
-                            <button id="mb-standard" class="mailer-btn" onclick="setMailer('standard')">端末の標準メーラー</button>
-                            <button id="mb-gmail" class="mailer-btn" onclick="setMailer('gmail')">Gmail</button>
+                    <div class="data-card">
+                        <div class="data-card-title">◾︎ 現在の登録データ</div>
+                        <div class="data-stats-row">
+                            <div class="data-stat-box"><span id="cnt-card" class="stat-val">0</span><span class="stat-lab">[カード登録：x件]</span></div>
+                            <div class="data-stat-box"><span id="cnt-list" class="stat-val">0</span><span class="stat-lab">[リスト登録：x件]</span></div>
                         </div>
                     </div>
-                    <div class="set-row" id="list-cols-config"></div>
-                    
-                    <div class="io-area">
-                        <div class="data-card-title">現在の登録データ</div>
-                        <button class="io-btn" onclick="exportListData()">全データをコピー (Excel用)</button>
-                        
-                        <div class="data-card-title">データのバックアップ</div>
-                        <button class="io-btn" onclick="backupDB()">バックアップ用テキストを出力</button>
 
-                        <div class="data-card-title">データのインポート</div>
-                        <textarea id="io-input" class="io-text" placeholder="Excelデータを貼り付け"></textarea>
-                        <button class="io-btn" style="background:#007AFF; color:#FFF; border:none;" onclick="confirmImport()">インポート</button>
+                    <div class="data-card">
+                        <div class="data-card-title">◾︎ データのバックアップ</div>
+                        <div class="data-sub-text">アプリ内のデータを万が一に備えて保管する</div>
+                        <div class="data-help-box">
+                            <div class="data-card-title" style="font-size:9px; margin-bottom:5px;">◾︎ バックアップ手順</div>
+                            <div class="data-help-step"><b>・データコピー</b>バックアップボタンを押すとアプリ内の全カードデータと全リストデータがテキストデータとしてコピーされます。</div>
+                            <div class="data-help-step"><b>・保管</b>コピーされたデータをExcelやGoogleスプレッドシートにそのまま貼り付ける事で表組みされた状態で貼り付けられます。このファイルをバックアップデータとして保管してください。</div>
+                        </div>
+                        <button class="btn-data-main btn-backup" onclick="exportExcelAll()" style="margin-top:10px;">データをバックアップ</button>
+                        <div class="data-sub-text" style="text-align:center;">アプリ内データがクリップボードにコピーされます</div>
+                    </div>
+
+                    <div class="data-card">
+                        <div class="data-card-title">◾︎ データのインポート</div>
+                        <div class="data-sub-text">アプリにデータを流し込んで(インポート)、データを一括追加したり復元したりできます。</div>
+                        <div class="data-help-box">
+                            <div class="data-card-title" style="font-size:9px; margin-bottom:5px;">◾︎ インポート手順</div>
+                            <div class="data-help-step"><b>・データ準備</b>バックアップファイル(ExcelやGoogleスプレッドシート)を開いてインポートするデータを項目名の行も含めて全て選択してコピーします。</div>
+                            <div class="data-help-step"><b>・インポート</b>コピーした状態でインポートボタンを押す事でデータがアプリに流し込まれます。</div>
+                        </div>
+                        <button class="btn-data-main btn-import" onclick="confirmImport1()" style="margin-top:10px;">データをインポート</button>
                     </div>
                 </div>
             </div>
-            <button class="btn-l" style="background:#007AFF; height:40px; margin-top:5px;" onclick="saveSet()">設定を保存</button>
+            <button class="btn-l" style="background:#007AFF; box-shadow: 0 4px 10px rgba(0,122,255,0.3);" onclick="saveSet()">設定を保存して閉じる</button>
         </div>
     </div>
 
@@ -351,10 +382,9 @@
         function fmtDate() { const d = new Date(); const w = ["日","月","火","水","木","金","土"][d.getDay()]; return `${d.getFullYear()}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getDate().toString().padStart(2,'0')}(${w})${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`; }
 
         function boot() { 
-            fixConfStructure();
-            applyConf(); 
-            go('cate01');
-            openWelcome();
+            fixConfStructure(); applyConf(); go('cate01');
+            const welcomeSeen = sessionStorage.getItem('rop_welcome');
+            if(!welcomeSeen) { document.getElementById('welcome-overlay').style.display = 'flex'; }
             initTapEffect();
         }
 
@@ -375,15 +405,7 @@
             document.addEventListener('pointercancel', endRipple);
         }
 
-        function openWelcome() { document.getElementById('welcome-overlay').style.display = 'flex'; }
-
         function fixConfStructure() {
-            let cols = conf.listCols;
-            let adIdx = cols.findIndex(c => c.id === 'adress');
-            let edIdx = cols.findIndex(c => c.id === 'edit');
-            if (adIdx === -1) { cols.splice(edIdx === -1 ? cols.length : edIdx, 0, {id: 'adress', n: 'スマート<br>連絡', w: 25}); }
-            else if (edIdx !== -1 && adIdx > edIdx) { let adCol = cols.splice(adIdx, 1)[0]; cols.splice(edIdx, 0, adCol); }
-            if (cols.findIndex(c => c.id === 'edit') === -1) { cols.push({id: 'edit', n: '✏️', w: 30}); }
             if (conf.tapEffect === undefined) conf.tapEffect = true;
             localStorage.setItem(CK, JSON.stringify(conf));
         }
@@ -400,20 +422,29 @@
             document.getElementById('sf-t').value = conf.fs.t;
             document.getElementById('sf-b').value = conf.fs.b;
             document.getElementById('st-tap').checked = conf.tapEffect;
+
             const colArea = document.getElementById('list-cols-config');
-            colArea.innerHTML = '<div class="set-label">リスト各列の表示名と横幅(px)</div>';
+            colArea.innerHTML = '';
             conf.listCols.forEach((c, i) => {
-                const row = document.createElement('div'); row.style = "display:flex; gap:5px; align-items:center; margin-top:4px;";
-                row.innerHTML = `<input type="text" id="lc-n-${i}" value="${c.n}" style="flex:1; height:26px; font-size:10px; padding:0 5px; border:1px solid #DDD; border-radius:4px;"><input type="number" id="lc-w-${i}" value="${c.w}" style="width:45px; height:26px; font-size:10px; border:1px solid #DDD; border-radius:4px;">`;
+                const row = document.createElement('div'); row.style = "display:flex; gap:8px; align-items:center;";
+                row.innerHTML = `<input type="text" id="lc-n-${i}" value="${c.n}" style="flex:1; height:32px; font-size:11px; border:1px solid #DDD; border-radius:6px; padding:0 8px;"><input type="number" id="lc-w-${i}" value="${c.w}" style="width:50px; height:32px; font-size:11px; border:1px solid #DDD; border-radius:6px; text-align:center;">`;
                 colArea.appendChild(row);
             });
-            updateMailerUI();
+            updateMailerUI(); updateDataCounters();
+        }
+
+        function updateDataCounters() {
+            const cardCount = db.filter(i => i.card && (i.card.t || i.card.b)).length;
+            const listCount = db.filter(i => i.list && i.list.name).length;
+            const cEl = document.getElementById('cnt-card'); const lEl = document.getElementById('cnt-list');
+            if(cEl) cEl.innerText = cardCount; if(lEl) lEl.innerText = listCount;
         }
 
         function setMailer(m) { conf.mailerMode = m; updateMailerUI(); }
         function updateMailerUI() {
-            document.getElementById('mb-standard').classList.toggle('active', conf.mailerMode === 'standard');
-            document.getElementById('mb-gmail').classList.toggle('active', conf.mailerMode === 'gmail');
+            const bS = document.getElementById('mb-standard'); const bG = document.getElementById('mb-gmail');
+            if(bS) bS.classList.toggle('active', conf.mailerMode === 'standard');
+            if(bG) bG.classList.toggle('active', conf.mailerMode === 'gmail');
         }
 
         function go(k) {
@@ -450,10 +481,9 @@
             else { sortKey = key; sortOrder = 'asc'; } upd();
         }
 
-        let renderTimer = null;
         function upd() {
-            if(renderTimer) cancelAnimationFrame(renderTimer);
             const grid = document.getElementById('card-grid'); const tbody = document.getElementById('list-body'); const thead = document.getElementById('list-head');
+            if(!grid || !tbody || !thead) return;
             grid.innerHTML = ''; tbody.innerHTML = ''; thead.innerHTML = '';
             const hr = document.createElement('tr');
             conf.listCols.forEach(c => {
@@ -463,6 +493,7 @@
                 hr.appendChild(th);
             });
             thead.appendChild(hr);
+
             let filtered = db.filter(i => i.cat === cur);
             const isListView = conf.subStates[cur] === 'sub02';
             if(isListView && sortOrder !== 'reg') {
@@ -473,36 +504,30 @@
                     return sortOrder === 'asc' ? valA.localeCompare(valB, 'ja') : valB.localeCompare(valA, 'ja');
                 });
             } else { filtered.sort((a,b) => b.id.localeCompare(a.id)); }
+
             const dateOptions = []; const now = new Date();
             for(let j=0; j<4; j++){ const t = new Date(now); t.setDate(now.getDate() - j); dateOptions.push(`${t.getMonth()+1}/${t.getDate()}`); }
-            let idx = 0; const chunkSize = 50;
-            let displayCount = 0;
-            function renderChunk() {
-                const limit = Math.min(idx + chunkSize, filtered.length); const fragment = document.createDocumentFragment();
-                for (; idx < limit; idx++) {
-                    const i = filtered[idx];
-                    if(isListView) {
-                        if(!i.list || (!i.list.name && !i.list.flag)) continue;
-                        displayCount++; const tr = document.createElement('tr');
-                        const mkSel = (key, baseOpts, current) => {
-                            let opts = [...baseOpts]; if(current && !opts.includes(String(current))) opts.push(String(current));
-                            let h = `<select class="list-select" onchange="quickSaveL('${i.id}','${key}',this.value)"><option value="">-</option>`;
-                            opts.forEach(o => h += `<option value="${o}" ${String(o)===String(current)?'selected':''}>${o}</option>`);
-                            return h + `</select>`;
-                        };
-                        tr.innerHTML = `<td>${displayCount}</td><td>${mkSel('flag',['🚩','🙆‍♀️','🙅‍♀️','済'],i.list?.flag)}</td><td>${mkSel('meth',['L','✉️','𝕏','🗒'],i.list?.meth)}</td><td style="text-align:left; font-weight:bold; padding-left:4px;">${esc(i.list?.name || '(未設定)')}</td><td>${mkSel('date',dateOptions,i.list?.date)}</td><td>${mkSel('yomi',[0,2,4,6,8,10,12,14],i.list?.yomi)}</td><td><span class="list-edit-btn" onclick="openMailTmpl('${i.id}')">📲</span></td><td><span class="list-edit-btn" onclick="openEd('${i.id}')">✏️</span></td>`;
-                        fragment.appendChild(tr);
-                    } else {
-                        if(!i.card || (!i.card.t && !i.card.b)) continue;
-                        const d = document.createElement('div'); d.className = 'card';
-                        d.innerHTML = `<div class="card-header"><span class="header-title">${esc(i.card?.t)}</span><button class="card-cp-btn" onclick="event.stopPropagation(); copyByTxt('${i.id}')">本文コピー</button></div><div class="card-body"><div class="card-date">${i.date}</div>${esc(i.card?.b).replace(/\n/g,'<br>')}</div><div class="card-footer"><span>ID:${i.id}</span><span class="edit-icon" onclick="openEd('${i.id}')">✏️</span></div>`;
-                        fragment.appendChild(d);
-                    }
+
+            filtered.forEach((i, idx) => {
+                if(isListView) {
+                    if(!i.list || (!i.list.name && !i.list.flag)) return;
+                    const tr = document.createElement('tr');
+                    const mkSel = (key, baseOpts, current) => {
+                        let opts = [...baseOpts]; if(current && !opts.includes(String(current))) opts.push(String(current));
+                        let h = `<select class="list-select" onchange="quickSaveL('${i.id}','${key}',this.value)"><option value="">-</option>`;
+                        opts.forEach(o => h += `<option value="${o}" ${String(o)===String(current)?'selected':''}>${o}</option>`);
+                        return h + `</select>`;
+                    };
+                    tr.innerHTML = `<td>${idx+1}</td><td>${mkSel('flag',['🚩','🙆‍♀️','🙅‍♀️','済'],i.list?.flag)}</td><td>${mkSel('meth',['L','✉️','𝕏','🗒'],i.list?.meth)}</td><td style="text-align:left; font-weight:bold; padding-left:4px;">${esc(i.list?.name || '(未設定)')}</td><td>${mkSel('date',dateOptions,i.list?.date)}</td><td>${mkSel('yomi',[0,2,4,6,8,10,12,14],i.list?.yomi)}</td><td><span class="list-edit-btn" onclick="openMailTmpl('${i.id}')">📲</span></td><td><span class="list-edit-btn" onclick="openEd('${i.id}')">✏️</span></td>`;
+                    tbody.appendChild(tr);
+                } else {
+                    if(!i.card || (!i.card.t && !i.card.b)) return;
+                    const d = document.createElement('div'); d.className = 'card';
+                    d.innerHTML = `<div class="card-header"><span class="header-title">${esc(i.card?.t)}</span><button class="card-cp-btn" onclick="event.stopPropagation(); copyByTxt('${i.id}')">本文コピー</button></div><div class="card-body"><div class="card-date">${i.date}</div>${esc(i.card?.b).replace(/\n/g,'<br>')}</div><div class="card-footer"><span>ID:${i.id}</span><span class="edit-icon" onclick="openEd('${i.id}')">✏️</span></div>`;
+                    grid.appendChild(d);
                 }
-                if(isListView) tbody.appendChild(fragment); else grid.appendChild(fragment);
-                if (idx < filtered.length) renderTimer = requestAnimationFrame(renderChunk);
-            }
-            renderChunk();
+            });
+            updateDataCounters();
         }
 
         function quickSaveL(id, key, val) { const item = db.find(x => x.id === id); if(item && item.list) { item.list[key] = val; localStorage.setItem(SK, JSON.stringify(db)); toast("更新しました"); } }
@@ -514,22 +539,10 @@
             if(conf.subStates[cur] === 'sub02') {
                 L_KEYS.forEach(k => { const el = document.getElementById('ln-'+k); if(el) el.value = i.list?.[k] || ''; });
                 document.getElementById('btn-del-trigger-l').style.display = id ? 'block' : 'none'; document.getElementById('ed-list').style.display = 'flex';
-                applyShrinkFont();
             } else {
                 document.getElementById('cn-title').value = i.card?.t || ''; document.getElementById('cn-body').value = i.card?.b || ''; document.getElementById('cn-url').value = i.card?.u || ''; document.getElementById('cn-alt').value = i.card?.a || ''; document.getElementById('cn-cat').value = i.cat || cur;
                 document.getElementById('btn-del-trigger').style.display = id ? 'block' : 'none'; document.getElementById('ed-card').style.display = 'flex';
             }
-        }
-
-        /* shrink-font ロジック (ver.1.80) */
-        function applyShrinkFont() {
-            const targets = document.querySelectorAll('.shrink-font input, .shrink-font select');
-            targets.forEach(el => {
-                let size = 11; el.style.fontSize = size + 'px';
-                while(el.scrollWidth > el.clientWidth && size > 6) {
-                    size -= 0.5; el.style.fontSize = size + 'px';
-                }
-            });
         }
 
         function openMailTmpl(id) {
@@ -545,7 +558,8 @@
         }
 
         function sendMailFinal(cardId) {
-            const card = db.find(x => x.id === cardId); const subject = card.card?.t || ""; const originalBody = card.card?.b || "";
+            const card = db.find(x => x.id === cardId); 
+            const subject = card.card?.t || ""; const originalBody = card.card?.b || "";
             let ateName = tempDest.tanto ? `${tempDest.name}\n${tempDest.tanto}` : `${tempDest.name}様`; 
             const finalBody = `${ateName}\n\n${originalBody}`;
             navigator.clipboard.writeText(finalBody).then(() => {
@@ -573,12 +587,12 @@
 
         function execDel() { db = db.filter(x => x.id !== eid); saveAll(); cls(); toast("削除しました"); }
         function saveAll() { localStorage.setItem(SK, JSON.stringify(db)); upd(); }
-        function cls() { document.querySelectorAll('.overlay').forEach(o => o.style.display = 'none'); }
-        function toast(m) { const t = document.getElementById('toast'); t.innerHTML = m; t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 1500); }
+        function cls() { document.querySelectorAll('.overlay').forEach(o => o.style.display = 'none'); if(document.getElementById('welcome-overlay').style.display==='none') sessionStorage.setItem('rop_welcome','1'); }
+        function toast(m) { const t = document.getElementById('toast'); t.innerHTML = m; t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 2000); }
         function copyByTxt(id) { const i = db.find(x => x.id === id); navigator.clipboard.writeText(i.card?.b).then(() => { toast("コピー完了"); }); }
         function copyByVal(id) { navigator.clipboard.writeText(document.getElementById(id).value).then(() => toast("コピー完了")); }
         function switchSetTab(t) { document.querySelectorAll('.set-tab-btn').forEach(b => b.classList.toggle('active', b.id === `set-tab-${t}`)); document.getElementById('set-content-card').style.display = t === 'card' ? 'block' : 'none'; document.getElementById('set-content-list').style.display = t === 'list' ? 'block' : 'none'; }
-        function openSet() { document.getElementById('ed-set').style.display = 'flex'; switchSetTab('card'); }
+        function openSet() { document.getElementById('ed-set').style.display = 'flex'; switchSetTab('card'); updateDataCounters(); }
         
         function saveSet() { 
             for(let i=1; i<=4; i++) conf.tabs[`cate0${i}`] = document.getElementById(`sn-${i}`).value; 
@@ -588,46 +602,92 @@
             localStorage.setItem(CK, JSON.stringify(conf)); location.reload(); 
         }
 
+        /* 統合バックアップ (Excel互換タブ区切り) */
+        function exportExcelAll() {
+            const cKeys = ['id','cat','date','t','b','u','a'];
+            const lKeys = ['id','cat','date',...L_KEYS];
+            let output = "[CARDS]\n" + cKeys.join('\t') + "\n";
+            db.forEach(i => { if(i.card?.t || i.card?.b) output += [i.id, i.cat, i.date, i.card.t, i.card.b, i.card.u, i.card.a].map(v => String(v||'').replace(/\t|\n|\r/g, ' ')).join('\t') + "\n"; });
+            output += "\n[LISTS]\n" + lKeys.join('\t') + "\n";
+            db.forEach(i => { if(i.list?.name) output += [i.id, i.cat, i.date, ...L_KEYS.map(k => i.list[k])].map(v => String(v||'').replace(/\t|\n|\r/g, ' ')).join('\t') + "\n"; });
+            navigator.clipboard.writeText(output).then(() => { toast("コピー完了。<br>ExcelやGoogleスプレッドシートに<br>貼り付けてください"); });
+        }
+
+        /* インポート 独自モーダル2段階フロー (ver.1.84) */
+        function confirmImport1() {
+            const msg = "データをインポートしますか？";
+            showCustomConfirm(msg, "はい", "キャンセル", () => confirmImport2());
+        }
+
+        function confirmImport2() {
+            const msg = "既に発番済の行を修正や上書きしたデータは上書き登録されます。\nデータをインポートしますか？";
+            showCustomConfirm(msg, "インポートする", "キャンセル", () => importExcelAll());
+        }
+
+        function showCustomConfirm(msg, okTxt, cancelTxt, onOk) {
+            const over = document.getElementById('delete-overlay');
+            const msgEl = document.getElementById('del-msg');
+            const okBtn = document.getElementById('del-exec');
+            const cancelBtn = document.getElementById('del-cancel');
+            
+            msgEl.innerText = msg;
+            okBtn.innerText = okTxt;
+            okBtn.style.background = "#007AFF"; // インポート系は青
+            cancelBtn.innerText = cancelTxt;
+            
+            okBtn.onclick = () => { over.style.display = 'none'; onOk(); resetDelModal(); };
+            cancelBtn.onclick = () => { over.style.display = 'none'; resetDelModal(); };
+            over.style.display = 'flex';
+        }
+
+        function resetDelModal() {
+            const okBtn = document.getElementById('del-exec');
+            okBtn.style.background = "#FF3B30";
+            okBtn.innerText = "削除";
+            okBtn.onclick = execDel;
+            document.getElementById('del-msg').innerText = "削除しますか？";
+            document.getElementById('del-cancel').innerText = "戻る";
+        }
+
+        async function importExcelAll() {
+            try {
+                const text = await navigator.clipboard.readText();
+                if(!text || (!text.includes('[CARDS]') && !text.includes('[LISTS]'))) { alert("有効なバックアップデータをコピーした状態で実行してください。"); return; }
+                const sections = text.split(/\n\s*\n/);
+                sections.forEach(sec => {
+                    const lines = sec.trim().split(/\r?\n/); if(lines.length < 2) return;
+                    const type = lines[0].trim(); const header = lines[1].split('\t');
+                    for(let i=2; i<lines.length; i++) {
+                        const row = lines[i].split('\t'); if(row.length < 2) continue;
+                        const data = {}; header.forEach((h, idx) => data[h] = row[idx] || '');
+                        
+                        // IDによる上書きロジック追加
+                        let target = db.find(x => x.id === data.id);
+                        if(type === '[CARDS]') {
+                            if(target) {
+                                target.cat = data.cat || target.cat;
+                                target.card = {t:data.t, b:data.b, u:data.u, a:data.a};
+                            } else {
+                                db.push({ id: data.id || Date.now().toString() + i, cat: data.cat||'none', date: data.date||fmtDate(), card: {t:data.t, b:data.b, u:data.u, a:data.a}, list: {} });
+                            }
+                        } else if(type === '[LISTS]') {
+                            const lObj = {}; L_KEYS.forEach(k => lObj[k] = data[k] || '');
+                            if(target) {
+                                target.cat = data.cat || target.cat;
+                                target.list = lObj;
+                            } else {
+                                db.push({ id: data.id || Date.now().toString() + i, cat: data.cat||'none', date: data.date||fmtDate(), card: {}, list: lObj });
+                            }
+                        }
+                    }
+                });
+                saveAll(); toast("インポート完了しました");
+            } catch(e) { alert("インポートに失敗しました。クリップボードを確認してください。"); }
+        }
+
         function createCard(v) { db.push({ id: Date.now().toString(), cat:'none', date:fmtDate(), card:{t:'メモ', b:v, u:'', a:''}, list:{} }); saveAll(); }
         async function pasteNew() { try { const t = await navigator.clipboard.readText(); if(!t) return; toggleFab(); createCard(t); go('none'); toast("クイック登録完了"); } catch(e){} }
         function manualNew() { const v = document.getElementById('qa').value; if(!v) return; toggleFab(); createCard(v); document.getElementById('qa').value=''; go('none'); toast("登録完了"); }
-
-        function backupDB() { navigator.clipboard.writeText(JSON.stringify(db)).then(() => toast("DBをコピーしました")); }
-
-        /* 独自2段階インポート (ver.1.80) */
-        function confirmImport() {
-            const input = document.getElementById('io-input').value.trim(); if(!input) return;
-            showCustomConfirm("データをインポートしますか？", () => {
-                showCustomConfirm("既に発番済の行を修正や上書きしたデータは上書き登録されます。データをインポートしますか？", () => {
-                    importListData();
-                });
-            });
-        }
-
-        function showCustomConfirm(msg, onExec) {
-            document.getElementById('del-msg').innerText = msg;
-            const execBtn = document.getElementById('del-exec');
-            execBtn.innerText = "実行"; execBtn.style.background = "#007AFF";
-            execBtn.onclick = () => { onExec(); cls(); };
-            document.getElementById('del-cancel').onclick = cls;
-            document.getElementById('delete-overlay').style.display = 'flex';
-        }
-
-        function importListData() {
-            const input = document.getElementById('io-input').value.trim(); if(!input) return;
-            const lines = input.split(/\r?\n/); let count = 0;
-            for(let i = 1; i < lines.length; i++) {
-                const cols = lines[i].split('\t'); if(cols.length < 2) continue;
-                const listData = {}; L_KEYS.forEach((k, idx) => listData[k] = cols[idx] || '');
-                db.push({ id: (Date.now() + i).toString(), cat: cur, date: fmtDate(), card: {}, list: listData }); count++;
-            }
-            if(count > 0) { saveAll(); document.getElementById('io-input').value = ''; toast(`${count}件登録`); }
-        }
-
-        function exportListData() {
-            const header = L_KEYS.join('\t'); const rows = db.filter(i => i.list && i.list.name).map(i => L_KEYS.map(k => String(i.list[k] || '').replace(/\t|\n|\r/g, ' ')).join('\t'));
-            navigator.clipboard.writeText([header, ...rows].join('\n')).then(() => toast("コピーしました"));
-        }
     </script>
 </body>
 </html>
