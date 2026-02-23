@@ -27,14 +27,11 @@
         .tap-ripple.fade-out { transform: translate(-50%, -50%) scale(1.4); opacity: 0; transition: transform 0.4s ease-out, opacity 0.4s ease-out; }
 
         #header-outer { width: 92%; display: flex; flex-direction: column; align-items: flex-end; margin-bottom: 3px; color: #999; position: relative; }
-        /* ロゴテキストを下に4mm(15.2px)移動 */
-        .logo-text { font-size: 26px; font-weight: 900; letter-spacing: -1.5px; cursor: pointer; display: flex; align-items: center; color: #FFF; opacity: 0.8; margin-top: 15.2px; }
-        /* ⚙️マークをさらに下に0.5mm(1.9px)移動 */
-        .logo-text span { font-size: 18px; margin-left: 4px; transform: translateY(1.9px); }
-        /* ver名を下に2mm(7.6px)移動 */
-        .ver-text { font-size: 10px; padding-right: 28px; color: #666; margin-top: 2.6px; }
+        .logo-text { font-size: 26px; font-weight: 900; letter-spacing: -1.5px; cursor: pointer; display: flex; align-items: center; color: #FFF; opacity: 0.8; }
+        .logo-text span { font-size: 18px; margin-left: 4px; }
+        .ver-text { font-size: 10px; padding-right: 28px; color: #666; margin-top: -5px; }
 
-        #main-window { width: 92%; height: calc(44% + 38px); background: var(--base-grey); border-radius: 20px 20px 25px 25px; overflow: hidden; display: flex; flex-direction: column; position: relative; z-index: 5; }
+        #main-window { width: 92%; height: calc(44% + 68px); background: var(--base-grey); border-radius: 20px 20px 25px 25px; overflow: hidden; display: flex; flex-direction: column; position: relative; z-index: 5; }
         .tabs { display: flex; background: var(--base-grey); height: 32px; align-items: flex-end; width: 100%; border-bottom: 1px solid rgba(0,0,0,0.05); padding: 0 4px; gap: 1px; }
         .tab { flex: 1; text-align: center; padding: 6px 0; font-size: 7.5px; font-weight: bold; color: #444; border-radius: 6px 6px 0 0; cursor: pointer; background: #BBB; transition: 0.2s; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; height: 24px; }
         .tab.active { background: var(--cur-bg) !important; color: #000; height: 28px; z-index: 2; border: 1px solid rgba(0,0,0,0.1); border-bottom: none; }
@@ -242,7 +239,7 @@
             <div style="display:flex; justify-content:space-between; margin-top:5px;">
                 <button onclick="cls()" style="font-size:11px; padding:8px 16px; border:none; background:#FFF; border-radius:6px;">戻る</button>
                 <div style="display:flex; gap:6px;">
-                    <button id="btn-del-trigger-c" onclick="openDelConfirm()" style="font-size:11px; padding:8px 16px; border:none; background:#FFF; color:#FF3B30; border-radius:6px; display:none;">削除</button>
+                    <button id="btn-del-trigger" onclick="openDelConfirm()" style="font-size:11px; padding:8px 16px; border:none; background:#FFF; color:#FF3B30; border-radius:6px; display:none;">削除</button>
                     <button onclick="saveC()" style="font-size:11px; padding:8px 16px; border:none; background:#FFF; font-weight:bold; color:#007AFF; border-radius:6px;">保存</button>
                 </div>
             </div>
@@ -531,6 +528,7 @@
         }
         function fabAction() { if(conf.subStates[cur] === 'sub02') openEd(null); else toggleFab(); }
         
+        /* 共通アニメーション制御関数 */
         function openWin(id) { 
             const el = document.getElementById(id); el.style.display = 'flex'; 
             setTimeout(() => el.classList.add('active'), 10); 
@@ -552,7 +550,7 @@
                 openWin('ed-list');
             } else {
                 document.getElementById('cn-title').value = i.card?.t || ''; document.getElementById('cn-body').value = i.card?.b || ''; document.getElementById('cn-url').value = i.card?.u || ''; document.getElementById('cn-alt').value = i.card?.a || ''; document.getElementById('cn-cat').value = i.cat || cur;
-                document.getElementById('btn-del-trigger-c').style.display = id ? 'block' : 'none'; 
+                document.getElementById('btn-del-trigger').style.display = id ? 'block' : 'none'; 
                 openWin('ed-card');
             }
         }
