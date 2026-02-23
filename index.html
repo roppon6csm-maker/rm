@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RopMemo v1.92</title>
+    <title>RopMemo v1.93</title>
     <style>
         :root {
             --bg-cate01: #D9D2E9; --bg-cate02: #EAD1DC; --bg-cate03: #FFF2CC; --bg-cate04: #D1EAF0;
@@ -27,12 +27,12 @@
         .tap-ripple.fade-out { transform: translate(-50%, -50%) scale(1.4); opacity: 0; transition: transform 0.4s ease-out, opacity 0.4s ease-out; }
 
         #header-outer { width: 92%; display: flex; flex-direction: column; align-items: flex-end; margin-bottom: 3px; color: #999; position: relative; }
-        /* ロゴテキストを下に4mm(15.2px)移動 */
-        .logo-text { font-size: 26px; font-weight: 900; letter-spacing: -1.5px; cursor: pointer; display: flex; align-items: center; color: #FFF; opacity: 0.8; margin-top: 15.2px; }
-        /* ⚙️マークをさらに下に0.5mm(1.9px)移動 */
+        /* ロゴテキストをさらに4mm下げ(合計30.4px) */
+        .logo-text { font-size: 26px; font-weight: 900; letter-spacing: -1.5px; cursor: pointer; display: flex; align-items: center; color: #FFF; opacity: 0.8; margin-top: 30.4px; }
+        /* ⚙️マークの位置調整 */
         .logo-text span { font-size: 18px; margin-left: 4px; transform: translateY(1.9px); }
-        /* ver名を下に2mm(7.6px)移動 */
-        .ver-text { font-size: 10px; padding-right: 28px; color: #666; margin-top: 2.6px; }
+        /* ver名をロゴに重ならないようギリギリで調整 */
+        .ver-text { font-size: 10px; padding-right: 28px; color: #666; margin-top: 1.5px; }
 
         #main-window { width: 92%; height: calc(44% + 38px); background: var(--base-grey); border-radius: 20px 20px 25px 25px; overflow: hidden; display: flex; flex-direction: column; position: relative; z-index: 5; }
         .tabs { display: flex; background: var(--base-grey); height: 32px; align-items: flex-end; width: 100%; border-bottom: 1px solid rgba(0,0,0,0.05); padding: 0 4px; gap: 1px; }
@@ -166,7 +166,7 @@
 <body onload="boot()">
     <div id="header-outer">
         <div class="logo-text" onclick="openSet()">RopMemo<span>⚙</span></div>
-        <div class="ver-text">ver.1.92</div>
+        <div class="ver-text">ver.1.93</div>
     </div>
 
     <div id="main-window">
@@ -209,7 +209,7 @@
 気になる動画や情報もクイック登録！</div>
             <div class="welcome-logo">『RopMemo』</div>
             <button class="welcome-btn" onclick="cls()">はじめる</button>
-            <div class="welcome-ver">ver.1.92</div>
+            <div class="welcome-ver">ver.1.93</div>
         </div>
     </div>
 
