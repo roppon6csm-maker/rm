@@ -16,10 +16,10 @@ jobs:
       - name: PR Agent Action
         uses: Codium-ai/pr-agent@main
         env:
-          # ここを最新のGemini用設定に合わせます
+          # Geminiの設定
           GOOGLE_AI_STUDIO.GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # モデル名を安定版に変更
-          CONFIG.MODEL: "gemini/gemini-1.5-flash"
-          # PRを自動で作らせる設定を明示
-          PR_AGENT.COMMAND: "/fix" 
+          # ここを修正（モデル名を引用符なしの最新形式に）
+          config.model: gemini/gemini-1.5-flash
+          # 自動マージ予約を有効化
+          pr_agent.at_merge: true
