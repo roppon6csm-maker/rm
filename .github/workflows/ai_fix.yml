@@ -7,6 +7,7 @@ permissions:
   contents: write
   pull-requests: write
   issues: write
+  repository-projects: write
 
 jobs:
   fix_job:
@@ -16,7 +17,7 @@ jobs:
       - name: PR Agent Action
         uses: Codium-ai/pr-agent@main
         env:
-          # PR-Agentが内部で「最優先」で読み込む全ての変数パターンを並べます
+          # すべての認証パターンを網羅
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GOOGLE_AI_STUDIO.GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GEMINI.API_KEY: ${{ secrets.GEMINI_API_KEY }}
