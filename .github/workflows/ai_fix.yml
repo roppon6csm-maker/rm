@@ -16,8 +16,8 @@ jobs:
       - name: PR Agent Action
         uses: Codium-ai/pr-agent@main
         env:
-          # ここをPR-Agentが100%認識する「GEMINI.KEY」に固定します
-          GEMINI.KEY: ${{ secrets.GEMINI_API_KEY }}
+          # ドットを使ったこの形式が現在のGemini用最新ルールです
+          GEMINI.API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # 基本設定
           CONFIG.MODEL: "gemini/gemini-1.5-flash"
