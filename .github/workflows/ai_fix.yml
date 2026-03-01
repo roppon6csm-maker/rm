@@ -16,8 +16,10 @@ jobs:
       - name: PR Agent Action
         uses: Codium-ai/pr-agent@main
         env:
-          # PR-Agentが内部で「最優先」で探しに行く変数名です
+          # PR-Agentが内部で「最優先」で読み込む全ての変数パターンを並べます
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GOOGLE_AI_STUDIO.GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI.API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # 動作設定
           CONFIG.MODEL: "gemini/gemini-1.5-flash"
