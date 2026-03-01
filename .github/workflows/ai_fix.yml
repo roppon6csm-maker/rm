@@ -17,17 +17,11 @@ jobs:
       - name: PR Agent Action
         uses: Codium-ai/pr-agent@main
         env:
-          # すべての認証パターンを網羅
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GOOGLE_AI_STUDIO.GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GEMINI.API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # 動作設定
           CONFIG.MODEL: "gemini/gemini-1.5-flash"
           PR_AGENT.COMMAND: "/fix"
           PR_AGENT.AT_MERGE: "true"
-          # ↓この一行を追加することで「中身を大幅に変えても良い」とAIに許可を出します
           PR_AGENT.PATCH_EXTRA_LINES: "100"
-          # AIの思考制限を解除する安全なフラグのみ追加
-          PR_AGENT.MAX_DESCRIPTION_TOKENS: "2000"
-          PR_AGENT.PRACTICE_BADGE: "false"
