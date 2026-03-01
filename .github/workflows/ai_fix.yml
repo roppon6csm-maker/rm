@@ -10,15 +10,17 @@ permissions:
 
 jobs:
   fix_job:
+    # Issueに "/fix" と書かれた時だけ起動
     if: contains(github.event.comment.body, '/fix')
     runs-on: ubuntu-latest
     steps:
       - name: PR Agent Action
         uses: Codium-ai/pr-agent@main
         env:
-          # ここが修正ポイントです
-          GEMINI.KEY: ${{ secrets.GEMINI_API_KEY }}
+          # ここがGemini APIを確実に通すための最新の記述です
+          GEMINI_KEY: ${{ secrets.GEMINI_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          CONFIG.MODEL: gemini/gemini-1.5-flash
+          # モデル名と基本設定
+          CONFIG.MODEL: "gemini/gemini-1.5-flash"
           PR_AGENT.COMMAND: "/fix"
-          PR_AGENT.AT_MERGE: true
+          PR_AGENT.AT_MERGE: "true"
