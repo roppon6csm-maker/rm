@@ -16,10 +16,10 @@ jobs:
       - name: PR Agent Action
         uses: Codium-ai/pr-agent@main
         env:
-          # PR-Agentが内部で最優先で読み込む変数名に変更
-          GOOGLE_AI_STUDIO_GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          # 最も確実な変数名（これ一本に絞ります）
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # 設定項目
+          # 設定
           CONFIG.MODEL: "gemini/gemini-1.5-flash"
           PR_AGENT.COMMAND: "/fix"
           PR_AGENT.AT_MERGE: "true"
