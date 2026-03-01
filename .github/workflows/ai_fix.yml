@@ -16,10 +16,10 @@ jobs:
       - name: PR Agent Action
         uses: Codium-ai/pr-agent@main
         env:
-          # 最も確実な変数名（これ一本に絞ります）
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          # ここをPR-Agentが100%認識する「GEMINI.KEY」に固定します
+          GEMINI.KEY: ${{ secrets.GEMINI_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # 設定
+          # 基本設定
           CONFIG.MODEL: "gemini/gemini-1.5-flash"
           PR_AGENT.COMMAND: "/fix"
           PR_AGENT.AT_MERGE: "true"
