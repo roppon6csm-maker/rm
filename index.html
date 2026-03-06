@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>RopMemo v1.92</title>
+    <title>RopMemo v1.93</title>
     <style>
         :root {
             --bg-cate01: #D9D2E9; --bg-cate02: #EAD1DC; --bg-cate03: #FFF2CC; --bg-cate04: #D1EAF0;
@@ -163,7 +163,7 @@
 <body onload="boot()">
     <div id="header-outer">
         <div class="logo-text" onclick="openSet()">RopMemo<span>⚙</span></div>
-        <div class="ver-text">ver.1.92</div>
+        <div class="ver-text">ver.1.93</div>
     </div>
 
     <div id="main-window">
@@ -206,7 +206,7 @@
 気になる動画や情報もクイック登録！</div>
             <div class="welcome-logo">『RopMemo』</div>
             <button class="welcome-btn" onclick="cls()">はじめる</button>
-            <div class="welcome-ver">ver.1.92</div>
+            <div class="welcome-ver">ver.1.93</div>
         </div>
     </div>
 
@@ -648,18 +648,21 @@
         async function importExcelAll() {
             try {
                 const text = await navigator.clipboard.readText(); if(!text) { alert("コピーされたデータが見つかりません"); return; }
-                const sections = text.split(/\n\s*\n/);
-                sections.forEach(sec => {
-                    const lines = sec.trim().split(/\r?\n/); if(lines.length < 2) return;
-                    const type = lines[0].trim(); const header = lines[1].split('\t');
-                    for(let i=2; i<lines.length; i++) {
+                const sections = text.split(/\[CARDS\]|\[LISTS\]/);
+                const sectionNames = text.match(/\[CARDS\]|\[LISTS\]/g);
+                if(!sectionNames) { alert("有効なセクション見つかりません。形式を確認してください"); return; }
+                sections.shift();
+                sectionNames.forEach((name, sIdx) => {
+                    const lines = sections[sIdx].trim().split(/\r?\n/); if(lines.length < 2) return;
+                    const header = lines[0].split('\t');
+                    for(let i=1; i<lines.length; i++) {
                         const row = lines[i].split('\t'); if(row.length < 2) continue;
                         const data = {}; header.forEach((h, idx) => data[h] = row[idx] || '');
                         let target = db.find(x => x.id === data.id);
-                        if(type === '[CARDS]') {
+                        if(name === '[CARDS]') {
                             if(target) { target.cat = data.cat || target.cat; target.card = {t:data.t, b:data.b, u:data.u, a:data.a}; }
                             else db.push({ id: data.id || Date.now().toString() + i, cat: data.cat||'none', date: data.date||fmtDate(), card: {t:data.t, b:data.b, u:data.u, a:data.a}, list: {} });
-                        } else if(type === '[LISTS]') {
+                        } else if(name === '[LISTS]') {
                             const lObj = {}; L_KEYS.forEach(k => lObj[k] = data[k] || '');
                             if(target) { target.cat = data.cat || target.cat; target.list = lObj; }
                             else db.push({ id: data.id || Date.now().toString() + i, cat: data.cat||'none', date: data.date||fmtDate(), card: {}, list: lObj });
@@ -667,7 +670,7 @@
                     }
                 });
                 saveAll(); toast("インポート完了");
-            } catch(e) { alert("失敗しました。形式を確認してください。"); }
+            } catch(e) { alert("読み取りに失敗しました。クリップボードへのアクセスを許可してください"); }
         }
         function createCard(v) { db.push({ id: Date.now().toString(), cat:'none', date:fmtDate(), card:{t:'メモ', b:v, u:'', a:''}, list:{} }); saveAll(); }
         async function pasteNew() { try { const t = await navigator.clipboard.readText(); if(!t) return; toggleFab(); createCard(t); go('none'); toast("完了"); } catch(e){} }
@@ -675,4 +678,3 @@
     </script>
 </body>
 </html>
-
